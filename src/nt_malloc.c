@@ -139,13 +139,13 @@ void nt_freeall(void) {
 	free(malloc_pointers);
 	isAllFreed = true;
 }
-void nt_atexit(void) { 
+void nt_atexit(void) {
+	if(isAllFreed != true) { 
+		nt_freeall();
+	} 
 	if(debugflag == true) { 
 		fprintf(stderr, "NT_ATEXIT: Total Number of Allocations: %d\n", total_allocs);
 		fprintf(stderr, "NT_ATEXIT: Total Number of Frees: %d\n", number_of_frees);
-	}
-	if(isAllFreed != true) { 
-		nt_freeall();
 	}
 }
 
