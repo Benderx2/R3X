@@ -95,6 +95,11 @@ macro System.LibraryCall functioname, libname {
 	pop 
 	pop 
 }
+macro System.AllocateMemory size {
+	push size
+	syscall SYSCALL_ALLOC
+	pop
+}
 ; Stores a value to address
 macro StoreInt addr,  integer {
 	pushr R0

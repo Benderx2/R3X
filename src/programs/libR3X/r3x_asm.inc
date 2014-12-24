@@ -6,6 +6,7 @@ define SYSCALL_GLUPDATE 0x3
 define SYSCALL_GETC 0x4
 define SYSCALL_PUTCH 0x5
 define SYSCALL_ATOI 0x6
+define SYSCALL_ALLOC 0x7
 define R0 0
 define R1 1
 define R2 2 

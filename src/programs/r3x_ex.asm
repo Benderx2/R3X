@@ -7,16 +7,14 @@ _init:
 	Console.Write "Feel free to visit https://www.github.com/Benderx2/r3x for more information!"
 	Console.NewLine
 	Console.Write "Press a key to continue"
+	System.AllocateMemory 50
 	Console.Input string, 5
-	loadr R0, _cool
-	pushar R0
-	ret
-_cool:
-	Console.Write "Other func"
-	exit
+	System.Quit 0
 _end_text:	
 _data:
 	string: times 256 db 0
 _end_data:
 _bss:
 _end_bss:
+rb 45
+_cool:

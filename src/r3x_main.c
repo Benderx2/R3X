@@ -40,8 +40,7 @@ int main(int argc, char* argv[])
 	r3_cpu->InstructionPointer = r3_header->r3x_init;
 	r3_cpu->MemorySize = r3_header->total_size + PROG_EXEC_POINT;
 	r3x_cpu_loop(r3_cpu, r3_header);
-	//vm_puts(r3_cpu->Graphics->font, "\nExit called by program. Quit()", r3_cpu->Graphics);
-	printf("Exit Called by program. Quit()\n");
+	printf("Program exitted with status: %u\n", Stack.GetItem(r3_cpu->Stack, r3_cpu->Stack->top_of_stack-1));
 	nt_freeall();
 	exit(0);
 }

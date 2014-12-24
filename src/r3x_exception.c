@@ -16,10 +16,10 @@ void debugger(void) {
 	printstatus();
 	printf("Welcome to REX Debugger, based upon FVM Technology. %s.\nType 'help' for help.", R3X_SYSTEM_VERSION);
 	// go into debugger 
-	(void)a1; (void)a2;
 	while(true) { 
 		memset(str, 0, 80);
 		unsigned int a1 = 0; unsigned int a2 = 0;
+		(void)a1; (void)a2;
 		printf("\n>:");
 		char* assassassassassassass = fgets(str, 80, stdin); // gcc warns for ignoring return values, my ass.
 		(void)assassassassassassass;

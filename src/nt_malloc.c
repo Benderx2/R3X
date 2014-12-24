@@ -42,7 +42,10 @@ void* nt_realloc(void* ptr, size_t size) {
 	for(int i = 0; i < malloc_pointer_sz; i++) { 
 			if((intptr_t)malloc_pointers[i] == (intptr_t)ptr) { 
 				malloc_pointers[i] = realloc(ptr, size);
-				free(ptr);
+				//free(ptr);
+				if(debugflag == true) { 
+					printf("NT_REALLOC: Reallocating pointer: %p, to size: %u, to a new address: %p", ptr, (unsigned int)size, malloc_pointers[i]);
+				}
 				return malloc_pointers[i];			
 			}
 				

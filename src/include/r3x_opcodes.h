@@ -60,4 +60,5 @@
 #define SYSCALL_GETC 0x4
 #define SYSCALL_PUTCH 0x5
 #define SYSCALL_ATOI 0x6
+#define SYSCALL_ALLOC 0x7
 #endif

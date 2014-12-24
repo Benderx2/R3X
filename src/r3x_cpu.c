@@ -9,6 +9,7 @@
 #include <r3x_native.h>
 #include <r3x_graphics.h>
 #include <r3x_exception.h>
+#include <nt_malloc.h>
 int r3x_emulate_instruction(r3x_cpu_t* CPU);
 uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
 uint32_t return_32bit_int_from_ip(r3x_cpu_t*);
@@ -176,6 +177,14 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 					raise(SIGSEGV);
 				}
 				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)]));			
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ALLOC) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > 4096) { 
+					printf("Attempt to allocate memory more than 4096 bytes at once\n");
+					raise(SIGSEGV);
+				}	
+				CPU->MemorySize += Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1);
+				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
 			}
 			else {
 				printf("Invalid Argument passed to R3X_SYSCALL\n");

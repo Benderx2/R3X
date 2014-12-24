@@ -14,6 +14,7 @@ The following system calls are to be defined in every implementation which confo
 <b><i>SYSCALL_PUTI/SYSCALL_PUTF</i></b> - Print an integer/float pushed to stack to stdout or any other graphics device assumed to be stdout<br>
 <b><i>SYSCALL_GETC</i></b> - Get a character from stdout.<br>
 <b><i>SYSCALL_ATOI</i></b> - Convert string which is pointed by the last value pushed to stack, and push the converted value to stack. <br>
-<b><i>SYSCALL_ALLOC, SYSCALL_FOPEN, SYSCALL_FREAD, SYSCALL_FWRITE</i></b> - Planned, not there in offical implementation yet. <br>
+<b><i>SYSCALL_ALLOC</b></i> - Allocate memory, size should be pushed on stack. No longer than 4096 bytes must be allocated at once, This ensures that allocations are not erroneous.<br>
+<b><i>SYSCALL_FOPEN, SYSCALL_FREAD, SYSCALL_FWRITE</i></b> - Planned, not there in offical implementation yet. <br>
 </font>
 </html>
