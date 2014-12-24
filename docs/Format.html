@@ -1,0 +1,53 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<font color=#0 face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>Executable Format</h2>
+REX uses it's own executable format for loading programs, the structure for a REX executable program is thus defined <br>
+in src/include/r3x_format.h:5<br>
+<textarea name="code" class="c#" cols="60" rows="10">
+typedef struct r3x_header {
+	uint32_t header_id;
+	uint32_t r3x_init;
+	uint32_t r3x_text_size;
+	uint32_t r3x_data;
+	uint32_t r3x_data_size;
+	uint32_t r3x_bss;
+	uint32_t r3x_bss_size;
+	uint32_t stack_size;
+	uint32_t total_size;
+	uint8_t name[8];
+	uint8_t pulibsher[8];
+} r3x_header_t;
+</textarea>
+<h3>Description</h3>
+<pre>
+<b><i>uint32_t header_id</i></b>: A magic number used for identification. 0xBA5EBA11 as defined by the REX standard.<br>
+<b><i>uint32_t r3x_init</i></b>: Pointer to the program's start function.<br>
+<b><i>uint32_t r3x_text_size</i></b>: Size of the .text section.<br>
+<b><i>uint32_t r3x_data</i></b>: Pointer to the program's data function.<br>
+<b><i>uint32_t r3x_data_size</i></b>: Size of the data section<br>
+<b><i>uint32_t r3x_bss</i></b>: Pointer to the program's BSS section.<br>
+<b><i>uint32_t r3x_bss_size</i></b>: Size of the bss section<br>
+<b><i>uint32_t stack_size</i></b>: Size of Stack (depends upon how the implementation treats it. Official implementation does not use this value)<br>
+<b><i>uint8_t name[8] / publisher[8]</i></b>: Name of program and publisher in 8-bytes.<br>
+</pre>
+<h3>Writing a program</h3>
+<pre>
+The template defined by the standard is thus, <br>
+<textarea name="code" class="c#" cols="60" rows="10">
+include 'libR3X/libR3X.inc'
+_init:
+	; Code here
+_end_text:
+_data:
+	; Data Here
+_end_data:
+_bss:
+	; Uninitialised Values here
+_end_bss:
+</textarea>
+</font>
+</html>

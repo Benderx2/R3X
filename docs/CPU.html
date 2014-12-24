@@ -1,0 +1,90 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<font color=#0 face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>CPU</h2>
+<h3>Introduction</h3>
+<pre>
+The REX CPU is a 32-bit stack based (with registers) virtual machine. It is based upon the Flouronix Machine Architecture, 
+with key differences.
+</pre>
+<h3>CPU Structure</h3>
+The CPU structure used by the REX Virtual Machine is defined in src/include/r3x_cpu.h:25<br>
+<textarea name="code" class="c#" cols="60" rows="10">
+typedef struct r3x_cpu { 
+	uint8_t* Memory;
+	uint32_t ISR_handlers[256];
+	vstack_t* Stack;
+	vstack_t* CallStack;
+	Graphics_t* Graphics;
+	unsigned int InstructionPointer;
+	int ErrorCode;
+	bool EqualFlag;
+	bool GreaterFlag;
+	bool LesserFlag;
+	bool ZeroFlag;	
+	int Regs[5];
+	unsigned int CurrentInstruction;
+	unsigned int MemorySize;
+	ObjectList_t* ObjectList;
+} r3x_cpu_t;
+</textarea>
+</code>
+<h4>Description</h4>
+<pre>
+<b><i>uint8_t* Memory</i></b>: An 8-bit pointer to the CPU's memory buffer<br>
+<b><i>uint32_t ISR_handlers[256]</i></b>: A 32-bit array containing <i>relative</i> addresses to corresponding interrupt handlers.<br>
+<b><i>vstack_t* Stack and vstack_t* CallStack</i></b>: Pointer to a special structure which functions like a Stack.<br>
+<b><i>Graphics_t* Graphics</i></b>: Pointer to a special structure which functions like a graphics output device.<br>
+<b><i>int ErrorCode</i></b>: Used by CPU to track errors.<br>
+<b><i>bool EqualFlag, GreaterFlag, LesserFlag, ZeroFlag</i></b>: CPU's EF, GF, LF, ZF flags.<br>
+<b><i>int Regs[5]</i></b>: Array of integers containing CPU's registers<br>
+<b><i>unsigned int CurrentInstruction</i></b>: Stores the current instruction executed by CPU (for debugging purposes).<br>
+<b><i>unsigned int MemorySize</i></b>: Total memory size of CPU<br>
+<b><i>ObjectList_t* ObjectList</i></b>: List of objects maintained by the CPU<br>
+</pre>
+<h3>CPU Instructions</h3>
+<pre>
+<b>push</b> <i>imm</i> - Pushes an <i>immediate</i> to stack. 
+<b>pop</b> - Pops value from stack.
+<b>pushstring</b> <i>immediate string</i> - Pushes an immediate string to stack. 
+<b>pusha</b> <i>imm</i> - Pushes an address to Call Stack.
+<b>popa</b> <i>imm</i> - Pops an address from Call Stack.
+<b>add</b> - Adds last 2 integers pushed on stack, and pushes the result
+<b>sub</b> - Subtracts the last integer pushed on stack, from the second last, and pushes result
+<b>mul</b> - Multiplies the last 2 integers pushed, and pushes the result.
+<b>div</b> - Divides the second last pushed integer by the last, and pushes result
+<b>fadd, fsub, fdiv, fmul</b> - Floating point variants of the instructions above.
+<b>slp</b> - Sleep instruction, delay by 1 cycle.
+<b>cmp</b> - Compare the last 2 values on stack, and set flags accordingly. NOTE: EF and GF flags will be set if the second last value is greater or lesser than the first if both are 0 then ZF is set.
+<b>jmp, je, jg, jl, jz</b> <i>imm</i> - Jump, Jump If Equal, Jump if Greater, Jump if Lesser, Jump if Zero
+<b>dup</b> - Duplicate value last pushed.
+<b>load</b> - Load from address pushed to stack, and push the value (32-bit)
+<b>loads</b> <i>imm</i> - Load from an offset in Stack, and push value (32-bit)
+<b>store</b> - Store the value last pushed to stack, to the address, pushed second last (32-bit)
+<b>or, xor, and</b> <i>imm</i> - Do the appropriate bitwise operation on the value last pushed by imm.
+<b>neg, not</b> - Does the apporpriate bitwise operation on the last 2 values pushed to stack
+<b>call</b> <i>imm</i> - Push return value to stack and jump to imm.
+<b>ret</b> - Returns to address popped from Call Stack.
+<b>loadr</b> <i>register index</i>, <i>imm</i> - Load register with immediate
+<b>pushr</b> <i>register index</i> - Push a register on stack
+<b>popr</b> <i>register index</i> - Pop a register from stack
+<b>pushar</b> <i>register index</i> - Pushes a register to call stack
+<b>popar</b> <i>register index</i> - Pops a register from call stack
+<b>lodsb</b> - Loads a byte from address R0 to R1 (8-bit)
+<b>stosb</b> - Stores register R1 to address R0 (8-bit)
+<b>lodsd, stosd</b> - 32-bit equivalents of the above
+<b>cmpr</b> <i>register index 1</i> <i>register index 2</i> - Compares 2 registers
+<b>incr, decr</b> <i>register index</i> - Increments/Decrements a register
+<b>int</b> <i>isr</i> - Interrupts program execution, and calls the address assigned to interrupt number "isr"
+<b>loadi</b> <i>isr</i> <i>addr</i> - Assigns address "addr" to interrupt number "isr".
+<b>memcpy</b> - Copies a chunk of memory, destination is the 3rd last value pushed, source is the 2nd last, and size is the last.
+<b>loadlib</b> - Loads a dynamic native library, the last value pushed to stack must be a pointer to a string containing the library's exact location.
+<b>libexec</b> - Calls a function from the library, 2nd last value pushed to stack = pointer to string containing library name, last value must be a pointer to string containing function name. (both must be 0 terminated)
+<b>syscall</b> <i>imm</i> - Call VMs internal functions (NOTE: IMPLEMENTATION DEFINED)
+<b>exit</b> - Returns a CPU_EXIT_SIGNAL, and quits the program..
+
+</font>
+</html>

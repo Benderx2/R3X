@@ -1,0 +1,30 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<font color=#0 face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>Using the REX VM</h2>
+<h3>Compiling</h3>
+<pre>
+First install OpenGL, SDL, SDL_ttf, and SDL_image libraries.
+Install FASM to compile programs.
+Install the GNU C Compiler and glibc. (or libcs should work fine).
+Ensure you system has a bash interpreter.
+Ensure your system supports dynamic linking.
+Under "src/build.sh" change ARCHFLAGS to "-m32" if using a 32-bit system,
+Run "src/build.sh" with executable permissions (on UNIX-compliant systems use "chmod +x ./build.sh"
+Done.
+</pre>
+<h3>Running</h3>
+<pre>
+Run with: ./r3x_vm.out "name of executable"
+</pre>
+<h3>Documentation</h3>
+<pre>
+<a href="CPU.html">CPU</a> 
+<a href="BIOS.html">BIOS</a>
+<a href="libR3X.html">libR3X</a>
+<a href="Memory.html">Memory</a> 
+<a href="Format.html">Format</a> 
+<a href="Syscalls.html">Syscalls</a> 

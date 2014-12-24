@@ -1,0 +1,25 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<font color=#0 face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>libR3X - REX Standard Library</h2>
+libR3X is a library provided by the offical REX CPU implementation, it contains useful macro instructions and defines that can used by the<br>
+program.<br>
+The current implementation provides the following functions:<br>
+<pre>
+<b>Console.Write "String"</b> - Writes an unformatted string to stdout or graphics device assumed to be stdout.
+<b>Console.NewLine</b> - Writes a newline character to stdout or graphics device assumed to be stdout.
+<b>Console.WriteFloat</b> - Writes an IEEE754 floating point number pushed on stack to stdout or graphics device assumed to be stdout.
+<b>Console.WriteInt</b> - Writes a 32-bit integer pushed on stack to stdout or graphics device assumed to be stdout.
+<b>Console.WritePointer addr</b> - Write an unformatted string pointer by "addr", to stdout or graphics device assumed to be stdout.
+<b>Console.WaitKey</b> - Waits for keypress and returns.
+<b>Console.GetInput size, addr</b> - Get input from console into string pointed by "addr", with size "size".
+<b>Memcpy dest, src, len</b> - Copies a chunk of memory.
+<b>MemcpyR</b> - Copies a chunck of memory but uses registers. R0 = dest, R1 = src, R2 = len
+<b>Stack.Push, Stack,Pop, Stack.PushRegister, Stack.PopRegister</b> - Class based push, pop, pushr and popr functions.
+<b>StoreInt addr, int | StoreByte addr, byte</b> Stores an 8/32-bit value in "int" to address pointed by "addr"
+</pre>
+</font>
+</html>

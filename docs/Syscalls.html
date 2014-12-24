@@ -1,0 +1,19 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<font color=#0 face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>Syscalls</h2>
+The <b>syscall</b> instruction is provided by the CPU, however what it means is totally implementation defined.<br>
+Due to this, REX programs will have huge problems while running on different implementations, to solve this problem<br>
+the standard defines 9 system calls which need to be present in every implementation. <br>
+The following system calls are to be defined in every implementation which conforms to the REX standard.<br>
+<b><i>SYSCALL_PUTCH</i></b> - Print an 8-bit ASCII character pushed to stack to stdout or any other graphics device assumed to be stdout<br>
+<b><i>SYSCALL_PUTS</i></b> - Print an unformatted string to program's stdout or any other graphics device which is assumed to be stdout.<br>
+<b><i>SYSCALL_PUTI/SYSCALL_PUTF</i></b> - Print an integer/float pushed to stack to stdout or any other graphics device assumed to be stdout<br>
+<b><i>SYSCALL_GETC</i></b> - Get a character from stdout.<br>
+<b><i>SYSCALL_ATOI</i></b> - Convert string which is pointed by the last value pushed to stack, and push the converted value to stack. <br>
+<b><i>SYSCALL_ALLOC, SYSCALL_FOPEN, SYSCALL_FREAD, SYSCALL_FWRITE</i></b> - Planned, not there in offical implementation yet. <br>
+</font>
+</html>
