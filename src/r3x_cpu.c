@@ -14,6 +14,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU);
 uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
 uint32_t return_32bit_int_from_ip(r3x_cpu_t*);
 float return_float(uint32_t num32);
+int keyboard_thread(void* data);
 uint32_t return_int_from_float(float fl32);
 void printfstring(char* string, const char * format, ... );
 void compare_and_set_flag(r3x_cpu_t* CPU, int op1, int op2);
@@ -30,15 +31,19 @@ typedef union __float_typecast {
 } __float_typecast;
 __32bit_typecast temp_typecast32;
 __float_typecast temp_typecastFL;
+bool is_read = true;
 char keycode = 0;
 int code = 0;
 SDL_Event key_event = {SDL_USEREVENT};
 int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 {
+	SDL_Thread *kthread = NULL;
+	kthread = SDL_CreateThread(keyboard_thread, NULL );
 	code = 0;
 	while (CPU->InstructionPointer < header->r3x_init + header->r3x_text_size && code != CPU_EXIT_SIGNAL && code != CPU_INVALID_OPCODE_SIGNAL){
 			code = r3x_emulate_instruction(CPU);
 	}
+	SDL_KillThread(kthread);
 	return 0;
 }
 int r3x_emulate_instruction(r3x_cpu_t* CPU)
@@ -149,7 +154,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETC){
-				keycode = 0;
+				/*keycode = 0;
 				if(SDL_WaitEvent(&key_event))
 				{
 					if(key_event.type == SDL_QUIT)
@@ -162,8 +167,18 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 						//SDL_EnableUNICODE( SDL_ENABLE );
 						keycode = (char)key_event.key.keysym.unicode;
 					}
+				}*/
+				// Ensure the there !IS! a keyboard interrupt, our thread will set the is_read value to false if there is.
+				if(is_read == false) {
+					is_read = true; 
+					Stack.Push(CPU->Stack, keycode);
 				}
-				Stack.Push(CPU->Stack, keycode);
+				// To prevent race condition, push 0 if is_read == false;
+				else {		
+					
+					Stack.Push(CPU->Stack, 0);				
+				}
+				
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GLUPDATE){
 				gl_text_update(CPU->Graphics);		
@@ -422,4 +437,29 @@ void printfstring(char* string, const char * format, ... )
   va_start (args, format);
   vsprintf (string,format, args);
   va_end (args);
+}
+int keyboard_thread(void* data) { 
+	(void)data;
+	while(true) {
+		if(SDL_WaitEvent(&key_event))
+		{
+			if(key_event.type == SDL_QUIT)
+			{
+				return -1;
+			}
+			//If a key was pressed
+			else if(key_event.type == SDL_KEYDOWN)
+			{
+				
+				if(is_read == true)  {
+					//SDL_EnableUNICODE( SDL_ENABLE );
+					keycode = (char)key_event.key.keysym.unicode;
+					is_read = false;
+				}
+			}
+		}	
+		if(is_read == true)  { 
+				keycode = 0;
+		}
+	}
 }
