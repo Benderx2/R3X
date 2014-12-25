@@ -119,6 +119,7 @@ void printstatus(void) {
 	printf("R0: %d | R1 : %d | R2 : %d | R3 : %d | R4 : %d |\n", r3_cpu->Regs[0], r3_cpu->Regs[1], r3_cpu->Regs[2], r3_cpu->Regs[3], r3_cpu->Regs[4]);
 	printf("-->|CPU Flags|\n");
 	printf("Equal: %s, Zero: %s, Greater: %s, Lesser: %s\n", r3_cpu->EqualFlag ? "true" : "false", r3_cpu->ZeroFlag ? "true" : "false", r3_cpu->GreaterFlag ? "true" : "false", r3_cpu->LesserFlag ? "true" : "false");
+	printf("Current Domain ID: %u\n", r3_cpu->RootDomain->CurrentJobID);
 	if(r3_cpu->InstructionPointer > r3_cpu->MemorySize) {
 		printf("Exception: Instruction Pointer overflow\n");
 	}

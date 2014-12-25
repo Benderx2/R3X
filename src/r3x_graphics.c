@@ -23,8 +23,8 @@ Graphics_t* InitGraphics(void)
 		fprintf(stderr, "Can't gather Video Information: %s\n", SDL_GetError());
 		exit(1);
 	}
-	graphics->Width = 640;
-	graphics->Height = 480;
+	graphics->Width = 720;
+	graphics->Height = 540;
 	graphics->Depth = graphics->VideoInfo->vfmt->BitsPerPixel;
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
     	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);

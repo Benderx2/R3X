@@ -100,6 +100,11 @@ macro System.AllocateMemory size {
 	syscall SYSCALL_ALLOC
 	pop
 }
+macro System.DispatchJob ip { 
+	push ip
+	syscall SYSCALL_DISPATCH 
+	pop
+}
 ; Stores a value to address
 macro StoreInt addr,  integer {
 	pushr R0

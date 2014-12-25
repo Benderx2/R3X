@@ -8,7 +8,7 @@ export IFLAGS="-I$INCLUDE_DIR"
 export OFLAGS="-O2"
 export DFLAGS="-g"
 export LFLAGS="-lc -lm -lSDL -lSDL_ttf -lSDL_image -ldl -lGL -rdynamic"
-export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_font.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_native.o r3x_stack.o r3x_graphics.o libntmalloc.a"
+export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_font.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_native.o r3x_stack.o r3x_graphics.o r3x_dispatcher.o libntmalloc.a"
 set -x
 # Compile libntmalloc
 gcc -m64 -c nt_malloc.c -o nt_malloc.o -std=gnu99 -I$INCLUDE_DIR
@@ -24,6 +24,7 @@ gcc $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_stack.c -o r3x_stack.o
 gcc $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_graphics.c -o r3x_graphics.o
 gcc $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_exception.c -o r3x_exception.o
 gcc $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_bios.c -o r3x_bios.o
+gcc $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_dispatcher.c -o r3x_dispatcher.o
 gcc -o r3x_vm.out $LINKER_FILES $LFLAGS
 # compile programs
 fasm programs/r3x_ex.asm

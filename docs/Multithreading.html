@@ -1,0 +1,26 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<style>
+body {
+  background-image: url(data/background.jpg);
+  background-size: cover;
+}
+</style>
+<font color=#FFFFFF face="Verdana">  
+<h1>REX Virtual Machine Documentation</h1>
+<h2>Multithreading</h2>
+The REX CPU supports multithreading through the CPU Dispatcher which dispatches jobs to the CPU's Root Domain.<br>
+The CPU's root domain is made up of sub-domains which contain threading information<br>
+To dispatch a job to a sub-domain, simply do: (libR3X):<br>
+<pre>System.DispatchJob job
+...
+job:
+	loadr R0, value
+	code here...
+
+</pre>
+To exit from a job, use System.Quit, (note that the exit instruction works differently for the "main" domain and other domains, when the main<br>
+domain exits all sub-domains are closed, but when a sub-domain exits, no modification is done to the other domains<br>
+Planned support for pausing, and exitting tasks from the main domain..<br>

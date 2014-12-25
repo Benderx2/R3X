@@ -37,12 +37,20 @@ int code = 0;
 SDL_Event key_event = {SDL_USEREVENT};
 int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 {
+	r3x_dispatch_job(header->r3x_init, 1, CPU->RootDomain, true);
+	// Initialise keyboard thread.
 	SDL_Thread *kthread = NULL;
 	kthread = SDL_CreateThread(keyboard_thread, NULL );
 	code = 0;
 	while (CPU->InstructionPointer < header->r3x_init + header->r3x_text_size && code != CPU_EXIT_SIGNAL && code != CPU_INVALID_OPCODE_SIGNAL){
-			code = r3x_emulate_instruction(CPU);
+			int i = r3x_load_job_state(CPU, CPU->RootDomain);
+			if(i != -1) { 
+				code = r3x_emulate_instruction(CPU);
+				r3x_save_job_state(CPU, CPU->RootDomain);
+			}
+			CPU->RootDomain->CurrentJobID++;
 	}
+	// Kill it, We're done.
 	SDL_KillThread(kthread);
 	return 0;
 }
@@ -162,7 +170,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 						return CPU_EXIT_SIGNAL;
 					}
 					//If a key was pressed
-					else if(key_event.type == SDL_KEYDOWN)
+					else if(key_event.type randomjob== SDL_KEYDOWN)
 					{
 						//SDL_EnableUNICODE( SDL_ENABLE );
 						keycode = (char)key_event.key.keysym.unicode;
@@ -200,6 +208,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				}	
 				CPU->MemorySize += Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1);
 				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_DISPATCH) {
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize){
+					raise(SIGSEGV);
+				}
+				r3x_dispatch_job(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), 1, CPU->RootDomain, true);
+							
 			}
 			else {
 				printf("Invalid Argument passed to R3X_SYSCALL\n");
@@ -322,11 +337,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] += 1;
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			break;
 		case R3X_DECR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= 4) {
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] -= 1;
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			break;
 		case R3X_INT:
 			if(CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]] != 0) {
 				Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_DOUBLE);
@@ -363,9 +380,15 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;	
 		case R3X_EXIT:
-			return -2;
+			//printf("Current Job ID: %u\n", CPU->RootDomain->CurrentJobID);
+			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {		
+				r3x_exit_job(CPU->RootDomain);
+				return -2; // Main exitted close everything and return...
+			}
+			r3x_exit_job(CPU->RootDomain);
+			return 0;
 		default:
-			printf("Unknown Opcode: %u, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);
+			printf("Unknown Opcode: %x, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);
 			raise(SIGSEGV);
 	}
 	return 0;
@@ -445,7 +468,7 @@ int keyboard_thread(void* data) {
 		{
 			if(key_event.type == SDL_QUIT)
 			{
-				return -1;
+				exit(0);
 			}
 			//If a key was pressed
 			else if(key_event.type == SDL_KEYDOWN)

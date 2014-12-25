@@ -10,7 +10,7 @@ bool isAllFreed = false;
 int nt_malloc_init(bool flag) { 
 	if(already_init == false) { 
 		malloc_pointers = malloc(16*sizeof(void**));
-		malloc_pointer_sz = 16;
+		malloc_pointer_sz = 15;
 		for(int i = 0; i < malloc_pointer_sz; i++) { 
 			malloc_pointers[i] = NULL;
 		}
@@ -40,11 +40,15 @@ void* nt_realloc(void* ptr, size_t size) {
 	}
 	// Is it allocated?
 	for(int i = 0; i < malloc_pointer_sz; i++) { 
-			if((intptr_t)malloc_pointers[i] == (intptr_t)ptr) { 
-				malloc_pointers[i] = realloc(ptr, size);
-				//free(ptr);
+			if(malloc_pointers[i] == ptr) { 
+				void* tmp = realloc(ptr, size);
+				if(tmp==NULL) {
+					fprintf(stderr, "NT_REALLOC: Realloc return NULL. ABORING..");
+					exit(0);
+				}
+				malloc_pointers[i] = tmp;
 				if(debugflag == true) { 
-					printf("NT_REALLOC: Reallocating pointer: %p, to size: %u, to a new address: %p", ptr, (unsigned int)size, malloc_pointers[i]);
+					fprintf(stdout, "NT_REALLOC: Reallocating pointer: %p, to size: %u, to a new address: %p", ptr, (unsigned int)size, malloc_pointers[i]);
 				}
 				return malloc_pointers[i];			
 			}
@@ -68,27 +72,27 @@ void* nt_malloc(size_t size) {
 	void* new_ptr = malloc(size);
 	if(new_ptr == NULL) { 
 		if(debugflag==true){
-			fprintf(stderr, "NT_MALLOC: malloc returned NULL.\n");
+			fprintf(stderr, "NT_MALLOC: malloc returned NULL. ABORTING..\n");
 		}
-		return NULL;
+		exit(1);
 	}
 	if(debugflag==true) { 
 		fprintf(stdout, "NT_MALLOC: allocated %u bytes of memory for allocation no. %u at address %p\n", (unsigned int)size, total_allocs, new_ptr); 
 	}
-	isAllFreed = true;
+	isAllFreed = false;
 	// Clear memory range...
 	memset(new_ptr, 0, size);
 	// Now check if we are out of space in our pointer buffer
-	if(number_of_allocs > malloc_pointer_sz) {
+	if(number_of_allocs >= malloc_pointer_sz) {
 		void** new_buf = malloc((malloc_pointer_sz + 16)*sizeof(void**));
 		for(int i = 0; i < malloc_pointer_sz + 16; i++) { 
 			new_buf[i] = NULL;		
 		}
-		for(int i = 0; i < malloc_pointer_sz; i++) { 
+		for(int i = 0; i < malloc_pointer_sz; i++) {
 			new_buf[i] = malloc_pointers[i];
 		}
-		malloc_pointers = new_buf;
 		free(malloc_pointers);
+		malloc_pointers = new_buf;
 		malloc_pointer_sz += 16;
 	}
 	// Find a NULL pointer in array and assign it.
