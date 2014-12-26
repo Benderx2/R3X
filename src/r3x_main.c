@@ -11,7 +11,6 @@
 #include <r3x_bios.h>
 #include <nt_malloc.h>
 #include <assert.h>
-#include <macros.h>
 r3x_cpu_t* r3_cpu = NULL;
 r3x_header_t* r3_header = NULL;
 void quitSDL(void);
@@ -30,8 +29,6 @@ int main(int argc, char* argv[])
 	r3x_header_t* bios_header = nt_malloc(sizeof(r3x_header_t));
 	memset(r3_cpu, 0, sizeof(r3x_cpu_t));
 	r3_cpu->Memory = r3x_load_executable(argv[1], r3_header);
-	//r3_cpu->Stack = Stack.Create();
-	//r3_cpu->CallStack = Stack.Create();
 	r3_cpu->Graphics = InitGraphics();
 	r3_cpu->Graphics->font = loadfont("./bios/128x128.png");
 	r3_cpu->MemorySize = 512;

@@ -7,6 +7,7 @@ int total_allocs = 0;
 bool debugflag = false;
 bool already_init = false;
 bool isAllFreed = false;
+size_t total_size_used = 0;
 int nt_malloc_init(bool flag) { 
 	if(already_init == false) { 
 		malloc_pointers = malloc(16*sizeof(void**));
@@ -35,6 +36,7 @@ void* nt_realloc(void* ptr, size_t size) {
 		nt_freeall();
 		exit(EXIT_FAILURE);
 	}
+	total_size_used += size;
 	if(ptr == NULL) { 
 		return nt_malloc(size); // Return malloc'd buffer if ptr == NULL
 	}
@@ -68,6 +70,7 @@ void* nt_malloc(size_t size) {
 		nt_freeall();
 		exit(EXIT_FAILURE);
 	}
+	total_size_used += size;
 	// Allocate memory and check if it's NULL
 	void* new_ptr = malloc(size);
 	if(new_ptr == NULL) { 
@@ -144,12 +147,14 @@ void nt_freeall(void) {
 	isAllFreed = true;
 }
 void nt_atexit(void) {
+	if(debugflag == true) { 
+		fprintf(stdout, "NT_ATEXIT: Total Number of Allocations: %d\n", total_allocs);
+		fprintf(stdout, "NT_ATEXIT: Total Number of Frees: %d\n", number_of_frees);
+		fprintf(stdout, "Don't worry we'll free it for ya!\n");
+		fprintf(stdout, "Total Memory used by application (using nt_malloc, nt_realloc, nt_calloc) %zu bytes\n", total_size_used);
+	}
 	if(isAllFreed != true) { 
 		nt_freeall();
 	} 
-	if(debugflag == true) { 
-		fprintf(stderr, "NT_ATEXIT: Total Number of Allocations: %d\n", total_allocs);
-		fprintf(stderr, "NT_ATEXIT: Total Number of Frees: %d\n", number_of_frees);
-	}
 }
 

@@ -10,6 +10,7 @@
 #include <r3x_graphics.h>
 #include <r3x_exception.h>
 #include <nt_malloc.h>
+bool exitcalled = false;
 int r3x_emulate_instruction(r3x_cpu_t* CPU);
 uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
 uint32_t return_32bit_int_from_ip(r3x_cpu_t*);
@@ -43,6 +44,9 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 	kthread = SDL_CreateThread(keyboard_thread, NULL );
 	code = 0;
 	while (CPU->InstructionPointer < header->r3x_init + header->r3x_text_size && code != CPU_EXIT_SIGNAL && code != CPU_INVALID_OPCODE_SIGNAL){
+			if(exitcalled == true) { 
+				break;
+			}
 			int i = r3x_load_job_state(CPU, CPU->RootDomain);
 			if(i != -1) { 
 				code = r3x_emulate_instruction(CPU);
@@ -313,33 +317,33 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LOADR:
-			if(CPU->Memory[CPU->InstructionPointer+1] <= 4) {
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer])] = return_32bit_int_from_ip(CPU);	
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_PUSHR:
-			if(CPU->Memory[CPU->InstructionPointer+1] <= 4) {
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				Stack.Push(CPU->Stack, CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])]);
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
 		case R3X_POPR:
-			if(CPU->Memory[CPU->InstructionPointer+1] <= 4) {
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				int a = Stack.Pop(CPU->Stack);
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] = a;
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;	
 		case R3X_INCR:
-			if(CPU->Memory[CPU->InstructionPointer+1] <= 4) {
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] += 1;
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
 		case R3X_DECR:
-			if(CPU->Memory[CPU->InstructionPointer+1] <= 4) {
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] -= 1;
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
@@ -366,14 +370,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_PUSHAR:
-			if(CPU->Memory[CPU->InstructionPointer+1] <= 4) {
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				Stack.Push(CPU->CallStack, CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])]);
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
 		case R3X_POPAR:
-
-			if(CPU->Memory[CPU->InstructionPointer+1] <= 4) {
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				int a = Stack.Pop(CPU->CallStack);
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] = a;
 			}
@@ -468,7 +471,7 @@ int keyboard_thread(void* data) {
 		{
 			if(key_event.type == SDL_QUIT)
 			{
-				exit(0);
+				exitcalled = true;
 			}
 			//If a key was pressed
 			else if(key_event.type == SDL_KEYDOWN)

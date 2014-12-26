@@ -34,6 +34,7 @@ typedef struct r3x_global_domain {
 	unsigned int NumberOfActiveJobs;
 	unsigned int TotalNumberOfJobs;
 } r3x_global_domain_t;
+#define MAX_NUMBER_OF_REGISTERS 15
 typedef struct r3x_cpu {
 	uint8_t* Memory;
 	uint32_t ISR_handlers[256];
@@ -46,7 +47,7 @@ typedef struct r3x_cpu {
 	bool GreaterFlag;
 	bool LesserFlag;
 	bool ZeroFlag;	
-	int Regs[5];
+	uint32_t Regs[16];
 	unsigned int CurrentInstruction;
 	unsigned int MemorySize;
 	unsigned int CurrentJobID;

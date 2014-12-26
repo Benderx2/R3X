@@ -12,8 +12,6 @@
 #include <SDL/SDL_image.h>
 #include <GL/glew.h>
 #include <GL/gl.h>
-//#include <GL/glut.h>
-#include <macros.h>
 typedef struct font {
 	GLuint display_list;
 	GLuint mat_list;

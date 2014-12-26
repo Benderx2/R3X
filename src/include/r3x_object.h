@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <r3x_stack.h>
-#include <macros.h>
 typedef enum ObjectType {
 	R3X_OBJECT_INT,
 	R3X_OBJECT_STRING,

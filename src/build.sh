@@ -2,6 +2,7 @@
 echo "REX Compilation Script, version 0.03"
 export ARFLAGS="-rsc"
 export INCLUDE_DIR="./include/"
+export BINDIR="../bin64" # Change to ../bin32 for 32-bit
 export ARCHFLAGS="-m64" # Change to -m32 for 32-bit
 export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -fstack-protector-all"
 export IFLAGS="-I$INCLUDE_DIR"
@@ -30,10 +31,10 @@ gcc -o r3x_vm.out $LINKER_FILES $LFLAGS
 fasm programs/r3x_ex.asm
 fasm programs/bios.asm
 # now transfer it 
-mv r3x_vm.out ../bin/
-mv programs/r3x_ex.bin ../bin
-mv programs/bios.bin ../bin/bios
-mv *.a ../bin/lib/
+mv r3x_vm.out $BINDIR/
+mv programs/r3x_ex.bin $BINDIR/
+mv programs/bios.bin $BINDIR/bios
+mv *.a $BINDIR/lib/
 # remove all object files
 rm *.o
 set +x

@@ -9,7 +9,7 @@ r3x_global_domain_t* r3x_init_domain(void) {
 	Domain->TotalNumberOfJobs = 16;
 	return Domain;
 }
-void r3x_dispatch_job(int InstructionPointer, int CycleUpdate, r3x_global_domain_t* Domain, bool ismain) {
+unsigned int r3x_dispatch_job(int InstructionPointer, int CycleUpdate, r3x_global_domain_t* Domain, bool ismain) {
 	if(Domain->NumberOfActiveJobs >= Domain->TotalNumberOfJobs) { 
 		Domain->Jobs = nt_realloc(Domain->Jobs, sizeof(r3x_job_t*) * (Domain->TotalNumberOfJobs + 16));
 		Domain->TotalNumberOfJobs += 16;
@@ -26,7 +26,7 @@ void r3x_dispatch_job(int InstructionPointer, int CycleUpdate, r3x_global_domain
 			Domain->Jobs[i]->JobID = i;
 			Domain->Jobs[i]->paused = false;
 			Domain->NumberOfActiveJobs++;
-			return;
+			return i;
 		}	
 	}
 	printf("DISPATCHER: Unable to find free pointer. Please report this bug!\n");

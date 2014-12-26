@@ -6,6 +6,7 @@ extern r3x_cpu_t* r3_cpu;
 char str[81];
 char str2[81];
 void printstatus(void);
+void printregstatus(void);
 void debugger(void);
 void REX_EXCEPTION_HANDLER(int SIGNUM) {
 	(void)SIGNUM;
@@ -29,7 +30,7 @@ void debugger(void) {
 			printf("status --- Print information about program, CPU and Stack\n");
 			printf("memprobe x -- prints a 32-bit integer @ x address in VM memory\n");
 			printf("setip x -- Sets an Instruction Pointer\n");
-			printf("setreg 1/2/3/4 x - Sets a register to value x\n");
+			printf("setreg 1-15 x - Sets a register to value x\n");
 			printf("push x -- Pushes value x to stack\n");
 			printf("pop -- Pops from Stack\n");
 			printf("continue -- Continues execution\n");
@@ -72,7 +73,7 @@ void debugger(void) {
 			a1 = 0; a2 = 0;
 			a1 = atoi(strtok(NULL, " "));
 			a2 = atoi(strtok(NULL, " "));	
-			if(a1 > 4) { 
+			if(a1 > MAX_NUMBER_OF_REGISTERS) { 
 				printf("Invalid Register\n");
 			}
 			else { 
@@ -81,6 +82,9 @@ void debugger(void) {
 		}
 		else if(strncmp(str, "status", 6) == 0) { 
 			printstatus();		
+		}
+		else if(strncmp(str, "regstatus", 9) == 0) { 
+			printregstatus();
 		}
 		else if(strncmp(str, "continue", 8) == 0) {
 			return;		
@@ -116,7 +120,7 @@ void printstatus(void) {
 	printf("Memory Size: %u\n", (unsigned int)r3_cpu->MemorySize);
 	printf("Instruction Pointer: %u\n", (unsigned int)r3_cpu->InstructionPointer);
 	printf("-->|CPU Registers|\n");
-	printf("R0: %d | R1 : %d | R2 : %d | R3 : %d | R4 : %d |\n", r3_cpu->Regs[0], r3_cpu->Regs[1], r3_cpu->Regs[2], r3_cpu->Regs[3], r3_cpu->Regs[4]);
+	printf("Type 'regstatus' for values for registers\n");
 	printf("-->|CPU Flags|\n");
 	printf("Equal: %s, Zero: %s, Greater: %s, Lesser: %s\n", r3_cpu->EqualFlag ? "true" : "false", r3_cpu->ZeroFlag ? "true" : "false", r3_cpu->GreaterFlag ? "true" : "false", r3_cpu->LesserFlag ? "true" : "false");
 	printf("Current Domain ID: %u\n", r3_cpu->RootDomain->CurrentJobID);
@@ -127,4 +131,10 @@ void printstatus(void) {
 		printf("Last Instruction Executed [OPCODE] : %x\n", r3_cpu->CurrentInstruction);	
 	}
 	printf("Log complete.\n");
+}
+void printregstatus(void) { 
+	printf("Values for Current Domain:\n"); 
+	for(unsigned int i = 0; i <= MAX_NUMBER_OF_REGISTERS; i++) {
+		printf("R%u: %u\n", i, (unsigned int)r3_cpu->Regs[i]);	
+	}
 }

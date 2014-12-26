@@ -16,11 +16,14 @@ body {
 First install OpenGL, SDL, SDL_ttf, and SDL_image libraries.
 Install FASM to compile programs.
 Install the GNU C Compiler and glibc. (or libcs should work fine).
-Ensure you system has a bash interpreter.
-Ensure your system supports dynamic linking.
+<h2>Compiling: Option 1</h2>
+Ensure you system has a bash interpreter. (or anything compatible).
 Under "src/build.sh" change ARCHFLAGS to "-m32" if using a 32-bit system,
 Run "src/build.sh" with executable permissions (on UNIX-compliant systems use "chmod +x ./build.sh"
 Done.
+<h2>Compiling: Option 2</h2>
+Ensure you've got GNU Make. (Not tested with BSD Make)
+Under "src/Makefile
 </pre>
 <h3>Running</h3>
 <pre>
@@ -35,3 +38,4 @@ Press CTRL+C to start debugging during execution. During a segfault, the debugge
 <a href="Memory.html">Memory</a> 
 <a href="Format.html">Format</a> 
 <a href="Syscalls.html">Syscalls</a> 
+<a href="Multithreading.html">Multithreading</a>
