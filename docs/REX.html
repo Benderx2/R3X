@@ -10,32 +10,12 @@ body {
 </style>
 <font color=#FFFFFF face="Verdana"> 
 <h1>REX Virtual Machine Documentation</h1>
-<h2>Using the REX VM</h2>
-<h3>Compiling</h3>
 <pre>
-First install OpenGL, SDL, SDL_ttf, and SDL_image libraries.
-Install FASM to compile programs.
-Install the GNU C Compiler and glibc. (or libcs should work fine).
-<h2>Compiling: Option 1</h2>
-Ensure you system has a bash interpreter. (or anything compatible).
-Under "src/build.sh" change ARCHFLAGS to "-m32" if using a 32-bit system,
-Run "src/build.sh" with executable permissions (on UNIX-compliant systems use "chmod +x ./build.sh"
-Done.
-<h2>Compiling: Option 2</h2>
-Ensure you've got GNU Make. (Not tested with BSD Make)
-Under "src/Makefile
-</pre>
-<h3>Running</h3>
-<pre>
-Run with: ./r3x_vm.out "name of executable"
-Press CTRL+C to start debugging during execution. During a segfault, the debugger will automatically pop up,
-</pre>
-<h3>Documentation</h3>
-<pre>
-<a href="CPU.html">CPU</a> 
-<a href="BIOS.html">BIOS</a>
-<a href="libR3X.html">libR3X</a>
-<a href="Memory.html">Memory</a> 
-<a href="Format.html">Format</a> 
-<a href="Syscalls.html">Syscalls</a> 
-<a href="Multithreading.html">Multithreading</a>
+<a href="Building.html", style="color: #FFFFFF">Building and Running</a>
+<a href="CPU.html"  style="color: #FFFFFF">CPU</a> 
+<a href="BIOS.html" style="color: #FFFFFF">BIOS</a>
+<a href="libR3X.html" style="color: #FFFFFF">libR3X</a>
+<a href="Memory.html" style="color: #FFFFFF">Memory</a> 
+<a href="Format.html" style="color: #FFFFFF">Format</a> 
+<a href="Syscalls.html" style="color: #FFFFFF">Syscalls</a> 
+<a href="Multithreading.html" style="color: #FFFFFF">Multithreading</a>

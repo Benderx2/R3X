@@ -25,8 +25,8 @@ define R13 13
 define R14 14
 define R15 15	
 macro push op {
-		db 0x01
-		dd op
+	db 0x01
+	dd op
 }
 macro syscall op {
 	db 0x21

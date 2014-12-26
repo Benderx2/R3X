@@ -7,7 +7,9 @@
 #include <r3x_opcodes.h>
 #include <r3x_stack.h>
 #include <r3x_native.h>
+#ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
+#endif
 #include <r3x_exception.h>
 #include <nt_malloc.h>
 bool exitcalled = false;
@@ -23,7 +25,11 @@ void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
 typedef union __32bit_typecast {
 	uint32_t __num32;
 	struct {
+		#ifdef LITTLE_ENDIAN
 		uint8_t a, b, c, d;
+		#else
+		uint8_t d, c, b, a;
+	 	#endif
 	} __num8;
 } __32bit_typecast;
 typedef union __float_typecast {
@@ -40,8 +46,10 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 {
 	r3x_dispatch_job(header->r3x_init, 1, CPU->RootDomain, true);
 	// Initialise keyboard thread.
+	#ifdef REX_GRAPHICS
 	SDL_Thread *kthread = NULL;
 	kthread = SDL_CreateThread(keyboard_thread, NULL );
+	#endif
 	code = 0;
 	while (CPU->InstructionPointer < header->r3x_init + header->r3x_text_size && code != CPU_EXIT_SIGNAL && code != CPU_INVALID_OPCODE_SIGNAL){
 			if(exitcalled == true) { 
@@ -55,7 +63,9 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 			CPU->RootDomain->CurrentJobID++;
 	}
 	// Kill it, We're done.
+	#ifdef REX_GRAPHICS
 	SDL_KillThread(kthread);
+	#endif
 	return 0;
 }
 int r3x_emulate_instruction(r3x_cpu_t* CPU)
@@ -150,36 +160,35 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) {
 					raise(SIGSEGV);
 				}
-				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU->Graphics);
+				#ifdef REX_GRAPHICS
+				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU->Graphics);	
+				#else
+				printf("%s", (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
+				#endif
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTI){
 				 char buffer[33];
 				 memset(buffer, 0, 33);
 				 printfstring(buffer, "%d", Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+				 #ifdef REX_GRAPHICS
 				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
+				 #else
+				 printf("%s", buffer);
+				 #endif
 
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTF){
 				char buffer[33];
 				memset(buffer, 0, 33);
 				printfstring(buffer, "%f", (float)return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
-				vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
+				 #ifdef REX_GRAPHICS
+				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
+				 #else
+				 printf("%s", buffer);
+				 #endif
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETC){
-				/*keycode = 0;
-				if(SDL_WaitEvent(&key_event))
-				{
-					if(key_event.type == SDL_QUIT)
-					{
-						return CPU_EXIT_SIGNAL;
-					}
-					//If a key was pressed
-					else if(key_event.type randomjob== SDL_KEYDOWN)
-					{
-						//SDL_EnableUNICODE( SDL_ENABLE );
-						keycode = (char)key_event.key.keysym.unicode;
-					}
-				}*/
+				#ifdef REX_GRAPHICS
 				// Ensure the there !IS! a keyboard interrupt, our thread will set the is_read value to false if there is.
 				if(is_read == false) {
 					is_read = true; 
@@ -190,14 +199,24 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 					
 					Stack.Push(CPU->Stack, 0);				
 				}
+				#else 
+					//int c = getchar();	
+					Stack.Push(CPU->Stack, getchar());
+				#endif
 				
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GLUPDATE){
-				gl_text_update(CPU->Graphics);		
+				#ifdef REX_GRAPHICS
+				gl_text_update(CPU->Graphics);
+				#endif		
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTCH){
+				#ifdef REX_GRAPHICS
 				vm_putc((char)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), CPU->Graphics);
 				gl_text_update(CPU->Graphics);			
+				#else
+				printf("%c", (char)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+				#endif
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ATOI) {
 				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
@@ -288,11 +307,28 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LOADLIB:
-			load_native_library((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU);
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
+				raise(SIGSEGV);			
+			}
+			#ifdef REX_DYNAMIC
+				load_native_library((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU);
+			#else
+				printf("Not compiled with dynamic library support. Attempt to call LOADLIB, not supported\n");
+			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LIBEXEC:
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
+				raise(SIGSEGV);			
+			}
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) > CPU->MemorySize) { 
+				raise(SIGSEGV);			
+			}
+			#ifdef REX_DYNAMIC
 			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), returnhandle((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)))));
+			#else
+			printf("Not compiled with dynamic library support. Attempt to call LIBEXEC, not supported\n");
+			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 		case R3X_CALL:
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
@@ -466,6 +502,7 @@ void printfstring(char* string, const char * format, ... )
 }
 int keyboard_thread(void* data) { 
 	(void)data;
+	#ifdef REX_GRAPHICS
 	while(true) {
 		if(SDL_WaitEvent(&key_event))
 		{
@@ -488,4 +525,6 @@ int keyboard_thread(void* data) {
 				keycode = 0;
 		}
 	}
+	#endif
+	return 0;
 }

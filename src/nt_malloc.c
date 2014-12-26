@@ -128,8 +128,10 @@ int nt_free(void* ptr) {
 			}
 			return 0;		
 		}	
-	}
+	}	
+	if(debugflag==true) {
 	fprintf(stderr, "NT_FREE: attempt to free an already freed/unallocated memory address. Please ensure you're ONLY using nt_malloc to allocate memory.\n");
+	}
 	return -1;
 }
 void nt_freeall(void) { 

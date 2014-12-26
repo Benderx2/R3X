@@ -8,7 +8,7 @@ _init:
 	Console.NewLine
 	Console.Write "Dispatching a counting job..."
 	System.DispatchJob randomjob
-	Console.NewLine
+	;Console.NewLine
 	Console.Write "Wait as long as you want... then press a key"
 	Console.NewLine
 	Console.Input 5, string

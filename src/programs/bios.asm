@@ -22,7 +22,7 @@ get_system_information:
 	push IS_UNIX
 	ret
 CPU_STRING: db "REX CPU, Based upon FVM Technology. (C) Benderx2", 0x0A, 0
-BIOS_STRING: db "R3X BIOS 0.0.1 --- Beefy Bacon for Linux64", 0x0A, 0
+BIOS_STRING: db "R3X BIOS 0.0.1 --- Beefy Bacon", 0x0A, 0
 _END:
 	times 512 - _END db 0
 
