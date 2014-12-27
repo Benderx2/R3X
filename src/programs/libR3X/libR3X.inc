@@ -17,6 +17,25 @@ db 'PUBLISH', 0
 define R3X_LIB_VERSION 0x10C
 define SYS_NEWLINE 0xD
 define R3X_NEWLINE 0xA
+macro DECLARE_SECTION name {
+        local m,c
+        c equ 0
+        macro .#name [a] \{ 
+                \common 
+                rept 1 x:c+1 \\{ c equ x
+                                 macro m\\#x a \\}
+        \} 
+        macro STORE_SECTION_#name \{ 
+                rept c x \\{ m\\#x \\}
+        \} 
+}
+DECLARE_SECTION DATA
+DECLARE_SECTION BSS
+macro pushstring string {
+	local addr, behind
+	push addr
+	.DATA \{ addr: db string, 0 \}
+} 
 ; Console.Write -- Writes a string using syscall puts
 macro Console.Write str {
 	pushstring str 
@@ -203,6 +222,7 @@ __GetStringFunc:
 		popr R0
 		ret
 __WaitKey:
+	syscall SYSCALL_GETC
 	.loop_key:
 		syscall SYSCALL_GETC
 		push 0

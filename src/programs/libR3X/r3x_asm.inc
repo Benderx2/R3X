@@ -8,6 +8,7 @@ define SYSCALL_PUTCH 0x5
 define SYSCALL_ATOI 0x6
 define SYSCALL_ALLOC 0x7
 define SYSCALL_DISPATCH 0x8
+; Register definitions
 define R0 0
 define R1 1
 define R2 2 
@@ -23,7 +24,12 @@ define R11 11
 define R12 12
 define R13 13
 define R14 14
-define R15 15	
+define R15 15
+define R16 16
+define R17 17
+define R18 18
+define R19 19
+define R20 20
 macro push op {
 	db 0x01
 	dd op

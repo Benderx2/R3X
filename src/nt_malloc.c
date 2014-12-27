@@ -45,7 +45,7 @@ void* nt_realloc(void* ptr, size_t size) {
 			if(malloc_pointers[i] == ptr) { 
 				void* tmp = realloc(ptr, size);
 				if(tmp==NULL) {
-					fprintf(stderr, "NT_REALLOC: Realloc return NULL. ABORING..");
+					fprintf(stderr, "NT_REALLOC: Realloc returned NULL. ABORING..");
 					exit(0);
 				}
 				malloc_pointers[i] = tmp;

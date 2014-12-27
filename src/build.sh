@@ -1,14 +1,14 @@
-#!/bin/bash
 echo "REX Compilation Script, version 0.03"
+set -o verbose
 # Change to x86_64, x86_32, aarch64, aarch64-big, depending upon stuff..
 export TARGET="x86_64"
 # Set to empty if compiling for other arch without dynamic linking support or graphics
 export USEGL="yes"
 export USEDYNAMIC="yes"
 # Change to -O3 for more optimization or -O0 for no optimization
-export OFLAGS="-O2"
+export OFLAGS="-O3"
 # Change to empty if you don't want debugging information with the binary
-export DFLAGS="-g"
+export DFLAGS=""
 # DONT MODIFY 
 export AS="fasm"
 export GLFLAGS=""
@@ -17,8 +17,9 @@ export DYNAMICFLAGS=""
 export DYANMIC_FILES=""
 export ARFLAGS="-rsc"
 export INCLUDE_DIR="./include/"  
-export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -fstack-protector-all"
+export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -fstack-protector-all -fomit-frame-pointer"
 export IFLAGS="-I$INCLUDE_DIR"
+set +x
 if [ "$USEGL" == "yes" ] 
 	then 
 	 export USEGL="-D REX_GRAPHICS"

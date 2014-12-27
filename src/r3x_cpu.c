@@ -44,6 +44,10 @@ int code = 0;
 SDL_Event key_event = {SDL_USEREVENT};
 int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 {
+	temp_typecast32.__num8.a = 0;
+	temp_typecast32.__num8.b = 0;
+	temp_typecast32.__num8.c = 0;
+	temp_typecast32.__num8.d = 0;
 	r3x_dispatch_job(header->r3x_init, 1, CPU->RootDomain, true);
 	// Initialise keyboard thread.
 	#ifdef REX_GRAPHICS
@@ -56,7 +60,7 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 				break;
 			}
 			int i = r3x_load_job_state(CPU, CPU->RootDomain);
-			if(i != -1) { 
+			if(i != -1) {
 				code = r3x_emulate_instruction(CPU);
 				r3x_save_job_state(CPU, CPU->RootDomain);
 			}
@@ -353,7 +357,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LOADR:
-			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {	
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer])] = return_32bit_int_from_ip(CPU);	
 			}
@@ -417,9 +421,23 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] = a;
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
-			break;	
+			break;
+		// Always set your right foot first soldier! #weirdsuperstitions
+		case R3X_SHR:
+			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) >> (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_SHL:
+			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) << (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_ROR:
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_ROL:
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		case R3X_EXIT:
-			//printf("Current Job ID: %u\n", CPU->RootDomain->CurrentJobID);
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {		
 				r3x_exit_job(CPU->RootDomain);
 				return -2; // Main exitted close everything and return...
@@ -434,10 +452,6 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 }
 uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 {
-	temp_typecast32.__num8.a = 0;
-	temp_typecast32.__num8.b = 0;
-	temp_typecast32.__num8.c = 0;
-	temp_typecast32.__num8.d = 0;
 	temp_typecast32.__num32 = 0;
 	temp_typecast32.__num8.a = a;
 	temp_typecast32.__num8.b = b;

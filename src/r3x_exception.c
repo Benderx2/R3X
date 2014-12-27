@@ -1,4 +1,5 @@
 #include <r3x_exception.h>
+#include <r3x_dispatcher.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
 #include <unistd.h>
@@ -15,6 +16,7 @@ void REX_EXCEPTION_HANDLER(int SIGNUM) {
 }
 void debugger(void) { 
 	printstatus();
+	//r3x_save_job_state(r3_cpu, r3_cpu->RootDomain);
 	printf("Welcome to REX Debugger, based upon FVM Technology. %s.\nType 'help' for help.", R3X_SYSTEM_VERSION);
 	// go into debugger 
 	while(true) { 
@@ -83,6 +85,20 @@ void debugger(void) {
 		else if(strncmp(str, "status", 6) == 0) { 
 			printstatus();		
 		}
+		else if(strncmp(str, "switchdomain", 12) == 0) {
+			char* token = strtok(str, " "); 
+			(void)token;
+			int savedomainID = r3_cpu->RootDomain->CurrentJobID;
+			r3_cpu->RootDomain->CurrentJobID = atoi(strtok(NULL, " "));
+			if(r3x_load_job_state(r3_cpu, r3_cpu->RootDomain)==-1){
+				printf("Error: Domain does not exist");
+				r3_cpu->RootDomain->CurrentJobID = savedomainID;
+				r3x_load_job_state(r3_cpu, r3_cpu->RootDomain);
+			}
+			else {
+				printf("Switched to domain: %u", (unsigned int)r3_cpu->RootDomain->CurrentJobID);
+			}
+		} 
 		else if(strncmp(str, "regstatus", 9) == 0) { 
 			printregstatus();
 		}

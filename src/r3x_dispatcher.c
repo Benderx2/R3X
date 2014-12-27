@@ -44,11 +44,9 @@ int r3x_load_job_state(r3x_cpu_t* CPU, r3x_global_domain_t* Domain) {
 		CPU->InstructionPointer = Domain->Jobs[Domain->CurrentJobID]->InstructionPointer;
 		CPU->Stack = Domain->Jobs[Domain->CurrentJobID]->Stack;
 		CPU->CallStack = Domain->Jobs[Domain->CurrentJobID]->Stack;
-		CPU->Regs[0] = Domain->Jobs[Domain->CurrentJobID]->Regs[0]; 
-		CPU->Regs[1] = Domain->Jobs[Domain->CurrentJobID]->Regs[1]; 
-		CPU->Regs[2] = Domain->Jobs[Domain->CurrentJobID]->Regs[2];
-		CPU->Regs[3] = Domain->Jobs[Domain->CurrentJobID]->Regs[3]; 
-		CPU->Regs[4] = Domain->Jobs[Domain->CurrentJobID]->Regs[4];
+		for(int i = 0; i < MAX_NUMBER_OF_REGISTERS; i++) {
+			CPU->Regs[i] = Domain->Jobs[Domain->CurrentJobID]->Regs[i];
+		}
 		return 0;
 	}
 	return -1;
@@ -58,11 +56,9 @@ void r3x_save_job_state(r3x_cpu_t* CPU, r3x_global_domain_t* Domain) {
 		Domain->Jobs[Domain->CurrentJobID]->InstructionPointer = CPU->InstructionPointer;
 		Domain->Jobs[Domain->CurrentJobID]->Stack = CPU->Stack;
 		Domain->Jobs[Domain->CurrentJobID]->CallStack = CPU->CallStack;
-		Domain->Jobs[Domain->CurrentJobID]->Regs[0] = CPU->Regs[0];
-		Domain->Jobs[Domain->CurrentJobID]->Regs[1] = CPU->Regs[1];
-		Domain->Jobs[Domain->CurrentJobID]->Regs[2] = CPU->Regs[2];
-		Domain->Jobs[Domain->CurrentJobID]->Regs[3] = CPU->Regs[3];
-		Domain->Jobs[Domain->CurrentJobID]->Regs[4] = CPU->Regs[4];
+		for(int i = 0; i < MAX_NUMBER_OF_REGISTERS; i++) {
+			Domain->Jobs[Domain->CurrentJobID]->Regs[i] = CPU->Regs[i];		
+		}
 	}
 }
 void r3x_exit_job(r3x_global_domain_t* Domain) {

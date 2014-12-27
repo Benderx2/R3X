@@ -22,7 +22,7 @@ typedef struct r3x_job {
 	uint32_t InstructionPointer;
 	vstack_t* Stack;
 	vstack_t* CallStack;
-	int Regs[5];
+	int Regs[21];
 	int CycleUpdate;
 	int JobID;
 	bool ismain;
@@ -34,7 +34,7 @@ typedef struct r3x_global_domain {
 	unsigned int NumberOfActiveJobs;
 	unsigned int TotalNumberOfJobs;
 } r3x_global_domain_t;
-#define MAX_NUMBER_OF_REGISTERS 15
+#define MAX_NUMBER_OF_REGISTERS 20
 typedef struct r3x_cpu {
 	uint8_t* Memory;
 	uint32_t ISR_handlers[256];
@@ -47,10 +47,9 @@ typedef struct r3x_cpu {
 	bool GreaterFlag;
 	bool LesserFlag;
 	bool ZeroFlag;	
-	uint32_t Regs[16];
+	uint32_t Regs[21];
 	unsigned int CurrentInstruction;
 	unsigned int MemorySize;
-	unsigned int CurrentJobID;
 	r3x_global_domain_t* RootDomain;
 	ObjectList_t* ObjectList;
 } r3x_cpu_t;

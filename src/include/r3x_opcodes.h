@@ -51,6 +51,10 @@
 #define R3X_NEG 0x37
 #define R3X_PUSHAR 0x38
 #define R3X_POPAR 0x39
+#define R3X_SHR 0x4A 
+#define R3X_SHL 0x4B
+#define R3X_ROR 0x4C
+#define R3X_ROL 0x4D
 // 0x4A
 // Syscalls
 #define SYSCALL_PUTS 0x0

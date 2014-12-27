@@ -46,7 +46,6 @@ int main(int argc, char* argv[])
 	r3_cpu->RootDomain = r3x_init_domain();
 	r3x_load_bios(bios_header, r3_cpu);
 	r3x_cpu_loop(r3_cpu, bios_header);
-	r3_cpu->RootDomain = r3x_init_domain();
 	r3_header = (r3x_header_t*)&r3_cpu->Memory[PROG_EXEC_POINT];
 	r3_cpu->InstructionPointer = r3_header->r3x_init;
 	r3_cpu->MemorySize = r3_header->total_size + PROG_EXEC_POINT;
