@@ -1,4 +1,5 @@
 include 'r3x_asm.inc'
+format binary as 'r3x'
 define R3_LOAD_POINT 0x100000
 define VIDEO_MEMORY_START 512
 org 0x100000

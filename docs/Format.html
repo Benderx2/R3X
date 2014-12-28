@@ -42,6 +42,22 @@ typedef struct r3x_header {
 </pre>
 <h3>Writing a program</h3>
 <pre>
+Using LIBR3X, one can define their own sections, like this <br>
+<pre>DECLARE_SECTION MYSECTION ; Must be in all caps by standard </pre>
+By default there are 2 sections: DATA and BSS (for program data and uninitialised values respectively) <br>
+Then under the _data section, it must be stored like: <br>
+<pre>_data:
+	....
+	STORE_SECTION_MYSECTION
+	....
+_end_data:
+</pre>
+To put data into a section use <br>
+<pre>
+.MYSECTION \{
+	mydata: db '000', 0
+\}
+</pre>
 The template defined by the standard is thus, <br>
 <textarea name="code" class="c#" cols="60" rows="10">
 include 'libR3X/libR3X.inc'
@@ -49,11 +65,16 @@ _init:
 	; Code here
 _end_text:
 _data:
+	; DONT FORGET TO STORE DATA SECTION!
+	STORE_SECTION_DATA
 	; Data Here
 _end_data:
 _bss:
+	; DONT FORGET TO STORE BSS!
+	STORE_SECTION_BSS
 	; Uninitialised Values here
 _end_bss:
 </textarea>
+For compiling the program please use FASM (flat assembler), get it here: http://flatassembler.net.
 </font>
 </html>

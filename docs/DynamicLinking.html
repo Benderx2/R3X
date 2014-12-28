@@ -1,0 +1,72 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<style>
+body {
+  background-image: url(data/background.jpg);
+  background-size: cover;
+}
+</style>
+<font color=#FFFFFF face="Verdana">  
+<h1>REX Virtual Machine Documentation</h1>
+<h2>Dynamic Linking</h2>
+<pre>
+<h1>Using the REX dynamic linker</h1>
+<h2>REX Object format (*.ro)</h2>
+The REX Object format is used by REX shared libraries to export functions to a REX executable
+The header is defined in src/r3x_dynamic.h:11<
+<textarea cols="60" rows="10">typedef struct REX_DYNAMIC_HEADER {
+	uint32_t header;
+	uint32_t text_section;
+	uint32_t text_size;
+	uint32_t export_section;
+	uint32_t export_size;
+	uint32_t data_section;
+	uint32_t data_size;
+	uint32_t bss_section;
+	uint32_t bss_size;
+} r3x_dynamic_header_t;</textarea>
+<b>TODO:</b> Add description.
+<h2>Your first dynamic library</h2>
+Writing a dynamic library is easy, here's an example:
+
+include 'libR3X/dynR3X.inc'
+_text:
+myfunc1:
+	; For dynamically loaded libraries, DONT USE PUSH WHILE REFERRING TO ADDRESSES, use pushad (push relative address)
+	pushad str01
+	syscall SYSCALL_PUTS
+	pop
+	; Don't forget to restore stack and return
+	ret
+_end_text:
+_export:
+	; Always 0 out the first index
+	EXPORT_FUNCTION 0x0, 0
+	; Export myfunc1 to index 0x1
+	EXPORT_FUNCTION 0x1, myfunc1
+_end_export:
+_data:
+	str01: db 'Hello from dynamic library!', 0xA, 0
+_end_data:
+_bss:
+	; BSS here.
+_end_bss:
+
+You cannot use standard libR3X's functions for a dynamic library. Also you are not allowed to use STORE and LOAD instructions,
+use the lodsb, lodsd, stosb, and stosd instructions.
+
+<h2>Loading a dynamic library</h2>
+Loading a dynamic library is simple, simply do: 
+pushstring "lib.ro"
+syscall SYSCALL_LOADDYNAMIC
+
+The library's handle will be pushed to stack. Make SURE to store it! Since this will be used to call functions.
+<h2>The calldynamic instruction</h2>
+The calldynamic instruction is used to call a function from a library. Use it like this:
+
+push [library handle] -- Handle that you got from the above syscall
+push [function index] -- 0x01 in the above example points to myfunc under the export section
+calldynamic
+</pre>

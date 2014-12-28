@@ -7,6 +7,7 @@
 #include <r3x_opcodes.h>
 #include <r3x_stack.h>
 #include <r3x_native.h>
+#include <r3x_dynamic.h>
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
 #endif
@@ -49,20 +50,24 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 	temp_typecast32.__num8.c = 0;
 	temp_typecast32.__num8.d = 0;
 	r3x_dispatch_job(header->r3x_init, 1, CPU->RootDomain, true);
+	CPU->RootDomain->CurrentJobID = 0;
 	// Initialise keyboard thread.
 	#ifdef REX_GRAPHICS
 	SDL_Thread *kthread = NULL;
 	kthread = SDL_CreateThread(keyboard_thread, NULL );
 	#endif
 	code = 0;
-	while (CPU->InstructionPointer < header->r3x_init + header->r3x_text_size && code != CPU_EXIT_SIGNAL && code != CPU_INVALID_OPCODE_SIGNAL){
+	while (CPU->InstructionPointer < CPU->MemorySize && code != CPU_EXIT_SIGNAL && code != CPU_INVALID_OPCODE_SIGNAL){
 			if(exitcalled == true) { 
 				break;
 			}
-			int i = r3x_load_job_state(CPU, CPU->RootDomain);
+			int i = r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			if(i != -1) {
 				code = r3x_emulate_instruction(CPU);
-				r3x_save_job_state(CPU, CPU->RootDomain);
+				r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
+			}
+			if(CPU->RootDomain->CurrentJobID >= CPU->RootDomain->TotalNumberOfJobs) { 
+				CPU->RootDomain->CurrentJobID = -1;
 			}
 			CPU->RootDomain->CurrentJobID++;
 	}
@@ -233,6 +238,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 					printf("Attempt to allocate memory more than 4096 bytes at once\n");
 					raise(SIGSEGV);
 				}	
+				Stack.Push(CPU->Stack, CPU->MemorySize);
 				CPU->MemorySize += Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1);
 				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
 			}
@@ -243,6 +249,12 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				r3x_dispatch_job(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), 1, CPU->RootDomain, true);
 							
 			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_LOADDYNAMIC) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
+					raise(SIGSEGV);
+				}
+				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU));			
+			}	
 			else {
 				printf("Invalid Argument passed to R3X_SYSCALL\n");
 			}
@@ -294,6 +306,34 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])) = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_STOSB_RELOC:
+			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)] = CPU->Regs[1];
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
+		case R3X_STOSD_RELOC:
+			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			*((uint32_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = CPU->Regs[1];
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
+		case R3X_LODSD_RELOC:
+			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
+				raise(SIGSEGV);			
+			}
+			CPU->Regs[1] = *((uint32_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)]));
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
+		case R3X_LODSB_RELOC:
+			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
+				raise(SIGSEGV);			
+			}
+			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)];
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
 		case R3X_AND:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) & return_32bit_int_from_ip(CPU));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
@@ -317,7 +357,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			#ifdef REX_DYNAMIC
 				load_native_library((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU);
 			#else
-				printf("Not compiled with dynamic library support. Attempt to call LOADLIB, not supported\n");
+				printf("Not compiled with native dynamic library support. Attempt to call LOADLIB, not supported\n");
 			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
@@ -331,7 +371,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			#ifdef REX_DYNAMIC
 			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), returnhandle((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)))));
 			#else
-			printf("Not compiled with dynamic library support. Attempt to call LIBEXEC, not supported\n");
+			printf("Not compiled with native dynamic library support. Attempt to call LIBEXEC, not supported\n");
 			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 		case R3X_CALL:
@@ -437,12 +477,22 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		case R3X_ROL:
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_CALLDYNAMIC:	
+			if(dynamic_call(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))==0)	{
+				printf("Invalid dynamic call, aborting application\n");
+				return -2;
+							
+			}
+			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
+			CPU->InstructionPointer = dynamic_call(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			printf("%x\n", CPU->Memory[CPU->InstructionPointer]);
+			break;
 		case R3X_EXIT:
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {		
-				r3x_exit_job(CPU->RootDomain);
+				r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 				return -2; // Main exitted close everything and return...
 			}
-			r3x_exit_job(CPU->RootDomain);
+			r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			return 0;
 		default:
 			printf("Unknown Opcode: %x, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);

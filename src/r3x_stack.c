@@ -48,7 +48,8 @@ int PushtoStack(vstack_t* stack, int object)
 		// Check if there exists a buffer
 		if (stack->stack_count == 0){
 			// Allocate, null out and set.
-			int* new_buf = nt_malloc(DEFAULT_STACK_SIZE);
+			int* new_buf = NULL;
+			new_buf = nt_malloc(DEFAULT_STACK_SIZE);
 			stack->stack_count = 16;
 			stack->content = new_buf;
 		}

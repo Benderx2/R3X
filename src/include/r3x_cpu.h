@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include <r3x_format.h>
 #include <r3x_stack.h>
+#ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
+#endif
 #include <r3x_object.h>
 #include <time.h>
 #define CPU_INVALID_OPCODE_SIGNAL -1
@@ -23,6 +25,10 @@ typedef struct r3x_job {
 	vstack_t* Stack;
 	vstack_t* CallStack;
 	int Regs[21];
+	bool EqualFlag;
+	bool GreaterFlag;
+	bool LesserFlag;
+	bool ZeroFlag;	
 	int CycleUpdate;
 	int JobID;
 	bool ismain;
@@ -36,11 +42,9 @@ typedef struct r3x_global_domain {
 } r3x_global_domain_t;
 #define MAX_NUMBER_OF_REGISTERS 20
 typedef struct r3x_cpu {
-	uint8_t* Memory;
-	uint32_t ISR_handlers[256];
+	// Not global -- Thread dependent
 	vstack_t* Stack;
 	vstack_t* CallStack;
-	Graphics_t* Graphics;
 	unsigned int InstructionPointer;
 	int ErrorCode;
 	bool EqualFlag;
@@ -48,9 +52,14 @@ typedef struct r3x_cpu {
 	bool LesserFlag;
 	bool ZeroFlag;	
 	uint32_t Regs[21];
+	// Global -- Thread Independent.
+	uint8_t* Memory;
+	uint32_t ISR_handlers[256];
 	unsigned int CurrentInstruction;
 	unsigned int MemorySize;
+	unsigned int HeapAddr;
 	r3x_global_domain_t* RootDomain;
+	Graphics_t* Graphics;
 	ObjectList_t* ObjectList;
 } r3x_cpu_t;
 #include <r3x_dispatcher.h>

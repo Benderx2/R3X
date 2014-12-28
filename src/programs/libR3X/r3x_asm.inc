@@ -8,6 +8,7 @@ define SYSCALL_PUTCH 0x5
 define SYSCALL_ATOI 0x6
 define SYSCALL_ALLOC 0x7
 define SYSCALL_DISPATCH 0x8
+define SYSCALL_LOADDYNAMIC 0x9
 ; Register definitions
 define R0 0
 define R1 1
@@ -217,4 +218,13 @@ macro pushstring string {
 	jmp behind
 	addr: db string, 0
 	behind:
+}
+macro shr { 
+	db 0x4A
+}
+macro shl { 
+	db 0x4B
+}
+macro calldynamic {
+	db 0x53
 }

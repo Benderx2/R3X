@@ -1,6 +1,6 @@
 #include <nt_malloc.h>
-void** malloc_pointers = NULL;
 int malloc_pointer_sz = 0;
+void** malloc_pointers = NULL;
 int number_of_allocs = 0;
 int number_of_frees = 0;
 int total_allocs = 0;
@@ -99,7 +99,7 @@ void* nt_malloc(size_t size) {
 		malloc_pointer_sz += 16;
 	}
 	// Find a NULL pointer in array and assign it.
-	for(int i = 0; i < malloc_pointer_sz; i++) { 
+	for(int i = 0; i <= malloc_pointer_sz; i++) { 
 		if(malloc_pointers[i] == NULL)  {
 			malloc_pointers[i] = new_ptr;
 			number_of_allocs++;
@@ -108,7 +108,10 @@ void* nt_malloc(size_t size) {
 		}
 	}
 	if(debugflag==true) { 
-		fprintf(stderr, "NT_MALLOC: internal fault. Can't find an empty pointer in array. Please report this bug! ABORTING..\n");
+		fprintf(stderr, "NT_MALLOC: internal fault. Can't find an empty pointer in array. Please report this bug! ABORTING.. (See Log below)\n");
+	}
+	for(int i = 0; i <= malloc_pointer_sz; i++) { 
+		printf("Pointer %d %p\n", i, malloc_pointers[i]);
 	}
 	nt_freeall();
 	exit(EXIT_FAILURE);

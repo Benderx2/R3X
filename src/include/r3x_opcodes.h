@@ -55,7 +55,14 @@
 #define R3X_SHL 0x4B
 #define R3X_ROR 0x4C
 #define R3X_ROL 0x4D
-// 0x4A
+#define R3X_CALLDYNAMIC 0x53
+// Relocatable instructions
+#define R3X_LODSB_RELOC 0x4E
+#define R3X_LODSD_RELOC 0x4F
+#define R3X_STOSB_RELOC 0x50
+#define R3X_STOSD_RELOC 0x51
+#define R3X_PUSH_RELOC 0x52
+// 0x53
 // Syscalls
 #define SYSCALL_PUTS 0x0
 #define SYSCALL_PUTI 0x1
@@ -66,4 +73,5 @@
 #define SYSCALL_ATOI 0x6
 #define SYSCALL_ALLOC 0x7
 #define SYSCALL_DISPATCH 0x8
+#define SYSCALL_LOADDYNAMIC 0x9
 #endif

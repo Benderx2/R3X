@@ -91,6 +91,8 @@ typedef struct r3x_cpu {
 <b>loadlib</b> - Loads a dynamic native library, the last value pushed to stack must be a pointer to a string containing the library's exact location.
 <b>libexec</b> - Calls a function from the library, 2nd last value pushed to stack = pointer to string containing library name, last value must be a pointer to string containing function name. (both must be 0 terminated)
 <b>syscall</b> <i>imm</i> - Call VMs internal functions (NOTE: IMPLEMENTATION DEFINED)
+<b>shr, shl</b> - Shift right/left second last item on stack by last.
+<b>calldynamic</b> - Call a dynamic library
 <b>exit</b> - Returns a CPU_EXIT_SIGNAL, and quits the program..
 
 </font>

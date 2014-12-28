@@ -8,7 +8,7 @@ export USEDYNAMIC="yes"
 # Change to -O3 for more optimization or -O0 for no optimization
 export OFLAGS="-O3"
 # Change to empty if you don't want debugging information with the binary
-export DFLAGS=""
+export DFLAGS="-g"
 # DONT MODIFY 
 export AS="fasm"
 export GLFLAGS=""
@@ -70,7 +70,7 @@ else
 	exit -1
 fi
 export LFLAGS="-lc -lm -ldl -rdynamic"
-export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_stack.o  r3x_dispatcher.o libntmalloc.a"
+export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_stack.o  r3x_dispatcher.o r3x_dynamic.o libntmalloc.a"
 set -x
 # Compile libntmalloc
 $CC  -c nt_malloc.c -o nt_malloc.o -std=gnu99 -I$INCLUDE_DIR
@@ -87,13 +87,14 @@ $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x
 $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_exception.c -o r3x_exception.o
 $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_bios.c -o r3x_bios.o
 $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_dispatcher.c -o r3x_dispatcher.o
+$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_dynamic.c -o r3x_dynamic.o
 $CC -o r3x_vm.out $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
 # compile programs
 $AS programs/r3x_ex.asm
 $AS programs/bios.asm
 # now transfer it 
 mv r3x_vm.out $BINDIR/
-mv programs/r3x_ex.bin $BINDIR/
+mv programs/r3x_ex.r3x $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 mv *.a $BINDIR/lib/
 # remove all object files

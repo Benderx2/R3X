@@ -29,7 +29,9 @@ void debugger(void) {
 		if(strncmp(str, "help", 4) == 0) { 
 			printf("REX Debugger -- help\n");
 			printf("Commands: \n");
-			printf("status --- Print information about program, CPU and Stack\n");
+			printf("status --- Print information about program, CPU and Stack\n");	
+			printf("regstatus -- Show register status\n");
+			printf("switchdomain x -- Switches domains (processes)\n"); 
 			printf("memprobe x -- prints a 32-bit integer @ x address in VM memory\n");
 			printf("setip x -- Sets an Instruction Pointer\n");
 			printf("setreg 1-15 x - Sets a register to value x\n");
@@ -86,19 +88,21 @@ void debugger(void) {
 			printstatus();		
 		}
 		else if(strncmp(str, "switchdomain", 12) == 0) {
+			a1 = 0;
 			char* token = strtok(str, " "); 
 			(void)token;
 			int savedomainID = r3_cpu->RootDomain->CurrentJobID;
-			r3_cpu->RootDomain->CurrentJobID = atoi(strtok(NULL, " "));
-			if(r3x_load_job_state(r3_cpu, r3_cpu->RootDomain)==-1){
+			a1 = atoi(strtok(NULL, " "));
+			if(r3x_load_job_state(r3_cpu, r3_cpu->RootDomain, a1)==-1){
 				printf("Error: Domain does not exist");
 				r3_cpu->RootDomain->CurrentJobID = savedomainID;
-				r3x_load_job_state(r3_cpu, r3_cpu->RootDomain);
+				r3x_load_job_state(r3_cpu, r3_cpu->RootDomain, savedomainID);
 			}
 			else {
+				r3_cpu->RootDomain->CurrentJobID = a1;
 				printf("Switched to domain: %u", (unsigned int)r3_cpu->RootDomain->CurrentJobID);
 			}
-		} 
+		}
 		else if(strncmp(str, "regstatus", 9) == 0) { 
 			printregstatus();
 		}
@@ -128,9 +132,9 @@ void printstatus(void) {
 	printf("Last pushed value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->Stack, r3_cpu->Stack->top_of_stack-1));
 	printf("Last popped value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->Stack, r3_cpu->Stack->top_of_stack));
 	printf("|Call Stack Information|\n");
-	printf("Call Stack (Address) : %u\n", (unsigned int)((intptr_t)r3_cpu->CallStack));
+	/*printf("Call Stack (Address) : %u\n", (unsigned int)((intptr_t)r3_cpu->CallStack));
 	printf("Last pushed Value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->CallStack, r3_cpu->CallStack->top_of_stack-1));
-	printf("Last popped Value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->CallStack, r3_cpu->CallStack->top_of_stack-1));
+	printf("Last popped Value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->CallStack, r3_cpu->CallStack->top_of_stack-1));*/
 	printf("|CPU Information|\n");
 	printf("Memory (Address of Buffer): %p\n", (void*)r3_cpu->Memory);
 	printf("Memory Size: %u\n", (unsigned int)r3_cpu->MemorySize);
@@ -151,6 +155,6 @@ void printstatus(void) {
 void printregstatus(void) { 
 	printf("Values for Current Domain:\n"); 
 	for(unsigned int i = 0; i <= MAX_NUMBER_OF_REGISTERS; i++) {
-		printf("R%u: %u\n", i, (unsigned int)r3_cpu->Regs[i]);	
+		printf("R%u: %u\t", i, (unsigned int)r3_cpu->Regs[i]);	
 	}
 }
