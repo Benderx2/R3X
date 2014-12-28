@@ -4,9 +4,7 @@
 #include <stdbool.h>
 #include <r3x_format.h>
 #include <r3x_stack.h>
-#ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
-#endif
 #include <r3x_object.h>
 #include <time.h>
 #define CPU_INVALID_OPCODE_SIGNAL -1
