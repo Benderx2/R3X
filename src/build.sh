@@ -1,10 +1,10 @@
 echo "REX Compilation Script, version 0.03"
 set -o verbose
 # Change to x86_64, x86_32, aarch64, aarch64-big, depending upon stuff..
-export TARGET="x86_64"
+export TARGET="aarch64"
 # Set to empty if compiling for other arch without dynamic linking support or graphics
-export USEGL="yes"
-export USEDYNAMIC="yes"
+export USEGL=""
+export USEDYNAMIC=""
 # Change to -O3 for more optimization or -O0 for no optimization
 export OFLAGS="-O3"
 # Change to empty if you don't want debugging information with the binary
@@ -70,7 +70,7 @@ else
 	exit -1
 fi
 export LFLAGS="-lc -lm -ldl -rdynamic"
-export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_stack.o  r3x_dispatcher.o r3x_dynamic.o libntmalloc.a"
+export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_stack.o  r3x_dispatcher.o r3x_dynamic.o r3x_stream.o libntmalloc.a"
 set -x
 # Compile libntmalloc
 $CC  -c nt_malloc.c -o nt_malloc.o -std=gnu99 -I$INCLUDE_DIR
@@ -88,6 +88,7 @@ $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x
 $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_bios.c -o r3x_bios.o
 $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_dispatcher.c -o r3x_dispatcher.o
 $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_dynamic.c -o r3x_dynamic.o
+$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_stream.c -o r3x_stream.o
 $CC -o r3x_vm.out $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
 # compile programs
 $AS programs/r3x_ex.asm

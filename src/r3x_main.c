@@ -6,6 +6,7 @@
 #include <r3x_stack.h>
 #include <r3x_format.h>
 #include <r3x_exception.h>
+#include <r3x_stream.h>
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
 #endif
@@ -27,6 +28,7 @@ int main(int argc, char* argv[])
 	nt_malloc_init(false);
 	#endif
 	load_lib_manager();
+	init_stream_manager();
 	if (argc < 2){
 		printf("main: Expected Argument : executable name!\n");
 	}

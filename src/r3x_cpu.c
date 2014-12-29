@@ -8,6 +8,7 @@
 #include <r3x_stack.h>
 #include <r3x_native.h>
 #include <r3x_dynamic.h>
+#include <r3x_stream.h>
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
 #endif
@@ -23,6 +24,7 @@ uint32_t return_int_from_float(float fl32);
 void printfstring(char* string, const char * format, ... );
 void compare_and_set_flag(r3x_cpu_t* CPU, int op1, int op2);
 void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
+void r3x_syscall(r3x_cpu_t* CPU);
 typedef union __32bit_typecast {
 	uint32_t __num32;
 	struct {
@@ -165,99 +167,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			}
 			break;
 		case R3X_SYSCALL:
-			if (CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTS){
-				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) {
-					raise(SIGSEGV);
-				}
-				#ifdef REX_GRAPHICS
-				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU->Graphics);	
-				#else
-				printf("%s", (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
-				#endif
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTI){
-				 char buffer[33];
-				 memset(buffer, 0, 33);
-				 printfstring(buffer, "%d", Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-				 #ifdef REX_GRAPHICS
-				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
-				 #else
-				 printf("%s", buffer);
-				 #endif
-
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTF){
-				char buffer[33];
-				memset(buffer, 0, 33);
-				printfstring(buffer, "%f", (float)return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
-				 #ifdef REX_GRAPHICS
-				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
-				 #else
-				 printf("%s", buffer);
-				 #endif
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETC){
-				#ifdef REX_GRAPHICS
-				// Ensure the there !IS! a keyboard interrupt, our thread will set the is_read value to false if there is.
-				if(is_read == false) {
-					is_read = true; 
-					Stack.Push(CPU->Stack, keycode);
-				}
-				// To prevent race condition, push 0 if is_read == false;
-				else {		
-					
-					Stack.Push(CPU->Stack, 0);				
-				}
-				#else 
-					//int c = getchar();	
-					Stack.Push(CPU->Stack, getchar());
-				#endif
-				
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GLUPDATE){
-				#ifdef REX_GRAPHICS
-				gl_text_update(CPU->Graphics);
-				#endif		
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTCH){
-				#ifdef REX_GRAPHICS
-				vm_putc((char)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), CPU->Graphics);
-				gl_text_update(CPU->Graphics);			
-				#else
-				printf("%c", (char)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-				#endif
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ATOI) {
-				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
-					raise(SIGSEGV);
-				}
-				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)]));			
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ALLOC) { 
-				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > 4096) { 
-					printf("Attempt to allocate memory more than 4096 bytes at once\n");
-					raise(SIGSEGV);
-				}	
-				Stack.Push(CPU->Stack, CPU->MemorySize);
-				CPU->MemorySize += Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1);
-				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_DISPATCH) {
-				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize){
-					raise(SIGSEGV);
-				}
-				r3x_dispatch_job(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), 1, CPU->RootDomain, true);
-							
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_LOADDYNAMIC) { 
-				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
-					raise(SIGSEGV);
-				}
-				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU));			
-			}	
-			else {
-				printf("Invalid Argument passed to R3X_SYSCALL\n");
-			}
+			r3x_syscall(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
 		case R3X_LOADS:
@@ -538,16 +448,16 @@ void compare_and_set_flag(r3x_cpu_t* CPU, int op1, int op2)
 	CPU->GreaterFlag = false;
 	CPU->LesserFlag = false;
 	// Compare values and set CPU flags accordingly
-	if (op1 == op2){
+	if ((unsigned int)op1 == (unsigned int)op2){
 		CPU->EqualFlag = true;
 	}
-	if (op1 == 0){
+	if ((unsigned int)op1 == 0){
 		CPU->ZeroFlag = true;
 	}
-	if (op1 > op2){
+	if ((unsigned int)op1 > (unsigned int)op2){
 		CPU->GreaterFlag = true;
 	}
-	if (op1 < op2){
+	if ((unsigned int)op1 < (unsigned int)op2){
 		CPU->LesserFlag = true;
 	}
 }
@@ -591,4 +501,123 @@ int keyboard_thread(void* data) {
 	}
 	#endif
 	return 0;
+}
+void r3x_syscall(r3x_cpu_t* CPU) { 
+		if (CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTS){
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) {
+					raise(SIGSEGV);
+				}
+				#ifdef REX_GRAPHICS
+				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU->Graphics);	
+				#else
+				printf("%s", (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
+				#endif
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTI){
+				 char buffer[33];
+				 memset(buffer, 0, 33);
+				 printfstring(buffer, "%d", Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+				 #ifdef REX_GRAPHICS
+				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
+				 #else
+				 printf("%s", buffer);
+				 #endif
+
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTF){
+				char buffer[33];
+				memset(buffer, 0, 33);
+				printfstring(buffer, "%f", (float)return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
+				 #ifdef REX_GRAPHICS
+				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
+				 #else
+				 printf("%s", buffer);
+				 #endif
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETC){
+				#ifdef REX_GRAPHICS
+				// Ensure the there !IS! a keyboard interrupt, our thread will set the is_read value to false if there is.
+				if(is_read == false) {
+					is_read = true; 
+					Stack.Push(CPU->Stack, keycode);
+				}
+				// To prevent race condition, push 0 if is_read == false;
+				else {		
+					
+					Stack.Push(CPU->Stack, 0);				
+				}
+				#else 
+					//int c = getchar();	
+					Stack.Push(CPU->Stack, getchar());
+				#endif
+				
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GLUPDATE){
+				#ifdef REX_GRAPHICS
+				gl_text_update(CPU->Graphics);
+				#endif		
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTCH){
+				#ifdef REX_GRAPHICS
+				vm_putc((char)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), CPU->Graphics);
+				gl_text_update(CPU->Graphics);			
+				#else
+				printf("%c", (char)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+				#endif
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ATOI) {
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
+					raise(SIGSEGV);
+				}
+				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)]));			
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ALLOC) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > 4096) { 
+					printf("Attempt to allocate memory more than 4096 bytes at once\n");
+					raise(SIGSEGV);
+				}	
+				Stack.Push(CPU->Stack, CPU->MemorySize);
+				CPU->MemorySize += Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1);
+				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_DISPATCH) {
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize){
+					raise(SIGSEGV);
+				}
+				r3x_dispatch_job(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), 1, CPU->RootDomain, true);
+							
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_LOADDYNAMIC) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
+					raise(SIGSEGV);
+				}
+				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU));			
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_OPENSTREAM) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
+					raise(SIGSEGV);
+				}
+				Stack.Push(CPU->Stack, stream_open((char*)(&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)])));
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_CLOSESTREAM) { 
+				stream_close((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_SEEKSTREAM) {
+				stream_seek((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3), (long int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_READSTREAM) {
+				if((unsigned int)(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)+Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)) > CPU->MemorySize) { 
+					raise(SIGSEGV);
+				}
+				Stack.Push(CPU->Stack, stream_read((void*)(&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)]), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))); 
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_WRITESTREAM) {
+				if((unsigned int)(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)+Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)) > CPU->MemorySize) { 
+					raise(SIGSEGV);
+				}
+				Stack.Push(CPU->Stack, stream_write((void*)(&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)]), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))); 
+			}
+			else {
+				printf("Invalid Argument passed to R3X_SYSCALL\n");
+			}
 }

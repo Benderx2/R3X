@@ -1,5 +1,10 @@
 include 'r3x_asm.inc'
 format binary as 'r3x'
+define R3_ERROR_CODE 0xFFFFFFFF
+; File functions
+define SEEK_SET 0
+define SEEK_CUR 1
+define SEEK_END 2
 define R3_LOAD_POINT 0x100000
 define VIDEO_MEMORY_START 512
 org 0x100000
