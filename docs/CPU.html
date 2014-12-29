@@ -54,7 +54,7 @@ typedef struct r3x_cpu {
 </pre>
 <h3>CPU Instructions</h3>
 <pre>
-<b>push</b> <i>imm</i> - Pushes an <i>immediate</i> to stack. 
+<b>push</b> <i>imm</i> - Pushes an <i>immediate</i> to stack (use an 'f' suffix for floats). 
 <b>pop</b> - Pops value from stack.
 <b>pushstring</b> <i>immediate string</i> - Pushes an immediate string to stack. 
 <b>pusha</b> <i>imm</i> - Pushes an address to Call Stack.
@@ -82,7 +82,7 @@ typedef struct r3x_cpu {
 <b>lodsb</b> - Loads a byte from address R0 to R1 (8-bit)
 <b>stosb</b> - Stores register R1 to address R0 (8-bit)
 <b>lodsd, stosd</b> - 32-bit equivalents of the above
-<b>cmpsb, cmpsd</b> - Compare 8-bit/32-bit value at address of R3 by R1 and set flags.<br>
+<b>cmpsb, cmpsd</b> - Compare 8-bit/32-bit value at address of R3 by R1 and set flags.
 <b>cmpr</b> <i>register index 1</i> <i>register index 2</i> - Compares 2 registers
 <b>incr, decr</b> <i>register index</i> - Increments/Decrements a register
 <b>int</b> <i>isr</i> - Interrupts program execution, and calls the address assigned to interrupt number "isr"
@@ -93,6 +93,10 @@ typedef struct r3x_cpu {
 <b>syscall</b> <i>imm</i> - Call VMs internal functions (NOTE: IMPLEMENTATION DEFINED)
 <b>shr, shl</b> - Shift right/left second last item on stack by last.
 <b>calldynamic</b> - Call a dynamic library
+<b>fsin, fcos, ftan, asin, acos, atan</b> - Does the appropriate trig operation on the value pushed to stack and pushes the result
+<b>rconv, aconv</b> - Converts angle to radian (rconv), or radian to angle (aconv) whose value is pushed to stack. The result is pushed to stack.
+<b>mod</b> - Does a modulo operation to integer on stack
+<b>fmod</b> - Same as 'mod' but for floats
 <b>exit</b> - Returns a CPU_EXIT_SIGNAL, and quits the program..
 
 </font>

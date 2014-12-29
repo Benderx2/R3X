@@ -234,6 +234,39 @@ macro cmpsd {
 macro shl { 
 	db 0x4B
 }
+macro fsin {
+	db 0x56
+}
+macro fcos {
+	db 0x57
+}
+macro ftan {
+	db 0x58
+}
+macro asin {
+	db 0x59
+}
+macro acos {
+	db 0x5A
+}
+macro atan {
+	db 0x5B
+}
+macro fpow {
+	db 0x5C
+}
+macro mod {
+	db 0x5D
+}
+macro fmod {
+	db 0x5E
+}
+macro rconv {
+	db 0x5F
+}
+macro aconv {
+	db 0x60
+} 
 macro calldynamic {
 	db 0x53
 }

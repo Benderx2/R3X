@@ -56,6 +56,17 @@
 #define R3X_ROR 0x4C
 #define R3X_ROL 0x4D
 #define R3X_CALLDYNAMIC 0x53
+#define R3X_FSIN 0x56
+#define R3X_FCOS 0x57
+#define R3X_FTAN 0x58
+#define R3X_ASIN 0x59
+#define R3X_ACOS 0x5A
+#define R3X_ATAN 0x5B
+#define R3X_FPOW 0x5C
+#define R3X_MOD 0x5D
+#define R3X_FMOD 0x5E
+#define R3X_RCONV 0x5F
+#define R3X_ACONV 0x60 
 // Relocatable instructions
 #define R3X_LODSB_RELOC 0x4E
 #define R3X_LODSD_RELOC 0x4F

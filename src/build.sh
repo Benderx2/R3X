@@ -92,10 +92,16 @@ $CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x
 $CC -o r3x_vm.out $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
 # compile programs
 $AS programs/r3x_ex.asm
+$AS programs/math.asm
+$AS programs/stream.asm
+$AS programs/simplelib.asm
 $AS programs/bios.asm
 # now transfer it 
 mv r3x_vm.out $BINDIR/
 mv programs/r3x_ex.r3x $BINDIR/
+mv programs/math.r3x $BINDIR/
+mv programs/stream.r3x $BINDIR/
+mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 mv *.a $BINDIR/lib/
 # remove all object files

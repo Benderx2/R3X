@@ -14,7 +14,6 @@
 #endif
 #include <r3x_exception.h>
 #include <nt_malloc.h>
-#define get_item_from_stack_top(x) Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-x)
 bool exitcalled = false;
 int r3x_emulate_instruction(r3x_cpu_t* CPU);
 uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
@@ -101,12 +100,12 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// Duplicate the value on the top of stack
 		case R3X_DUP:
-			Stack.Push(CPU->Stack, get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Add: Add 2 values on stack.
 		case R3X_ADD:
-			Stack.Push(CPU->Stack, get_item_from_stack_top(1) + get_item_from_stack_top(2));
+			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Subtract the second last value on stack by last.
@@ -194,18 +193,18 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		case R3X_LOAD:
-			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){ 
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize){ 
 				raise(SIGSEGV);			
 			}
-			Stack.Push(CPU->Stack, *(uint32_t*)(CPU->Memory + get_item_from_stack_top(1)));
+			Stack.Push(CPU->Stack, *(uint32_t*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Store a value which was pushed to stack to an address pushed second last.
 		case R3X_STORE:
-			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize){ 
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) > CPU->MemorySize){ 
 				raise(SIGSEGV);			
 			}
-			*((uint32_t*)&(CPU->Memory[get_item_from_stack_top(2)])) = get_item_from_stack_top(1);
+			*((uint32_t*)&(CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)])) = Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Memory access for registers...
@@ -296,32 +295,32 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// Bitwise operations
 		case R3X_AND:
-			Stack.Push(CPU->Stack, get_item_from_stack_top(2) & get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) & Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_OR:
-			Stack.Push(CPU->Stack, get_item_from_stack_top(2) | get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) | Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_XOR:
-			Stack.Push(CPU->Stack, (unsigned int)get_item_from_stack_top(2) ^ (unsigned int)get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) ^ (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_NOT: 
-			Stack.Push(CPU->Stack, ~get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, ~Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_NEG:
-			Stack.Push(CPU->Stack, !get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, !Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Always set your right foot first soldier! #weirdsuperstitions
 		case R3X_SHR:
-			Stack.Push(CPU->Stack, (unsigned int)get_item_from_stack_top(2) >> (unsigned int)get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) >> (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_SHL:
-			Stack.Push(CPU->Stack, (unsigned int)get_item_from_stack_top(2) << (unsigned int)get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) << (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_ROR:
@@ -332,25 +331,25 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// Native library support (calling native procedures from .so files)
 		case R3X_LOADLIB:
-			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
 				raise(SIGSEGV);			
 			}
 			#ifdef REX_DYNAMIC
-				load_native_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU);
+				load_native_library((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU);
 			#else
 				printf("Not compiled with native dynamic library support. Attempt to call LOADLIB, not supported\n");
 			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LIBEXEC:
-			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
 				raise(SIGSEGV);			
 			}
-			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize) { 
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) > CPU->MemorySize) { 
 				raise(SIGSEGV);			
 			}
 			#ifdef REX_DYNAMIC
-			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + get_item_from_stack_top(1)), returnhandle((char*)(CPU->Memory + get_item_from_stack_top(2)))));
+			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), returnhandle((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)))));
 			#else
 			printf("Not compiled with native dynamic library support. Attempt to call LIBEXEC, not supported\n");
 			#endif
@@ -373,10 +372,10 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// fast memory copy
 		case R3X_MEMCPY:
-			if((unsigned int)get_item_from_stack_top(3)+(unsigned int)get_item_from_stack_top(1) > CPU->MemorySize || (unsigned int)get_item_from_stack_top(2) + (unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
+			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3)+(unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize || (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) + (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) {
 					raise(SIGSEGV);			
 			}
-			memcpy(CPU->Memory + get_item_from_stack_top(3), CPU->Memory + get_item_from_stack_top(2), get_item_from_stack_top(1));
+			memcpy(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3), CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Register operations
@@ -441,59 +440,59 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// Support for REX object files (*.ro)
 		case R3X_CALLDYNAMIC:	
-			if(dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1))==0)	{
+			if(dynamic_call(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))==0)	{
 				printf("Invalid dynamic call, aborting application\n");
 				return -2;
 							
 			}
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
-			CPU->InstructionPointer = dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1));
+			CPU->InstructionPointer = dynamic_call(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			break;
 		// Math Instructions
 		case R3X_FSIN:
-			Stack.Push(CPU->Stack, return_int_from_float(sin(return_float(get_item_from_stack_top(1)))));
+			Stack.Push(CPU->Stack, return_int_from_float(sin(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_FCOS:
-			Stack.Push(CPU->Stack, return_int_from_float(cos(return_float(get_item_from_stack_top(1)))));
+			Stack.Push(CPU->Stack, return_int_from_float(cos(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_FTAN:
-			Stack.Push(CPU->Stack, return_int_from_float(tan(return_float(get_item_from_stack_top(1)))));
+			Stack.Push(CPU->Stack, return_int_from_float(tan(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_ASIN:
-			Stack.Push(CPU->Stack, return_int_from_float(asin(return_float(get_item_from_stack_top(1)))));
+			Stack.Push(CPU->Stack, return_int_from_float(asin(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_ACOS:
-			Stack.Push(CPU->Stack, return_int_from_float(acos(return_float(get_item_from_stack_top(1)))));
+			Stack.Push(CPU->Stack, return_int_from_float(acos(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_ATAN:
-			Stack.Push(CPU->Stack, return_int_from_float(atan(return_float(get_item_from_stack_top(1)))));
+			Stack.Push(CPU->Stack, return_int_from_float(atan(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_FPOW:
-			Stack.Push(CPU->Stack, return_int_from_float(pow(return_float(get_item_from_stack_top(2)), return_float(get_item_from_stack_top(1)))));
+			Stack.Push(CPU->Stack, return_int_from_float(pow(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)), return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Convert to angle 
 		case R3X_ACONV:
-			Stack.Push(CPU->Stack, return_int_from_float(return_float(get_item_from_stack_top(1))*(180.0/M_PI)));
+			Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))*(180.0/M_PI)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Convert to radian
 		case R3X_RCONV:
-			Stack.Push(CPU->Stack, return_int_from_float(return_float(get_item_from_stack_top(1))*(M_PI/180.0)));
+			Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))*(M_PI/180.0)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_MOD:
-			Stack.Push(CPU->Stack, get_item_from_stack_top(2) % get_item_from_stack_top(1));
+			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) % Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_FMOD:
-			Stack.Push(CPU->Stack, return_int_from_float(fmod(return_float(get_item_from_stack_top(2)), return_float(get_item_from_stack_top(1)))));
+			Stack.Push(CPU->Stack, return_int_from_float(fmod(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)), return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Exit application
@@ -605,19 +604,19 @@ int keyboard_thread(void* data) {
 }
 void r3x_syscall(r3x_cpu_t* CPU) { 
 		if (CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTS){
-				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) {
 					raise(SIGSEGV);
 				}
 				#ifdef REX_GRAPHICS
-				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + get_item_from_stack_top(1)), CPU->Graphics);	
+				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU->Graphics);	
 				#else
-				printf("%s", (char*)(CPU->Memory + get_item_from_stack_top(1)));
+				printf("%s", (char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
 				#endif
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTI){
 				 char buffer[33];
 				 memset(buffer, 0, 33);
-				 printfstring(buffer, "%d ", get_item_from_stack_top(1));
+				 printfstring(buffer, "%d", Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 				 #ifdef REX_GRAPHICS
 				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
 				 #else
@@ -628,7 +627,7 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTF){
 				char buffer[33];
 				memset(buffer, 0, 33);
-				printfstring(buffer, "%f ", (float)return_float(get_item_from_stack_top(1)));
+				printfstring(buffer, "%f", (float)return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
 				 #ifdef REX_GRAPHICS
 				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
 				 #else
@@ -660,63 +659,63 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTCH){
 				#ifdef REX_GRAPHICS
-				vm_putc((char)get_item_from_stack_top(1), CPU->Graphics);
+				vm_putc((char)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), CPU->Graphics);
 				gl_text_update(CPU->Graphics);			
 				#else
-				printf("%c", (char)get_item_from_stack_top(1));
+				printf("%c", (char)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 				#endif
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ATOI) {
-				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
 					raise(SIGSEGV);
 				}
-				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[get_item_from_stack_top(1)]));			
+				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)]));			
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ALLOC) { 
-				if((unsigned int)get_item_from_stack_top(1) > 4096) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > 4096) { 
 					printf("Attempt to allocate memory more than 4096 bytes at once\n");
 					raise(SIGSEGV);
 				}	
 				Stack.Push(CPU->Stack, CPU->MemorySize);
-				CPU->MemorySize += get_item_from_stack_top(1);
+				CPU->MemorySize += Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1);
 				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_DISPATCH) {
-				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize){
 					raise(SIGSEGV);
 				}
-				r3x_dispatch_job(get_item_from_stack_top(1), 1, CPU->RootDomain, true);
+				r3x_dispatch_job(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1), 1, CPU->RootDomain, true);
 							
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_LOADDYNAMIC) { 
-				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
 					raise(SIGSEGV);
 				}
-				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU));			
+				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)), CPU));			
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_OPENSTREAM) { 
-				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+				if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
 					raise(SIGSEGV);
 				}
-				Stack.Push(CPU->Stack, stream_open((char*)(&CPU->Memory[get_item_from_stack_top(1)])));
+				Stack.Push(CPU->Stack, stream_open((char*)(&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)])));
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_CLOSESTREAM) { 
-				stream_close((unsigned int)get_item_from_stack_top(1));
+				stream_close((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_SEEKSTREAM) {
-				stream_seek((unsigned int)get_item_from_stack_top(3), (long int)get_item_from_stack_top(2), get_item_from_stack_top(1));
+				stream_seek((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3), (long int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_READSTREAM) {
-				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) { 
+				if((unsigned int)(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)+Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)) > CPU->MemorySize) { 
 					raise(SIGSEGV);
 				}
-				Stack.Push(CPU->Stack, stream_read((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
+				Stack.Push(CPU->Stack, stream_read((void*)(&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)]), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))); 
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_WRITESTREAM) {
-				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) { 
+				if((unsigned int)(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)+Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)) > CPU->MemorySize) { 
 					raise(SIGSEGV);
 				}
-				Stack.Push(CPU->Stack, stream_write((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
+				Stack.Push(CPU->Stack, stream_write((void*)(&CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)]), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))); 
 			}
 			else {
 				printf("Invalid Argument passed to R3X_SYSCALL\n");

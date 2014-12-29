@@ -5,6 +5,7 @@ define R3_ERROR_CODE 0xFFFFFFFF
 define SEEK_SET 0
 define SEEK_CUR 1
 define SEEK_END 2
+define M_PI 3.141592f
 define R3_LOAD_POINT 0x100000
 define VIDEO_MEMORY_START 512
 org 0x100000

@@ -6,6 +6,7 @@
 #include <r3x_stack.h>
 #include <r3x_graphics.h>
 #include <r3x_object.h>
+#include <math.h>
 #include <time.h>
 #define CPU_INVALID_OPCODE_SIGNAL -1
 #define CPU_EXIT_SIGNAL -2

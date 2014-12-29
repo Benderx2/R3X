@@ -48,14 +48,14 @@ int PushtoStack(vstack_t* stack, int object)
 		// Check if there exists a buffer
 		if (stack->stack_count == 0){
 			// Allocate, null out and set.
-			unsigned int* new_buf = NULL;
+			int* new_buf = NULL;
 			new_buf = nt_malloc(DEFAULT_STACK_SIZE);
 			stack->stack_count = 16;
 			stack->content = new_buf;
 		}
 		else {
 			// Allocate it double the size to make sure we don't run out too soon
-			unsigned int* new_buf = nt_malloc(stack->stack_count * 2 * sizeof(int));
+			int* new_buf = nt_malloc(stack->stack_count * 2 * sizeof(int));
 			// Copy the old buffer
 			memcpy(new_buf, stack->content, stack->stack_count * sizeof(int));
 			// Free it, set the new buffer, and the new size

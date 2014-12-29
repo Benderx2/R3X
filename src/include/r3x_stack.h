@@ -7,7 +7,7 @@
 #define STACK_UFLOW_ERR -1
 #define DEFAULT_STACK_SIZE 16 * sizeof(int)
 typedef struct __stack {
-	unsigned int* content;
+	int* content;
 	int top_of_stack;
 	int stack_count;
 } vstack_t;
