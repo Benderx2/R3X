@@ -111,17 +111,14 @@ macro loads off {
 	db 0x17
 	dd off
 }
-macro or op {
+macro or {
 	db 0x13
-	dd op
 }
-macro xor op {
+macro xor {
 	db 0x14
-	dd op
 }
-macro and op {
+macro and {
 	db 0x12
-	dd op
 }
 macro loadlib {
 	db 0x22
