@@ -1,9 +1,10 @@
 include 'libR3X/libR3X.inc'
 include 'simplelib.inc'
 _init:
+	Console.Write "Calling Dynamic Library (simplelib.ro)"
+	Console.NewLine
 	loadsimplelib
 	simplelib_myfunc1
-	loadr R20, 123456
 	Console.Write "Hello, World!"
 	Console.NewLine
 	Console.Write "This is the beta preview of R3X (read : REX) virtual machine"
@@ -21,8 +22,6 @@ _init:
 	lodsd
 	pushr R1
 	Console.WriteInt
-	pushr R20
-	syscall SYSCALL_PUTI
 	Console.WaitKey
 	System.Quit 0
 randomjob:

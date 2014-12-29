@@ -246,15 +246,15 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		case R3X_AND:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) & Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_OR:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) | Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_XOR:
 			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) ^ (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_DUP:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
