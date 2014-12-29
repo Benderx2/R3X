@@ -67,6 +67,18 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
 				i += 4;
 				break;
+			case R3X_CMPSB:
+				temp[i] = R3X_CMPSB_RELOC;
+				i++;
+				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
+				i += 4;
+				break;
+			case R3X_CMPSD:
+				temp[i] = R3X_CMPSB_RELOC;
+				i++;
+				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
+				i += 4;
+				break;
 			case R3X_PUSH_RELOC:
 				temp[i] = R3X_PUSH;
 				i++;
@@ -90,6 +102,9 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			case R3X_LIBEXEC:
 			case R3X_MEMCPY:
 			case R3X_RET:
+			case R3X_AND:
+			case R3X_XOR:
+			case R3X_OR:
 			case R3X_NOT:
 			case R3X_NEG:
 			case R3X_SHR:
@@ -98,9 +113,6 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 				i++;
 				break;
 			case R3X_PUSH:
-			case R3X_AND:
-			case R3X_XOR:
-			case R3X_OR:
 			case R3X_LOADS:
 			case R3X_PUSHA:
 				i += 5;

@@ -84,33 +84,46 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 	CPU->CurrentInstruction = CPU->Memory[CPU->InstructionPointer];
 	switch (CPU->Memory[CPU->InstructionPointer])
 	{
+		// Sleep: Delays the CPU by a cycle. Also used by CPU to skip empty memory, as the opcode is 0x0
 		case R3X_SLEEP:
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Push: Push a 32-bit value to stack.
 		case R3X_PUSH:
 			Stack.Push(CPU->Stack, return_32bit_int_from_ip(CPU));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
+		// Pop: Pop a 32-bit value from stack
 		case R3X_POP:
 			Stack.Pop(CPU->Stack);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Duplicate the value on the top of stack
+		case R3X_DUP:
+			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		// Add: Add 2 values on stack.
 		case R3X_ADD:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Subtract the second last value on stack by last.
 		case R3X_SUB:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2) - Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Multiply 2 values on stack.
 		case R3X_MUL:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2) * Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Divide the second last value by last.
 		case R3X_DIV:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2) / Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Float equivalents of the above
 		case R3X_FADD:
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2)) + return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
@@ -127,10 +140,12 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2)) / return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Compare 2 values on stack and set flags..
 		case R3X_CMP:
 			compare_and_set_flag(CPU, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Jump, Jump If equal, Jump if lesser, jump if greater, jump if zero..
 		case R3X_JMP:
 			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
 			break;
@@ -166,14 +181,17 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
 			break;
+		// Call VM specific function
 		case R3X_SYSCALL:
 			r3x_syscall(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
+		// Load a value from stack offset.
 		case R3X_LOADS:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - return_32bit_int_from_ip(CPU)));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
+		// Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		case R3X_LOAD:
 			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize){ 
 				raise(SIGSEGV);			
@@ -181,6 +199,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, *(uint32_t*)(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Store a value which was pushed to stack to an address pushed second last.
 		case R3X_STORE:
 			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) > CPU->MemorySize){ 
 				raise(SIGSEGV);			
@@ -188,6 +207,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			*((uint32_t*)&(CPU->Memory[Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2)])) = Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Memory access for registers...
 		case R3X_LODSB:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
 				raise(SIGSEGV);			
@@ -216,6 +236,21 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])) = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_CMPSB:
+			if(CPU->Regs[3] > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			compare_and_set_flag(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_CMPSD:
+			if(CPU->Regs[3] > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			compare_and_set_flag(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		// Relocatable versions of those..
 		case R3X_STOSB_RELOC:
 			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
 				raise(SIGSEGV);
@@ -244,6 +279,21 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)];
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
+		case R3X_CMPSB_RELOC:
+			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			compare_and_set_flag(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
+		case R3X_CMPSD_RELOC:
+			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			compare_and_set_flag(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]+return_32bit_int_from_ip(CPU)]), CPU->Regs[1]);
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
+		// Bitwise operations
 		case R3X_AND:
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) & Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
@@ -256,10 +306,30 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) ^ (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
-		case R3X_DUP:
-			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+		case R3X_NOT: 
+			Stack.Push(CPU->Stack, ~Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_NEG:
+			Stack.Push(CPU->Stack, !Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		// Always set your right foot first soldier! #weirdsuperstitions
+		case R3X_SHR:
+			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) >> (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_SHL:
+			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) << (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_ROR:
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_ROL:
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		// Native library support (calling native procedures from .so files)
 		case R3X_LOADLIB:
 			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) { 
 				raise(SIGSEGV);			
@@ -284,6 +354,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			printf("Not compiled with native dynamic library support. Attempt to call LIBEXEC, not supported\n");
 			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+		// Call, ret and call stack operations
 		case R3X_CALL:
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
 			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
@@ -299,6 +370,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Pop(CPU->CallStack);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// fast memory copy
 		case R3X_MEMCPY:
 			if((unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3)+(unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize || (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) + (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1) > CPU->MemorySize) {
 					raise(SIGSEGV);			
@@ -306,6 +378,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			memcpy(CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-3), CPU->Memory + Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Register operations
 		case R3X_LOADR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {	
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
@@ -338,6 +411,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
+		// Program interruption
 		case R3X_INT:
 			if(CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]] != 0) {
 				Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_DOUBLE);
@@ -350,14 +424,6 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->InstructionPointer++;
 			set_interrupt(CPU->Memory[CPU->InstructionPointer], CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_NOT: 
-			Stack.Push(CPU->Stack, ~Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		case R3X_NEG:
-			Stack.Push(CPU->Stack, !Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_PUSHAR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
@@ -372,21 +438,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
-		// Always set your right foot first soldier! #weirdsuperstitions
-		case R3X_SHR:
-			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) >> (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		case R3X_SHL:
-			Stack.Push(CPU->Stack, (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2) << (unsigned int)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		case R3X_ROR:
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		case R3X_ROL:
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+		// Support for REX object files (*.ro)
 		case R3X_CALLDYNAMIC:	
 			if(dynamic_call(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1))==0)	{
 				printf("Invalid dynamic call, aborting application\n");
@@ -395,15 +447,16 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			}
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
 			CPU->InstructionPointer = dynamic_call(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-1));
-			printf("%x\n", CPU->Memory[CPU->InstructionPointer]);
 			break;
+		// Exit application
 		case R3X_EXIT:
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {		
 				r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
-				return -2; // Main exitted close everything and return...
+				return -2; // Main... exitted close everything and return...
 			}
 			r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			return 0;
+		// Rudimentary error handling
 		default:
 			printf("Unknown Opcode: %x, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);
 			raise(SIGSEGV);

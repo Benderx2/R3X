@@ -62,7 +62,9 @@
 #define R3X_STOSB_RELOC 0x50
 #define R3X_STOSD_RELOC 0x51
 #define R3X_PUSH_RELOC 0x52
-// 0x53
+#define R3X_CMPSB_RELOC 0x54
+#define R3X_CMPSD_RELOC 0x55
+// 0x56
 // Syscalls
 #define SYSCALL_PUTS 0x0
 #define SYSCALL_PUTI 0x1

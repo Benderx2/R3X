@@ -82,6 +82,7 @@ typedef struct r3x_cpu {
 <b>lodsb</b> - Loads a byte from address R0 to R1 (8-bit)
 <b>stosb</b> - Stores register R1 to address R0 (8-bit)
 <b>lodsd, stosd</b> - 32-bit equivalents of the above
+<b>cmpsb, cmpsd</b> - Compare 8-bit/32-bit value at address of R3 by R1 and set flags.<br>
 <b>cmpr</b> <i>register index 1</i> <i>register index 2</i> - Compares 2 registers
 <b>incr, decr</b> <i>register index</i> - Increments/Decrements a register
 <b>int</b> <i>isr</i> - Interrupts program execution, and calls the address assigned to interrupt number "isr"

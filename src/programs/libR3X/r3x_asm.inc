@@ -225,6 +225,12 @@ macro pushstring string {
 macro shr { 
 	db 0x4A
 }
+macro cmpsb {
+	db 0x2F
+}
+macro cmpsd {
+	db 0x30
+}
 macro shl { 
 	db 0x4B
 }

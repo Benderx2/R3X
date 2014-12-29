@@ -49,6 +49,12 @@ macro lodsb {
 	db 0x29
 	dd 0
 }
+macro cmpsb {
+
+}
+macro cmpsd {
+
+}
 macro load {
 	display "Error: Attempt to use instruction 'load' in dynamic library. Instruction Not supported"
 	err
