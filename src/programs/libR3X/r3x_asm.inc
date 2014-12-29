@@ -152,18 +152,18 @@ macro lodsb {
 macro lodsd {
 	db 0x31
 }
+macro lodsw {
+	db 0x62
+}
 macro stosb {
 	db 0x2A
 }
 macro stosd {
 	db 0x2E 
 }
-;macro cmpsb {
-;	0x2F
-;}
-;macro cmpsd {
-;	0x30 
-;}
+macro stosw {
+	db 0x61
+}
 macro loadr reg, op {
 	db 0x2B
 	db reg
@@ -230,6 +230,9 @@ macro cmpsb {
 }
 macro cmpsd {
 	db 0x30
+}
+macro cmpsw {
+	db 0x63
 }
 macro shl { 
 	db 0x4B

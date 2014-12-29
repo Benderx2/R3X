@@ -132,6 +132,7 @@ void printstatus(void) {
 	printf("Last pushed value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->Stack, r3_cpu->Stack->top_of_stack-1));
 	printf("Last popped value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->Stack, r3_cpu->Stack->top_of_stack));
 	printf("|Call Stack Information|\n");
+	// TODO: Fix segfault here...
 	/*printf("Call Stack (Address) : %u\n", (unsigned int)((intptr_t)r3_cpu->CallStack));
 	printf("Last pushed Value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->CallStack, r3_cpu->CallStack->top_of_stack-1));
 	printf("Last popped Value : %u\n", (unsigned int)Stack.GetItem(r3_cpu->CallStack, r3_cpu->CallStack->top_of_stack-1));*/

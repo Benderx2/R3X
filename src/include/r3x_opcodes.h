@@ -35,10 +35,13 @@
 #define R3X_POPA 0x27
 #define R3X_MEMCPY 0x28
 #define R3X_LODSB 0x29
+#define R3X_LODSW 0x62
 #define R3X_LODSD 0x31
 #define R3X_STOSB 0x2A
 #define R3X_STOSD 0x2E
+#define R3X_STOSW 0x61
 #define R3X_CMPSB 0x2F
+#define R3X_CMPSW 0x63 
 #define R3X_CMPSD 0x30
 #define R3X_LOADR 0x2B
 #define R3X_PUSHR 0x2C
@@ -66,16 +69,19 @@
 #define R3X_MOD 0x5D
 #define R3X_FMOD 0x5E
 #define R3X_RCONV 0x5F
-#define R3X_ACONV 0x60 
+#define R3X_ACONV 0x60
 // Relocatable instructions
 #define R3X_LODSB_RELOC 0x4E
+#define R3X_LODSW_RELOC 0x66
 #define R3X_LODSD_RELOC 0x4F
 #define R3X_STOSB_RELOC 0x50
+#define R3X_STOSW_RELOC 0x65
 #define R3X_STOSD_RELOC 0x51
 #define R3X_PUSH_RELOC 0x52
 #define R3X_CMPSB_RELOC 0x54
+#define R3X_CMPSW_RELOC 0x64
 #define R3X_CMPSD_RELOC 0x55
-// 0x56
+// 0x67
 // Syscalls
 #define SYSCALL_PUTS 0x0
 #define SYSCALL_PUTI 0x1

@@ -5,6 +5,14 @@ myfunc1:
 	pushad str01
 	syscall SYSCALL_PUTS
 	pop
+	loadr R0, word_data
+	lodsw
+	pushr R1
+	syscall SYSCALL_PUTI
+	pop
+	push 0xA
+	syscall SYSCALL_PUTCH
+	pop
 	ret
 _end_text:
 _export:
@@ -13,7 +21,9 @@ _export:
 	EXPORT_FUNCTION 0x1, myfunc1
 _end_export:
 _data:
-	str01: db 'Hello from dynamic library!', 0xA, 0
+	str01: db 'Hello from dynamic library! I can read stuff from addresses! word_data=',  0
+	word_data: dw 65532
+	dd 0xFFF3FFFF
 _end_data:
 _bss:
 	; BSS here.

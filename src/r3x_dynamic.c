@@ -55,6 +55,12 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
 				i += 4;
 				break;
+			case R3X_STOSW:
+				temp[i] = R3X_STOSW_RELOC;
+				i++;
+				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
+				i += 4;
+				break;
 			case R3X_STOSB:
 				temp[i] = R3X_STOSB_RELOC;
 				i++;
@@ -67,6 +73,12 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
 				i += 4;
 				break;
+			case R3X_LODSW:
+				temp[i] = R3X_LODSW_RELOC;
+				i++;
+				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
+				i += 4;
+				break;
 			case R3X_CMPSB:
 				temp[i] = R3X_CMPSB_RELOC;
 				i++;
@@ -75,6 +87,12 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 				break;
 			case R3X_CMPSD:
 				temp[i] = R3X_CMPSB_RELOC;
+				i++;
+				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
+				i += 4;
+				break;
+			case R3X_CMPSW:
+				temp[i] = R3X_CMPSW_RELOC;
 				i++;
 				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
 				i += 4;
@@ -109,6 +127,16 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			case R3X_NEG:
 			case R3X_SHR:
 			case R3X_SHL:
+			case R3X_FSIN:
+			case R3X_FCOS:
+			case R3X_FTAN:
+			case R3X_ASIN:
+			case R3X_ACOS:
+			case R3X_ATAN:
+			case R3X_MOD:
+			case R3X_FMOD:
+			case R3X_ACONV:
+			case R3X_RCONV:
 			case R3X_EXIT:
 				i++;
 				break;

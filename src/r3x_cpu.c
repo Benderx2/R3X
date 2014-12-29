@@ -216,6 +216,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_LODSW:
+			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
+				raise(SIGSEGV);			
+			}
+			CPU->Regs[1] = *((uint16_t*)(&CPU->Memory[CPU->Regs[0]]));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		case R3X_LODSD:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
 				raise(SIGSEGV);			
@@ -230,6 +237,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->Memory[CPU->Regs[0]] = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_STOSW:
+			if((unsigned int)CPU->Regs[0] > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])) = CPU->Regs[1];
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		case R3X_STOSD:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize) {
 				raise(SIGSEGV);
@@ -242,6 +256,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				raise(SIGSEGV);
 			}
 			compare_and_set_flag(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_CMPSW:
+			if(CPU->Regs[3] > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			compare_and_set_flag(CPU, *(uint16_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSD:
@@ -259,6 +280,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)] = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
+		case R3X_STOSW_RELOC:
+			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			*((uint16_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = CPU->Regs[1];
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
 		case R3X_STOSD_RELOC:
 			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
 				raise(SIGSEGV);
@@ -273,6 +301,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->Regs[1] = *((uint32_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)]));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
+		case R3X_LODSW_RELOC:
+			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
+				raise(SIGSEGV);			
+			}
+			CPU->Regs[1] = *((uint16_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)]));
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
 		case R3X_LODSB_RELOC:
 			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
 				raise(SIGSEGV);			
@@ -285,6 +320,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				raise(SIGSEGV);
 			}
 			compare_and_set_flag(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;
+		case R3X_CMPSW_RELOC:
+			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+				raise(SIGSEGV);
+			}
+			compare_and_set_flag(CPU, CPU->Memory[CPU->Regs[3]], (uint16_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSD_RELOC:
