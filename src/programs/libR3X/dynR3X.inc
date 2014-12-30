@@ -86,6 +86,40 @@ macro store {
 	err
 	
 }
+macro loadrr reg1, reg2 {
+	pushr reg2
+	popr reg1
+}
+macro loadrm size, reg1, memaddr {
+	if reg1 eq R0
+	else 
+	pushr R0
+	end if
+	if reg1 eq R1
+	else 
+	pushr R1
+	end if
+	loadr R0, memaddr
+	if size eq byte
+		lodsb
+	else if size eq word
+		lodsw
+	else if size eq dword
+		lodsd
+	else 
+		display 'Unknown size operand for loadrm'
+		err
+	end if
+	loadrr reg1, R1
+	if reg1 eq R0
+	else 
+	popr R0
+	end if
+	if reg1 eq R1
+	else 
+	popr R1
+	end if
+}
 macro EXPORT_FUNCTION function_id, function_pointer { 
 	dd function_id
 	dd function_pointer

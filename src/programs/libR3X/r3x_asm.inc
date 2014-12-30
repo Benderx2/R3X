@@ -15,6 +15,13 @@ define SYSCALL_CLOSESTREAM 0xC
 define SYSCALL_READSTREAM 0xD
 define SYSCALL_WRITESTREAM 0xE
 define SYSCALL_TELLSTREAM 0xF
+define __REX_WORD 4
+define __REX_8 1
+define __REX_8 2
+define __REX_32 4
+define byte __REX_8
+define word __REX_8
+define dword __REX_32
 ; Register definitions
 define R0 0
 define R1 1
@@ -272,4 +279,26 @@ macro aconv {
 } 
 macro calldynamic {
 	db 0x53
+}
+macro loadrr reg1, reg2 {
+	pushr reg2
+	popr reg1
+}
+macro loadrm size, reg1, memaddr {
+	pushr R0
+	pushr R1
+	loadr R0, memaddr
+	if size eq byte
+		lodsb
+	else if size eq word
+		lodsw
+	else if size eq dword
+		lodsd
+	else 
+		display 'Unknown size operand for loadrm'
+		err
+	end if
+	loadrr reg1, R1
+	popr R1
+	popr R0
 }

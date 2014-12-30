@@ -18,23 +18,27 @@ with key differences.
 </pre>
 <h3>CPU Structure</h3>
 <h3>The REX CPU has 2 stacks and 15 general purpose registers (R0-R15), and an IP register.</h3>
-The CPU structure used by the REX Virtual Machine is defined in src/include/r3x_cpu.h:25<br>
+The CPU structure used by the REX Virtual Machine is defined in src/include/r3x_cpu.h:43<br>
 <textarea name="code" class="c#" cols="60" rows="10">
-typedef struct r3x_cpu { 
-	uint8_t* Memory;
-	uint32_t ISR_handlers[256];
+typedef struct r3x_cpu {
+	// Not global -- Thread dependent
 	vstack_t* Stack;
 	vstack_t* CallStack;
-	Graphics_t* Graphics;
 	unsigned int InstructionPointer;
 	int ErrorCode;
 	bool EqualFlag;
 	bool GreaterFlag;
 	bool LesserFlag;
 	bool ZeroFlag;	
-	int Regs[16];
+	uint32_t Regs[21];
+	// Global -- Thread Independent.
+	uint8_t* Memory;
+	uint32_t ISR_handlers[256];
 	unsigned int CurrentInstruction;
 	unsigned int MemorySize;
+	unsigned int HeapAddr;
+	r3x_global_domain_t* RootDomain;
+	Graphics_t* Graphics;
 	ObjectList_t* ObjectList;
 } r3x_cpu_t;
 </textarea>
@@ -47,16 +51,19 @@ typedef struct r3x_cpu {
 <b><i>Graphics_t* Graphics</i></b>: Pointer to a special structure which functions like a graphics output device.<br>
 <b><i>int ErrorCode</i></b>: Used by CPU to track errors.<br>
 <b><i>bool EqualFlag, GreaterFlag, LesserFlag, ZeroFlag</i></b>: CPU's EF, GF, LF, ZF flags.<br>
-<b><i>int Regs[16]</i></b>: Array of integers containing CPU's registers<br>
+<b><i>uint32_t Regs[21]</i></b>: Array of integers containing CPU's registers<br>
 <b><i>unsigned int CurrentInstruction</i></b>: Stores the current instruction executed by CPU (for debugging purposes).<br>
 <b><i>unsigned int MemorySize</i></b>: Total memory size of CPU<br>
 <b><i>ObjectList_t* ObjectList</i></b>: List of objects maintained by the CPU<br>
+<b><i>r3x_global_domain_t* RootDomain</i></b>: CPU's Root Domain
 </pre>
 <h3>CPU Instructions</h3>
 <pre>
+Note: The instructions prefixed with 'M' in this doc are macro instructions which means the CPU doesn't support those instructions but they are implemented
+through existing ones, and using them may slow down performace<br>
 <b>push</b> <i>imm</i> - Pushes an <i>immediate</i> to stack (use an 'f' suffix for floats). 
 <b>pop</b> - Pops value from stack.
-<b>pushstring</b> <i>immediate string</i> - Pushes an immediate string to stack. 
+<i>M </i></i></m><b>pushstring</b> <i>immediate string</i> - Pushes an immediate string to stack. 
 <b>pusha</b> <i>imm</i> - Pushes an address to Call Stack.
 <b>popa</b> <i>imm</i> - Pops an address from Call Stack.
 <b>add</b> - Adds last 2 integers pushed on stack, and pushes the result
@@ -75,6 +82,8 @@ typedef struct r3x_cpu {
 <b>call</b> <i>imm</i> - Push return value to stack and jump to imm.
 <b>ret</b> - Returns to address popped from Call Stack.
 <b>loadr</b> <i>register index</i>, <i>imm</i> - Load register with immediate
+<i>M </i><b>loadrr</b> register index 1, register index 2 - Load register with register
+<i>M </i><b>loadrm</b> size, register index, address - Dereference address 'address', and load value with size (byte=8-bit, word=16-bit,dword=32-bit) into register
 <b>pushr</b> <i>register index</i> - Push a register on stack
 <b>popr</b> <i>register index</i> - Pop a register from stack
 <b>pushar</b> <i>register index</i> - Pushes a register to call stack
@@ -83,7 +92,7 @@ typedef struct r3x_cpu {
 <b>stosb</b> - Stores register R1 to address R0 (8-bit)
 <b>lodsw/lodsd, stosw/stosd</b> - 16/32-bit equivalents of the above
 <b>cmpsb, cmpsw, cmpsd</b> - Compare 8-bit/16-bit/32-bit value at address of R3 by R1 and set flags.
-<b>cmpr</b> <i>register index 1</i> <i>register index 2</i> - Compares 2 registers
+<i>M </i><b>cmpr</b> <i>register index 1</i> <i>register index 2</i> - Compares 2 registers
 <b>incr, decr</b> <i>register index</i> - Increments/Decrements a register
 <b>int</b> <i>isr</i> - Interrupts program execution, and calls the address assigned to interrupt number "isr"
 <b>loadi</b> <i>isr</i> <i>addr</i> - Assigns address "addr" to interrupt number "isr".

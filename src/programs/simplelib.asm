@@ -5,8 +5,7 @@ myfunc1:
 	pushad str01
 	syscall SYSCALL_PUTS
 	pop
-	loadr R0, word_data
-	lodsw
+	loadrm word, R1, word_data
 	pushr R1
 	syscall SYSCALL_PUTI
 	pop
