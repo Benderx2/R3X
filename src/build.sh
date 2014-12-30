@@ -73,7 +73,7 @@ export LFLAGS="-lc -lm -ldl -rdynamic"
 export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_stack.o  r3x_dispatcher.o r3x_dynamic.o r3x_stream.o libntmalloc.a"
 set -x
 # Compile libntmalloc
-$CC  -c nt_malloc.c -o nt_malloc.o -std=gnu99 -I$INCLUDE_DIR
+$CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
 # compile VM
 $CC $ARCHID $USEDYNAMIC $USEGL $ENDIANFLAGS $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_cpu.c -o r3x_cpu.o
@@ -103,7 +103,6 @@ mv programs/math.r3x $BINDIR/
 mv programs/stream.r3x $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
-mv *.a $BINDIR/lib/
 # remove all object files
 rm *.o
 set +x
