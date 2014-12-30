@@ -15,8 +15,8 @@ include 'libR3X/libR3X.inc'
 	syscall SYSCALL_PUTF
 	pop
 	pop
-	;Console.NewLine
-	;Console.Write "Inverse sine, cosine and tangent of 30 DEG: "
+	Console.NewLine
+	Console.Write "Inverse sine, cosine and tangent of 30 DEG: "
 	asin
 	syscall SYSCALL_PUTF
 	pop
@@ -27,14 +27,14 @@ include 'libR3X/libR3X.inc'
 	syscall SYSCALL_PUTF
 	pop
 	pop
-	;Console.NewLine
-	;Console.Write "Square root of 56: "
+	Console.NewLine
+	Console.Write "Square root of 56: "
 	push 56.0f
 	push 0.5f
 	fpow
 	syscall SYSCALL_PUTF
-	;Console.NewLine
-	;Console.Write "Doing a modulo operation. N=27.6, D=4.5: "
+	Console.NewLine
+	Console.Write "Doing a modulo operation. N=27.6, D=4.5: "
 	push 27.6
 	push 4.5
 	fmod
