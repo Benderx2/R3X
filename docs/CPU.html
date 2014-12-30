@@ -74,6 +74,7 @@ through existing ones, and using them may slow down performace<br>
 <b>slp</b> - Sleep instruction, delay by 1 cycle.
 <b>cmp</b> - Compare the last 2 values on stack, and set flags accordingly. NOTE: EF and GF flags will be set if the second last value is greater or lesser than the first if both are 0 then ZF is set.
 <b>jmp, je, jg, jl, jz</b> <i>imm</i> - Jump, Jump If Equal, Jump if Greater, Jump if Lesser, Jump if Zero
+<i>M </i><b><i>jne, jge, jle</i></b> - Jump if not equal, Jump if greater or equal, Jump if lesser or equal
 <b>dup</b> - Duplicate value last pushed.
 <b>load</b> - Load from address pushed to stack, and push the value (32-bit)
 <b>loads</b> <i>imm</i> - Load from an offset in Stack, and push value (32-bit)
