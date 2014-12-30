@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="cc/CodeGen.cs">
+    <Files>
+      <File FileName="cc/Program.cs" Line="13" Column="44" />
+      <File FileName="cc/Tokenizer.cs" Line="7" Column="3" />
+      <File FileName="cc/Scanner.cs" Line="183" Column="23" />
+      <File FileName="cc/Parser.cs" Line="7" Column="3" />
+      <File FileName="cc/CodeGen.cs" Line="155" Column="4" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

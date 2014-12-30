@@ -12,8 +12,8 @@ namespace cc
 		public const int _BLOCKINDICATOR = 4;
 		public const int _CONSTANT_STRING = 5;
 		public const int _IDENTIFIER = 6;
-		public const int _IDENTIFIER_NUM = 7;
-		public const int _IDENTIFIER_STRING = 8;
+		public const int _LITERAL_NUM = 7;
+		public const int _LITERAL_STRING = 8;
 		public const int _TOKEN_ID_MAX = 9;
 		public const string StartBlock = "{";
 		public const string EndBlock = "}";
@@ -52,6 +52,9 @@ namespace cc
 		public const string KeywordInt = "int";
 		public const string KeywordChar = "char";
 		public const string KeywordFloat = "float";
+		public const string KeywordBool = "bool";
+		public const string KeywordTrue = "true";
+		public const string KeywordFalse = "false";
 		public const string KeywordReturn = "return";
 		public const string KeywordWhile = "while";
 		public const string KeywordIf = "if";
@@ -86,10 +89,10 @@ namespace cc
 			public string ReturnTokenDesc(int token) {
 				if (token == _IDENTIFIER) {
 					return "Identifier";
-				} else if (token == _IDENTIFIER_NUM) {
-					return "Identifier (Raw integer)";
-				} else if (token == _IDENTIFIER_STRING) {
-					return "Identifier (Raw String)";
+				} else if (token == _LITERAL_NUM) {
+					return "Literal (Integer)";
+				} else if (token == _LITERAL_STRING) {
+					return "Literal (String)";
 				} else if (token == _CONSTANT_STRING) {
 					return "Constant (String)";
 				} else if (token == _BLOCKINDICATOR) {
@@ -117,6 +120,7 @@ namespace cc
 				case KeywordChar:
 				case KeywordInt:
 				case KeywordFloat:
+				case KeywordBool:
 					temptok.token_id = _KEYWORD_TYPE;
 					temptok.token_string = Tokens [i];
 					ScannerList.Add (temptok);
@@ -169,11 +173,24 @@ namespace cc
 					ScannerList.Add (temptok);
 					i++;
 					break;
+				case KeywordIf:
+				case KeywordWhile:
+				case KeywordElse:
+				case KeywordReturn:
+				case KeywordAsm:
+				case KeywordSizeof:
+				case KeywordTrue:
+				case KeywordFalse:
+					temptok.token_id = _KEYWORD;
+					temptok.token_string = Tokens [i];
+					ScannerList.Add (temptok);
+					i++;
+					break;
 				default:
 					if (Tokens [i] [0] == '"') {
-						temptok.token_id = _IDENTIFIER_STRING;
+						temptok.token_id = _LITERAL_STRING;
 					} else if (IsNumeric (Tokens [i]) == true) {
-						temptok.token_id = _IDENTIFIER_NUM;
+						temptok.token_id = _LITERAL_NUM;
 					} else {
 						temptok.token_id = _IDENTIFIER;
 					}
