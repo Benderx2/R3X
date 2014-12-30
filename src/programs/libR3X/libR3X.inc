@@ -25,23 +25,39 @@ define R3X_LIB_VERSION 0x10C
 define SYS_NEWLINE 0xD
 define R3X_NEWLINE 0xA
 macro DECLARE_SECTION name {
-        local m,c
-        c equ 0
-        macro .#name [a] \{ 
-                \common 
-                rept 1 x:c+1 \\{ c equ x
-                                 macro m\\#x a \\}
-        \} 
-        macro STORE_SECTION_#name \{ 
-                rept c x \\{ m\\#x \\}
-        \} 
+      local m,c                       ;avoid name clashing
+        c equ 0                         ;initialise the counter
+     macro .#name [a] \{
+           \common
+            rept 1 x:c+1 \\{
+                 c equ x         ;update the counter
+                 macro m\\#x a ;open the macro
+             \\}
+  \}
+    macro STORE_SECTION_#name \{
+           rept c x \\{
+                 m\\#x         ;replay each line
+           \\}
+  \} 
 }
-DECLARE_SECTION DATA
-DECLARE_SECTION BSS
+DECLARE_SECTION text
+DECLARE_SECTION data
+DECLARE_SECTION bss
+macro end {
+	_init:
+	STORE_SECTION_text
+	_end_text:
+	_data:
+	STORE_SECTION_data
+	_end_data:
+	_bss:
+	STORE_SECTION_bss
+	_end_bss:
+}
 macro pushstring string {
 	local addr, behind
 	push addr
-	.DATA \{ addr: db string, 0 \}
+	.data \{ addr: db string, 0 \}
 } 
 ; Console.Write -- Writes a string using syscall puts
 macro Console.Write str {

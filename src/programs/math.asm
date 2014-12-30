@@ -1,5 +1,5 @@
 include 'libR3X/libR3X.inc'
-_init:
+.text {
 	Console.Write "Hello, this example will showcase R3X's math functions"
 	Console.NewLine
 	Console.Write "Sine, Cosine, and tangent of 30 DEG: "
@@ -15,8 +15,8 @@ _init:
 	syscall SYSCALL_PUTF
 	pop
 	pop
-	Console.NewLine
-	Console.Write "Inverse sine, cosine and tangent of 30 DEG: "
+	;Console.NewLine
+	;Console.Write "Inverse sine, cosine and tangent of 30 DEG: "
 	asin
 	syscall SYSCALL_PUTF
 	pop
@@ -27,14 +27,14 @@ _init:
 	syscall SYSCALL_PUTF
 	pop
 	pop
-	Console.NewLine
-	Console.Write "Square root of 56: "
+	;Console.NewLine
+	;Console.Write "Square root of 56: "
 	push 56.0f
 	push 0.5f
 	fpow
 	syscall SYSCALL_PUTF
-	Console.NewLine
-	Console.Write "Doing a modulo operation. N=27.6, D=4.5: "
+	;Console.NewLine
+	;Console.Write "Doing a modulo operation. N=27.6, D=4.5: "
 	push 27.6
 	push 4.5
 	fmod
@@ -42,10 +42,5 @@ _init:
 	Console.WaitKey
 	; VM clears the stack...
 	System.Quit 0
-_end_text:
-_data:
-	STORE_SECTION_DATA
-_end_data:
-_bss:
-	STORE_SECTION_BSS
-_end_bss:
+}
+end

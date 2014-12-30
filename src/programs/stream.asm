@@ -1,5 +1,5 @@
 include 'libR3X/libR3X.inc'
-_init:
+.text {
 	pushstring "./myfile.txt"
 	syscall SYSCALL_OPENSTREAM
 	push mybuf
@@ -14,11 +14,8 @@ _init:
 	Console.WritePointer mybuf
 	Console.WaitKey
 	exit
-_end_text:
-_data:
+}
+.data {
 	mybuf: times 256 db 0
-	STORE_SECTION_DATA
-_end_data:
-_bss:
-	STORE_SECTION_BSS
-_end_bss:
+}
+end

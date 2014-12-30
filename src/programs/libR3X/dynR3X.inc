@@ -26,8 +26,24 @@ macro DECLARE_SECTION name {
                 rept c x \\{ m\\#x \\}
         \} 
 }
-DECLARE_SECTION DATA
-DECLARE_SECTION BSS
+DECLARE_SECTION text
+DECLARE_SECTION data
+DECLARE_SECTION bss
+DECLARE_SECTION export
+macro end {
+	_text:
+	STORE_SECTION_text
+	_end_text:
+	_export:
+	STORE_SECTION_export
+	_end_export:
+	_data:
+	STORE_SECTION_data
+	_end_data:
+	_bss:
+	STORE_SECTION_bss
+	_end_bss:
+}
 macro pushstring string {
 	local addr, behind
 	pushaddr addr

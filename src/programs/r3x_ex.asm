@@ -1,6 +1,6 @@
 include 'libR3X/libR3X.inc'
 include 'simplelib.inc'
-_init:
+.text {
 	Console.Write "Calling Dynamic Library (simplelib.ro)"
 	Console.NewLine
 	loadsimplelib
@@ -34,13 +34,9 @@ randomjob:
 	stosd
 	; A system.quit here will close ONLY this thread, while a system.quit in our init function will close all jobs.
 	jmp .loop1;
-_end_text:	
-_data:	
-	 ; Don't forget to include the data section!
-	 STORE_SECTION_DATA
-	 result: dd 0
+}	
+.data {
+	result: dd 0
 	string: times 256 db 0
-_end_data:
-_bss:
-	 STORE_SECTION_BSS
-_end_bss:
+}
+end
