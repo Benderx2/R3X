@@ -11,5 +11,5 @@ The main goal for R3X is to create an environment which offers maximum portabili
 R3X aims to provide a C-like enviroment, at the same time being highly portable and safe.<br>
 It currently supports streams, multithreading, dynamic memory allocation and dynamic linking<br>
 <br>
-An LLVM port for the R3X architecture is currently in progress.<br>
+An Smaller C port for the R3X architecture is currently in progress. See compiler/cgr3x.c for progress<br>
 See docs/REX.html for more details.<br>
