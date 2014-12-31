@@ -138,6 +138,10 @@ namespace cc
 				case KeywordInt:
 				case KeywordFloat:
 				case KeywordBool:
+					if (Tokens [i + 1] == OperatorDereferenceMulOrTypeCast) {
+						Tokens [i] = Tokens [i] + "*";
+						Tokens [i + 1] = " ";
+					}
 					temptok.token_id = _KEYWORD_TYPE;
 					temptok.token_string = Tokens [i];
 					ScannerList.Add (temptok);
@@ -229,6 +233,10 @@ namespace cc
 					i++;
 					break;
 				default:
+					if(String.IsNullOrWhiteSpace(Tokens[i])==true){
+						i++;
+						break;
+					}
 					if (Tokens [i] [0] == '"') {
 						temptok.token_id = _LITERAL_STRING;
 					} else if (IsNumeric (Tokens [i]) == true) {

@@ -2,9 +2,12 @@ using System;
 
 namespace cc
 {
-	public abstract class SyntaxNode
+	public class SyntaxNode
 	{
-		// Empty class 
+		public SyntaxNode ()
+		{
+
+		}
 	}
 }
 

@@ -1,15 +1,7 @@
 include 'r3x_asm.inc'
-format binary as 'r3x'
-define R3_ERROR_CODE 0xFFFFFFFF
-; File functions
-define SEEK_SET 0
-define SEEK_CUR 1
-define SEEK_END 2
-define M_PI 3.141592f
-define R3_LOAD_POINT 0x100000
-define VIDEO_MEMORY_START 512
+format binary as 'exe'
 org 0x100000
-_begin_r3x_kernel:
+_begin:
 dd 0xBA5EBA11
 dd _init
 dd _end_text - _init
@@ -18,9 +10,17 @@ dd _end_data - _data
 dd _bss
 dd _end_bss - _bss
 dd 0x0
-dd _end_bss - _begin_r3x_kernel
+dd _end_bss - _begin
 db 'ABCDEFG', 0
 db 'PUBLISH', 0
+define R3_ERROR_CODE 0xFFFFFFFF
+; File functions
+define SEEK_SET 0
+define SEEK_CUR 1
+define SEEK_END 2
+define M_PI 3.141592f
+define R3_LOAD_POINT 0x100000
+define VIDEO_MEMORY_START 512
 define R3X_LIB_VERSION 0x10C
 define SYS_NEWLINE 0xD
 define R3X_NEWLINE 0xA

@@ -20,7 +20,7 @@ define __REX_8 1
 define __REX_8 2
 define __REX_32 4
 define byte __REX_8
-define word __REX_8
+define word __REX_16
 define dword __REX_32
 ; Register definitions
 define R0 0

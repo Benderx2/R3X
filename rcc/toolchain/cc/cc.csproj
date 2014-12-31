@@ -43,9 +43,8 @@
     <Compile Include="ParserDeclaration.cs" />
     <Compile Include="ParserAssignment.cs" />
     <Compile Include="ParserConditional.cs" />
-    <Compile Include="ParseStatement.cs" />
-    <Compile Include="SyntaxTree.cs" />
-    <Compile Include="SyntaxTreeBuilder.cs" />
+    <Compile Include="CodeGenFrontEnd.cs" />
+    <Compile Include="SyntaxNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

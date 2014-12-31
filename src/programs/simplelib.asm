@@ -7,6 +7,7 @@ myfunc1:
 	pop
 	loadrm word, R1, word_data
 	pushr R1
+	pushr R1
 	syscall SYSCALL_PUTI
 	pop
 	push 0xA

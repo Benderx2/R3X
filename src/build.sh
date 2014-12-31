@@ -98,9 +98,9 @@ $AS programs/simplelib.asm
 $AS programs/bios.asm
 # now transfer it 
 mv r3x_vm.out $BINDIR/
-mv programs/r3x_ex.r3x $BINDIR/
-mv programs/math.r3x $BINDIR/
-mv programs/stream.r3x $BINDIR/
+mv programs/r3x_ex.exe $BINDIR/
+mv programs/math.exe $BINDIR/
+mv programs/stream.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 # remove all object files
