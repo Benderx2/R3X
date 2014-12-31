@@ -14,7 +14,8 @@ namespace cc
 		public const int _IDENTIFIER = 6;
 		public const int _LITERAL_NUM = 7;
 		public const int _LITERAL_STRING = 8;
-		public const int _TOKEN_ID_MAX = 9;
+		public const int _ASSIGNMENT = 9;
+		public const int _TOKEN_ID_MAX = 10;
 		public const string StartBlock = "{";
 		public const string EndBlock = "}";
 		public const string StartFunctionBlock = "(";
@@ -37,12 +38,22 @@ namespace cc
 		public const string OperatorLogicalOr = "||";
 		public const string OperatorLeftShift = "<<";
 		public const string OperatorRightShift = ">>";
+		public const string OperatorIncrement = "++";
+		public const string OperatorDecrement = "--";
 		public const string OperatorGreaterThan = ">";
 		public const string OperatorLesserThan = "<";
 		public const string OperatorGreaterOrEqualto = ">=";
 		public const string OperatorLesserOrEqualto = "<=";
 		public const string OperatorLogicalEquality = "==";
 		public const string OperatorLogicalInequality = "!=";
+		public const string AssignmentEqual = "=";
+		public const string AssignmentXor = "^=";
+		public const string AssignmentOr = "|=";
+		public const string AssignmentAnd = "&=";
+		public const string AssignmentNeg = "~=";
+		public const string AssignmentAdd = "+=";
+		public const string AssignmentSub = "-=";
+		public const string AssignmentMul = "*=";
 		public const string OperatorComma = ",";
 		public const string KeywordConst = "const";
 		public const string KeywordVolatile = "volatile";
@@ -105,6 +116,8 @@ namespace cc
 					return "Operator";
 				} else if (token == _KEYWORD_TYPEDESC) {
 					return "Type description";
+				} else if (token == _ASSIGNMENT) {
+					return "Assignment Operator";
 				} else {
 					return "Unknown Token";
 				}
@@ -167,6 +180,8 @@ namespace cc
 				case OperatorGreaterThan:
 				case OperatorLesserOrEqualto:
 				case OperatorGreaterOrEqualto:
+				case OperatorDecrement:
+				case OperatorIncrement:
 				case EndStatement:
 					temptok.token_id = _OPERATOR;
 					temptok.token_string = Tokens [i];
@@ -182,6 +197,19 @@ namespace cc
 				case KeywordTrue:
 				case KeywordFalse:
 					temptok.token_id = _KEYWORD;
+					temptok.token_string = Tokens [i];
+					ScannerList.Add (temptok);
+					i++;
+					break;
+				case AssignmentOr:
+				case AssignmentAdd:
+				case AssignmentAnd:
+				case AssignmentEqual:
+				case AssignmentMul:
+				case AssignmentNeg:
+				case AssignmentSub:
+				case AssignmentXor:
+					temptok.token_id = _ASSIGNMENT;
 					temptok.token_string = Tokens [i];
 					ScannerList.Add (temptok);
 					i++;

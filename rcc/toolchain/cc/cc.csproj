@@ -40,6 +40,7 @@
     <Compile Include="Scanner.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="CodeGen.cs" />
+    <Compile Include="ParserDeclaration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

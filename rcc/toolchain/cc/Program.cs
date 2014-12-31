@@ -7,7 +7,7 @@ namespace cc
 	{
 		public static void Main (string[] args)
 		{
-			string mystring = "int main(void)/*Comment*/{\t\nprintf(\"hello world, %d\",27); int a=5; if(a<=6){printf(\"a is not 6\");}return(32-4)&&82;}";
+			string mystring = "unsigned int main(void)/*Comment*/{\t\nprintf(\"hello world, %d\",27); int a=5; if(a<=6){printf(\"a is not 6\");}a++;return(32-4)&&82;}";
 			List<string> mylist = new List<string> ();
 			Tokenizer.TokenizeString (mystring, mylist);
 			for (int i = 0; i < mylist.Count; i++) {
@@ -17,6 +17,8 @@ namespace cc
 			for (int i = 0; i < myscan.Count; i++) {
 				myscan [i].Display ();
 			}
+			Parser.ParserInit (myscan);
+			Console.WriteLine (ParserDeclaration.CheckForFunctionDeclaration ());
 		}
 	}
 }

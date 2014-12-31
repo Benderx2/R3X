@@ -270,9 +270,9 @@ namespace cc
 				stream.WriteLine ("rd 0");
 			}
 			EndSection ();
-			return DataOffset;
+			return currentDataOff;
 		}
-		public static void DeclareData(int size, int value) {
+		public static int DeclareData(int size, int value) {
 			int currentDataOff = DataOffset;
 			DataSection ();
 			if (size == 1) {
@@ -295,6 +295,14 @@ namespace cc
 			DataOffset += value.Length + 1; // add 1 for 0 character
 			EndSection ();
 			return currentDataoff;
+		}
+		public static int DeclareEmptyArray(int size){
+			int currentBSSOff = BSSOffset;
+			BSSSection ();
+			stream.WriteLine ("times " + size.ToString () + " db 0");
+			EndSection ();
+			return currentBSSOff;
+
 		}
 
 	}

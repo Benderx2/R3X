@@ -64,10 +64,8 @@ namespace cc
 							tokenlist.Add (tempbuf);
 							i++;
 							// Handle it different for '!='
-						} else if (a == '!' && tokens [i + 1] == '=') {
-							tempbuf = "!=";
-							tokenlist.Add (tempbuf);
-							i++;
+						} else if(tokens[i+1]=='='){
+							tokenlist.Add (a + "=");
 						} else if (a == '<' || a == '>') {
 							if (tokens [i + 1] == '=') {
 								tokenlist.Add (a.ToString () + tokens [i + 1].ToString ());
