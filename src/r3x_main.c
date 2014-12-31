@@ -23,10 +23,10 @@ r3x_header_t* r3_header = NULL;
 void quitSDL(void);
 int main(int argc, char* argv[])
 {
-	printf("Executable: %s\n", argv[0]);
 	init_stack_construct();
 	#ifdef REX_GRAPHICS
-	nt_malloc_init(true);
+	// Set this to true to enable debugging info.
+	nt_malloc_init(false);
 	#else
 	nt_malloc_init(false);
 	#endif

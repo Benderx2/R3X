@@ -179,7 +179,6 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			lbstructs[i]->libid = i;
 			lbstructs[i]->function_count = dyn_header->export_size / sizeof(export_struct);
 			lbstructs[i]->functions = (export_struct*)&CPU->Memory[loadaddr + dyn_header->export_section];
-			printf("first function: %u\n", lbstructs[i]->functions[1].instruction_pointer);
 			CPU->MemorySize += totalsize;
 			return i;
 		}

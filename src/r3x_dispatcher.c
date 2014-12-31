@@ -30,7 +30,6 @@ unsigned int r3x_dispatch_job(int InstructionPointer, int CycleUpdate, r3x_globa
 			Domain->Jobs[i]->JobID = i;
 			Domain->Jobs[i]->paused = false;
 			Domain->NumberOfActiveJobs++;
-			printf("Job Created: Index: %u\n", i);
 			return i;
 		}	
 	}

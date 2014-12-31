@@ -44,6 +44,8 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	// free the first buffer
 	nt_free(mem1);
 	fclose(fp); // Free the file no need..
+	printf("Executable Name: %s\n", (char*)&mem2[header->nameaddr]);
+	printf("Publisher Name: %s\n", (char*)&mem2[header->pulibsheraddr]); 
 	// return the buffer
 	return mem2;
 }

@@ -3,6 +3,7 @@ format binary as 'exe'
 org 0x100000
 _begin:
 dd 0xBA5EBA11
+dd _begin
 dd _init
 dd _end_text - _init
 dd _data
@@ -11,8 +12,10 @@ dd _bss
 dd _end_bss - _bss
 dd 0x0
 dd _end_bss - _begin
-db 'ABCDEFG', 0
-db 'PUBLISH', 0
+dd REX_EXENAME
+dd REX_PUBNAME
+REX_EXENAME: db 'Default REX Executable', 0
+REX_PUBNAME: db '<No publisher>', 0
 define R3_ERROR_CODE 0xFFFFFFFF
 ; File functions
 define SEEK_SET 0
