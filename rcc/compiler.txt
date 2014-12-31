@@ -1,0 +1,52 @@
+Compiler Documentation
+
+This directory (/rcc), contains the code for the C compiler that is built for R3X machines. 
+The process of compiling is explained below:
+		| Source Code |
+			   |
+			   |
+			   |
+			   |
+			   V
+		| Tokenizer   | ------------------------------ 
+			  |			In this step, the compiler reads 
+			  |			the source input, and then creates
+			  | 		a List<string> to generate a list
+			  |			of separate strings.
+			  |			It ensures that literals, operators
+			  |			and identifiers/keywords are separate from each other
+			  V
+		| Scanner     |  -------------------------------
+			  |			In this step, the tokens are then
+			  |			converted to a more verbose list.
+			  |			(List<Scanner.token_t>). It contains
+			  |			information if the token is a string-literal,
+			  |			integer, identifier, keyword etc.
+			  V
+	   	| Parser      |  -------------------------------
+			  |			In this step, the converted list
+			  |			of tokens are examined and then are
+			  |			put into a syntax node. The parser
+			  |			checks for function/type declaration,
+			  |			assignment, conditional etc. and then 
+			  |			represents them in a abstract tree form.
+			  |			Symbol, function and variable tables are built
+			  |			in this step.
+			  V
+		| Code Generator (Front End) | ------------------------------- 
+			  |						   This is where the abstract syntax
+			  |						   from the parser is used to convert
+			  |						   them into an architecture independent 
+			  |						   assembler, ready to be converted to target
+			  |						   syntax.
+			  |						   --------------------------------
+			  |
+			  V
+		| Code Generator (Back End)  | --------------------------------
+										Finally, the architecture independent
+										assembler to converted to target syntax.
+										This module needs to be rewritten for 
+										every new target.
+										Now the resulting assembler and be directory compiled
+										or linked to another format.
+									  ----------------------------------

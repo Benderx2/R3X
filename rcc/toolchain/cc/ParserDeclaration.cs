@@ -31,8 +31,22 @@ namespace cc
 		public static string CheckForTypeDeclaration(){
 			int CurrentOffset = Parser.CurrentToken;
 			if (Parser.ReadToken ().token_id == Scanner._KEYWORD_TYPE) {
-				return null;
+				if (Parser.ReadToken ().token_id == Scanner._IDENTIFIER) {
+					if (Parser.OpenParenThesis () == false) {
+						return Parser.ReturnParserString (Parser.CurrentToken - 1);
+					}
+					return null;
+				}
 			}
+			Parser.CurrentToken = CurrentOffset;
+			if (Parser.ReadToken ().token_id == Scanner._KEYWORD_TYPEDESC) {
+				if (Parser.ReadToken ().token_id == Scanner._KEYWORD_TYPE) {
+					if (Parser.ReadToken ().token_id == Scanner._IDENTIFIER) {
+						return Parser.ReturnParserString (Parser.CurrentToken - 1);
+					}
+				}
+			}
+			Parser.CurrentToken = CurrentOffset;
 			return null;
 		}
 	}

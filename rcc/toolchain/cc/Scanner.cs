@@ -15,7 +15,9 @@ namespace cc
 		public const int _LITERAL_NUM = 7;
 		public const int _LITERAL_STRING = 8;
 		public const int _ASSIGNMENT = 9;
-		public const int _TOKEN_ID_MAX = 10;
+		public const int _SEMICOLON = 10;
+		public const int _CONDITIONAL = 11;
+		public const int _TOKEN_ID_MAX = 12;
 		public const string StartBlock = "{";
 		public const string EndBlock = "}";
 		public const string StartFunctionBlock = "(";
@@ -118,6 +120,8 @@ namespace cc
 					return "Type description";
 				} else if (token == _ASSIGNMENT) {
 					return "Assignment Operator";
+				} else if (token == _SEMICOLON) {
+					return "Semicolon";
 				} else {
 					return "Unknown Token";
 				}
@@ -182,14 +186,24 @@ namespace cc
 				case OperatorGreaterOrEqualto:
 				case OperatorDecrement:
 				case OperatorIncrement:
-				case EndStatement:
 					temptok.token_id = _OPERATOR;
+					temptok.token_string = Tokens [i];
+					ScannerList.Add (temptok);
+					i++;
+					break;
+				case EndStatement:
+					temptok.token_id = _SEMICOLON;
 					temptok.token_string = Tokens [i];
 					ScannerList.Add (temptok);
 					i++;
 					break;
 				case KeywordIf:
 				case KeywordWhile:
+					temptok.token_id = _CONDITIONAL;
+					temptok.token_string = Tokens [i];
+					ScannerList.Add (temptok);
+					i++;
+					break;
 				case KeywordElse:
 				case KeywordReturn:
 				case KeywordAsm:
