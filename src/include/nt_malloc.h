@@ -13,4 +13,5 @@ void* nt_malloc(size_t);
 int nt_free(void*);
 void nt_freeall(void);
 void nt_atexit(void);
+char* nt_concat(char *s1, char *s2);
 #endif

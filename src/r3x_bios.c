@@ -1,10 +1,12 @@
 #include <r3x_bios.h>
 #include <nt_malloc.h>
 #include <assert.h>
+extern char* ApplicationPath;
 void r3x_load_bios(r3x_header_t* header, r3x_cpu_t* CPU) {
 	// Load the bios, not really sure whatthefuck should i reallyfucking write here.
-	FILE* biosfile = fopen("./bios/bios.bin", "r");
-	if(biosfile == NULL) { printf("Error : bios/bios.bin is missing\n"); nt_freeall(); exit(1); } 
+	char* BIOSPath = nt_concat(ApplicationPath, "/bios/bios.bin");
+	FILE* biosfile = fopen(BIOSPath, "r");
+	if(biosfile == NULL) { printf("Error : %s is missing\n", BIOSPath); nt_freeall(); exit(1); } 
 	else { 
 		// read 512 bytes
 		fseek(biosfile, 0L, SEEK_END);

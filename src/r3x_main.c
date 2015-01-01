@@ -17,12 +17,14 @@
 #include <nt_malloc.h>
 #include <r3x_dynamic.h>
 #include <assert.h>
-char* getapplicationpath(void);
+char* ApplicationPath;
+void GetApplicationPath(void);
 r3x_cpu_t* r3_cpu = NULL;
 r3x_header_t* r3_header = NULL;
 void quitSDL(void);
 int main(int argc, char* argv[])
 {
+	GetApplicationPath();
 	init_stack_construct();
 	#ifdef REX_GRAPHICS
 	// Set this to true to enable debugging info.
@@ -78,8 +80,30 @@ void quitSDL(void) {
 	printf("\n");
 	#endif
 }
-char* getapplicationpath(void) { 
+void GetApplicationPath(void) { 
 	#ifdef __linux__
-	return NULL;
+	char buf[FILENAME_MAX];
+	memset(buf, 0, sizeof(buf));
+	/* Note we use sizeof(buf)-1 since we may need an extra char for NUL. */
+	if (readlink("/proc/self/exe", buf, sizeof(buf)-1) < 0)
+	{
+		/* There was an error...  Perhaps the path does not exist
+		* or the buffer is not big enough.  errno has the details. */
+		perror("readlink");
+		printf("FATAL: Unable to read /proc/self/exe!");
+		exit(EXIT_FAILURE);
+	}
+	ApplicationPath = malloc(strlen(buf)+1);
+	strcpy(ApplicationPath, buf);
+	for(int i = strlen(ApplicationPath); i != 0; i--){
+		// Backwards babe...
+		/** Remove the executable name from the path **/
+		if(ApplicationPath[i] == '/'){
+			memset((char*)((intptr_t)ApplicationPath + i), 0, strlen(ApplicationPath)-i);
+			return;
+		}
+	}
+	#else 
+	#error "GetApplicationPath unimplemented for target, please write your own fucking implementation"
 	#endif
 }
