@@ -85,7 +85,8 @@ through existing ones, and using them may slow down performace<br>
 <b>load</b> - Load from address pushed to stack, and push the value (32-bit)
 <b>loads</b> <i>imm</i> - Load from an offset in Stack, and push value (32-bit)
 <b>store</b> - Store the value last pushed to stack, to the address, pushed second last (32-bit)
-<b>or, xor, and, neg, not</b> - Does the apporpriate bitwise operation on the last 2 values pushed to stack
+<b>or, xor, and</b> - Does the apporpriate bitwise operation on the last 2 values pushed to stack and pushes the result.
+<b>neg, not</b> - Does the appropriate bitwise operation on the last value pushed to stack and pushes the result.
 <b>call</b> <i>imm</i> - Push return value to stack and jump to imm.
 <b>ret</b> - Returns to address popped from Call Stack.
 <b>loadr</b> <i>register index</i>, <i>imm</i> - Load register with immediate
