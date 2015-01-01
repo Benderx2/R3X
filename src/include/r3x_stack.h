@@ -13,11 +13,11 @@ typedef struct __stack {
 } vstack_t;
 typedef struct __stack_construct {
 	vstack_t* (*Create)(void);
-	int(*Push)(vstack_t*, int);
-	int(*Pop)(vstack_t*);
-	int(*Duplicate)(vstack_t*);
-	int(*GetItem)(vstack_t*, int);
-	void(*SetItem)(vstack_t*, int, int);
+	int32_t(*Push)(vstack_t*, int32_t);
+	int32_t(*Pop)(vstack_t*);
+	int32_t(*Duplicate)(vstack_t*);
+	int32_t(*GetItem)(vstack_t*, int);
+	void(*SetItem)(vstack_t*, int, int32_t);
 	void(*DestroyStack)(vstack_t*);
 } stack_construct;
 stack_construct Stack;

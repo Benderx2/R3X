@@ -13,11 +13,11 @@ body {
 <h2>CPU</h2>
 <h3>Introduction</h3>
 <pre>
-The REX CPU is a 32-bit stack based (with registers) virtual machine. It is based upon the Flouronix Machine Architecture, 
+The R3X CPU is a 32-bit stack based, little endian, RISC (with registers) virtual machine. It is based upon the Flouronix Machine Architecture, 
 with key differences.
 </pre>
 <h3>CPU Structure</h3>
-<h3>The REX CPU has 2 stacks and 15 general purpose registers (R0-R15), and an IP register.</h3>
+<h3>The R3X CPU has 2 stacks and 15 general purpose registers (R0-R15), and an IP register.</h3>
 The CPU structure used by the REX Virtual Machine is defined in src/include/r3x_cpu.h:43<br>
 <textarea name="code" class="c#" cols="60" rows="10">
 typedef struct r3x_cpu {
@@ -30,6 +30,7 @@ typedef struct r3x_cpu {
 	bool GreaterFlag;
 	bool LesserFlag;
 	bool ZeroFlag;	
+	uint32_t FLAGS;
 	uint32_t Regs[21];
 	// Global -- Thread Independent.
 	uint8_t* Memory;
@@ -51,6 +52,8 @@ typedef struct r3x_cpu {
 <b><i>Graphics_t* Graphics</i></b>: Pointer to a special structure which functions like a graphics output device.<br>
 <b><i>int ErrorCode</i></b>: Used by CPU to track errors.<br>
 <b><i>bool EqualFlag, GreaterFlag, LesserFlag, ZeroFlag</i></b>: CPU's EF, GF, LF, ZF flags.<br>
+<b><i>uint32_t FLAGS</i></b> - CPU FLAGS register constructed from the above. The layout (in bits) is as follows:<br>
+<pre>|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|Z|L|G|E|</pre><br>
 <b><i>uint32_t Regs[21]</i></b>: Array of integers containing CPU's registers<br>
 <b><i>unsigned int CurrentInstruction</i></b>: Stores the current instruction executed by CPU (for debugging purposes).<br>
 <b><i>unsigned int MemorySize</i></b>: Total memory size of CPU<br>
@@ -63,6 +66,8 @@ Note: The instructions prefixed with 'M' in this doc are macro instructions whic
 through existing ones, and using them may slow down performace<br>
 <b>push</b> <i>imm</i> - Pushes an <i>immediate</i> to stack (use an 'f' suffix for floats). 
 <b>pop</b> - Pops value from stack.
+<b>pushf</b> - Push FLAGS register
+<b>popf</b> - Pop FLAGS register
 <b>popn</b> <i>imm</i> - Pops 'imm' number of values from stack.
 <i>M </i></i></m><b>pushstring</b> <i>immediate string</i> - Pushes an immediate string to stack. 
 <b>pusha</b> <i>imm</i> - Pushes an address to Call Stack.

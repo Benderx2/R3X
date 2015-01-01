@@ -292,6 +292,12 @@ macro loadrr reg1, reg2 {
 	pushr reg2
 	popr reg1
 }
+macro pushf {
+	db 0x69
+}
+macro popf {
+	db 0x6A
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1

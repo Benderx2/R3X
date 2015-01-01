@@ -17,6 +17,8 @@
 #define get_item_from_stack_top(x) Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-x)
 bool exitcalled = false;
 int r3x_emulate_instruction(r3x_cpu_t* CPU);
+void push_flags(r3x_cpu_t* CPU);
+void pop_flags(r3x_cpu_t* CPU);
 uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
 uint32_t return_32bit_int_from_ip(r3x_cpu_t*);
 float return_float(uint32_t num32);
@@ -26,6 +28,10 @@ void printfstring(char* string, const char * format, ... );
 void compare_and_set_flag_signed(r3x_cpu_t* CPU, int op1, int op2);
 void compare_and_set_flag_unsigned(r3x_cpu_t* CPU, unsigned int op1, unsigned int op2);
 void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
+uint32_t set_bit32(uint32_t num, int bit);
+uint32_t unset_bit32(uint32_t num, int bit);
+uint32_t toggle_bit32(uint32_t num, int bit);
+bool test_bit32(uint32_t num, int bit);
 void r3x_syscall(r3x_cpu_t* CPU);
 typedef union __32bit_typecast {
 	uint32_t __num32;
@@ -105,6 +111,15 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			for(unsigned int i = 0; i < return_32bit_int_from_ip(CPU); i++){
 				Stack.Pop(CPU->Stack);
 			}
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		// Push the FLAGS register on stack
+		case R3X_PUSHF:
+			push_flags(CPU);
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_POPF:
+			pop_flags(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Duplicate the value on the top of stack
@@ -322,7 +337,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		case R3X_LODSB_RELOC:
 			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				raise(SIGSEGV);
 			}
 			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)];
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
@@ -595,7 +610,7 @@ uint32_t return_32bit_int_from_ip(r3x_cpu_t* CPU)
 	uint8_t d = CPU->Memory[CPU->InstructionPointer+4];
 	return return_32bit_int(a, b, c, d);
 }
-void compare_and_set_flag_signed(r3x_cpu_t* CPU, int op1, int op2)
+void compare_and_set_flag_signed(r3x_cpu_t* CPU, signed int op1, signed int op2)
 {
 	// False out all flags
 	CPU->EqualFlag = false;
@@ -796,4 +811,54 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 			else {
 				printf("Invalid Argument passed to R3X_SYSCALL\n");
 			}
+}
+uint32_t set_bit32(uint32_t num, int bit){
+	num |= 1 << bit;
+	return num;
+}
+uint32_t unset_bit32(uint32_t num, int bit){
+	num &= ~(1 << bit);
+	return num;
+}
+uint32_t toggle_bit32(uint32_t num, int bit){
+	num ^= 1 << bit;
+	return num;
+}
+bool test_bit32(uint32_t num, int bit){
+	num = !!(num & (1 << bit));
+	if(num == 0){ return false; }
+	return true;
+}
+void push_flags(r3x_cpu_t* CPU){
+	CPU->FLAGS = 0x00000000;
+	if(CPU->EqualFlag == true){
+		CPU->FLAGS = set_bit32(CPU->FLAGS, EFLAG_BIT);
+	}
+	if(CPU->GreaterFlag == true){
+		CPU->FLAGS = set_bit32(CPU->FLAGS, GFLAG_BIT);
+	}
+	if(CPU->LesserFlag == true){
+		CPU->FLAGS = set_bit32(CPU->FLAGS, LFLAG_BIT);
+	}
+	if(CPU->ZeroFlag == true){
+		CPU->FLAGS = set_bit32(CPU->FLAGS, ZFLAG_BIT);
+	}
+	Stack.Push(CPU->Stack, CPU->FLAGS);
+}
+void pop_flags(r3x_cpu_t* CPU){
+	uint32_t flags = (uint32_t)get_item_from_stack_top(1);
+	CPU->EqualFlag = false; CPU->GreaterFlag = false; CPU->LesserFlag = false; CPU->ZeroFlag = false;
+	if(test_bit32(flags, EFLAG_BIT)==true){
+		CPU->EqualFlag = true;
+	} 
+	if(test_bit32(flags, GFLAG_BIT)==true){
+		CPU->GreaterFlag = true;
+	}
+	if(test_bit32(flags, LFLAG_BIT)==true){
+		CPU->LesserFlag = true;
+	}
+	if(test_bit32(flags, ZFLAG_BIT)==true){
+		CPU->ZeroFlag = true;
+	}
+	Stack.Pop(CPU->Stack);
 }

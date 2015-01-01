@@ -8,6 +8,10 @@
 #include <r3x_object.h>
 #include <math.h>
 #include <time.h>
+#define EFLAG_BIT 0
+#define GFLAG_BIT 1
+#define LFLAG_BIT 2
+#define ZFLAG_BIT 3
 #define CPU_INVALID_OPCODE_SIGNAL -1
 #define CPU_EXIT_SIGNAL -2
 #define CPU_INCREMENT_SINGLE 1
@@ -50,6 +54,7 @@ typedef struct r3x_cpu {
 	bool GreaterFlag;
 	bool LesserFlag;
 	bool ZeroFlag;	
+	uint32_t FLAGS;
 	uint32_t Regs[21];
 	// Global -- Thread Independent.
 	uint8_t* Memory;
