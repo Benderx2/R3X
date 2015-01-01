@@ -1,4 +1,5 @@
 use32
+; Custom Instruction set, using fasm preprocessor for R3X Systems
 define SYSCALL_PUTS 0x0 
 define SYSCALL_PUTI 0x1 
 define SYSCALL_PUTF 0x2
@@ -270,6 +271,13 @@ macro mod {
 }
 macro fmod {
 	db 0x5E
+}
+macro cmps {
+	db 0x67
+}
+macro popn num {
+	db 0x68
+	dd num
 }
 macro rconv {
 	db 0x5F

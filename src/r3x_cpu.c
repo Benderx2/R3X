@@ -23,7 +23,8 @@ float return_float(uint32_t num32);
 int keyboard_thread(void* data);
 uint32_t return_int_from_float(float fl32);
 void printfstring(char* string, const char * format, ... );
-void compare_and_set_flag(r3x_cpu_t* CPU, int op1, int op2);
+void compare_and_set_flag_signed(r3x_cpu_t* CPU, int op1, int op2);
+void compare_and_set_flag_unsigned(r3x_cpu_t* CPU, unsigned int op1, unsigned int op2);
 void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
 void r3x_syscall(r3x_cpu_t* CPU);
 typedef union __32bit_typecast {
@@ -99,6 +100,13 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Pop(CPU->Stack);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Pop number of integers from stack
+		case R3X_POPN:
+			for(unsigned int i = 0; i < return_32bit_int_from_ip(CPU); i++){
+				Stack.Pop(CPU->Stack);
+			}
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		// Duplicate the value on the top of stack
 		case R3X_DUP:
 			Stack.Push(CPU->Stack, get_item_from_stack_top(1));
@@ -143,7 +151,11 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// Compare 2 values on stack and set flags..
 		case R3X_CMP:
-			compare_and_set_flag(CPU, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
+			compare_and_set_flag_unsigned(CPU, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_CMPS:
+			compare_and_set_flag_signed(CPU, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Jump, Jump If equal, Jump if lesser, jump if greater, jump if zero..
@@ -255,21 +267,21 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			if(CPU->Regs[3] > CPU->MemorySize) {
 				raise(SIGSEGV);
 			}
-			compare_and_set_flag(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
+			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSW:
 			if(CPU->Regs[3] > CPU->MemorySize) {
 				raise(SIGSEGV);
 			}
-			compare_and_set_flag(CPU, *(uint16_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
+			compare_and_set_flag_unsigned(CPU, *(uint16_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSD:
 			if(CPU->Regs[3] > CPU->MemorySize) {
 				raise(SIGSEGV);
 			}
-			compare_and_set_flag(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
+			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Relocatable versions of those..
@@ -319,21 +331,21 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
 				raise(SIGSEGV);
 			}
-			compare_and_set_flag(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
+			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSW_RELOC:
 			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
 				raise(SIGSEGV);
 			}
-			compare_and_set_flag(CPU, CPU->Memory[CPU->Regs[3]], (uint16_t)CPU->Regs[1]);
+			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint16_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSD_RELOC:
 			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
 				raise(SIGSEGV);
 			}
-			compare_and_set_flag(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]+return_32bit_int_from_ip(CPU)]), CPU->Regs[1]);
+			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]+return_32bit_int_from_ip(CPU)]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		// Bitwise operations
@@ -583,7 +595,7 @@ uint32_t return_32bit_int_from_ip(r3x_cpu_t* CPU)
 	uint8_t d = CPU->Memory[CPU->InstructionPointer+4];
 	return return_32bit_int(a, b, c, d);
 }
-void compare_and_set_flag(r3x_cpu_t* CPU, int op1, int op2)
+void compare_and_set_flag_signed(r3x_cpu_t* CPU, int op1, int op2)
 {
 	// False out all flags
 	CPU->EqualFlag = false;
@@ -591,16 +603,37 @@ void compare_and_set_flag(r3x_cpu_t* CPU, int op1, int op2)
 	CPU->GreaterFlag = false;
 	CPU->LesserFlag = false;
 	// Compare values and set CPU flags accordingly
-	if ((unsigned int)op1 == (unsigned int)op2){
+	if (op1 == op2){
 		CPU->EqualFlag = true;
 	}
-	if ((unsigned int)op1 == 0){
+	if (op1 == 0){
 		CPU->ZeroFlag = true;
 	}
-	if ((unsigned int)op1 > (unsigned int)op2){
+	if (op1 > op2){
 		CPU->GreaterFlag = true;
 	}
-	if ((unsigned int)op1 < (unsigned int)op2){
+	if (op1 < op2){
+		CPU->LesserFlag = true;
+	}
+}
+void compare_and_set_flag_unsigned(r3x_cpu_t* CPU, unsigned int op1, unsigned int op2)
+{
+	// False out all flags
+	CPU->EqualFlag = false;
+	CPU->ZeroFlag = false;
+	CPU->GreaterFlag = false;
+	CPU->LesserFlag = false;
+	// Compare values and set CPU flags accordingly
+	if (op1 == op2){
+		CPU->EqualFlag = true;
+	}
+	if (op1 == 0){
+		CPU->ZeroFlag = true;
+	}
+	if (op1 > op2){
+		CPU->GreaterFlag = true;
+	}
+	if (op1 < op2){
 		CPU->LesserFlag = true;
 	}
 }

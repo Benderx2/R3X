@@ -20,7 +20,7 @@ namespace cc
 		public static int BSSOffset = 0;
 		private static StreamWriter stream;
 		public static StreamWriter OpenWriteStream(string name){
-			File.Create (name);
+			//File.Create (name);
 			StreamWriter file = new System.IO.StreamWriter (name);
 			file.AutoFlush = true;
 			return file;
@@ -28,12 +28,13 @@ namespace cc
 		public static void WriteStream(string towrite){
 			stream.WriteLine (towrite);
 		}
-		public static void CodeGenInit(int argc, string[] argv){
-			stream = OpenWriteStream (argv[1]);
+		public static void CodeGenInit(string path){
+			stream = OpenWriteStream (path);
 			Target = new machine_t ();
 			Target.name = "R3X System";
 			Target.WordSize = 4;
 			Target.number_of_registers = 21;
+			Target.registers = new List<string> ();
 			Target.registers.Add ("R0");
 			Target.registers.Add ("R1");
 			Target.registers.Add ("R2");
@@ -58,10 +59,10 @@ namespace cc
 			CodeHeader = "include \"libR3X/libR3X.inc\"";
 			CodeFooter = "end";
 			Target.UseABIUnderscores = true;
-			stream.Write (CodeHeader);
+			stream.WriteLine (CodeHeader);
 		}
 		public static void GenFinalize(){
-			stream.Write (CodeFooter);
+			stream.WriteLine (CodeFooter);
 		}
 		public static string GenerateFunctionLabel(string functionname) {
 			if (Target.UseABIUnderscores == true) {

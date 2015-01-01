@@ -70,6 +70,8 @@
 #define R3X_FMOD 0x5E
 #define R3X_RCONV 0x5F
 #define R3X_ACONV 0x60
+#define R3X_CMPS 0x67
+#define R3X_POPN 0x68
 // Relocatable instructions
 #define R3X_LODSB_RELOC 0x4E
 #define R3X_LODSW_RELOC 0x66

@@ -7,16 +7,12 @@ namespace cc
 	{
 		public static void Main (string[] args)
 		{
-			string mystring = "char* main(int argc, const char* argv[])/*Comment*/{\t\nprintf(\"hello world, %d\",27); int a=5; if(a<=6){printf(\"a is not 6\");}a++;return(32-4)&&82;}";
+			string mystring = "5+3+(2+7);";
 			List<string> mylist = new List<string> ();
 			Tokenizer.TokenizeString (mystring, mylist);
-			for (int i = 0; i < mylist.Count; i++) {
-				Console.WriteLine (mylist [i]);
-			}
 			List<Scanner.token_t> myscan = Scanner.ScanTokens (mylist);
-			for (int i = 0; i < myscan.Count; i++) {
-				myscan [i].Display ();
-			}
+			Parser.ParserInit (myscan);
+			Parser.ParseExpression ();
 		}
 	}
 }

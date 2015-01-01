@@ -1,10 +1,10 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="cc/SyntaxNode.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="cc/Parser.cs">
     <Files>
-      <File FileName="cc/Program.cs" Line="19" Column="5" />
-      <File FileName="cc/ParserAssignment.cs" Line="1" Column="1" />
-      <File FileName="cc/SyntaxNode.cs" Line="9" Column="4" />
+      <File FileName="cc/Program.cs" Line="10" Column="32" />
+      <File FileName="cc/Parser.cs" Line="46" Column="27" />
+      <File FileName="cc/CodeGen.cs" Line="65" Column="20" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

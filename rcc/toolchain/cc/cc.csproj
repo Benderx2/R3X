@@ -38,13 +38,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tokenizer.cs" />
     <Compile Include="Scanner.cs" />
-    <Compile Include="Parser.cs" />
     <Compile Include="CodeGen.cs" />
-    <Compile Include="ParserDeclaration.cs" />
-    <Compile Include="ParserAssignment.cs" />
-    <Compile Include="ParserConditional.cs" />
     <Compile Include="CodeGenFrontEnd.cs" />
-    <Compile Include="SyntaxNode.cs" />
+    <Compile Include="Parser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

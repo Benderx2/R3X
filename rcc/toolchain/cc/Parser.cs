@@ -4,80 +4,101 @@ namespace cc
 {
 	public class Parser
 	{
+		public static bool IsEnd = false;
 		public static int CurrentToken;
-		public static List<Scanner.token_t> TokenList;
-		public static void ParserInit(List<Scanner.token_t> Tokens){
-			TokenList = Tokens;
+		public static List<Scanner.token_t> GlobalTokenList;
+		public static void ParserInit(List<Scanner.token_t> TokenList){
+			GlobalTokenList = TokenList;
 			CurrentToken = 0;
+			CodeGen.CodeGenInit ("output.txt");
+		}
+		public static void ParseExpression(){
+			Scanner.token_t mytok;
+			CodeGen.TextSection ();
+				while (IsEnd == false) {
+				mytok = ReadToken ();
+				if (mytok.token_id != Scanner._OPERATOR && mytok.token_id != Scanner._LITERAL_NUM && mytok.token_id != Scanner._SEMICOLON && mytok.token_id != Scanner._BLOCKINDICATOR) {
+					throw new Exception (string.Format ("Unknown Character!"));
+				}
+				ProcessToken (mytok);
+			}
+			CodeGen.EndSection ();
+			CodeGen.GenFinalize ();
+		}
+		public static void ProcessToken(Scanner.token_t Token){
+			switch (Token.token_id) {
+			case Scanner._LITERAL_NUM:
+			case Scanner._BLOCKINDICATOR:
+			case Scanner._OPERATOR:
+				ProcessOperator (Token);
+				break;
+			case Scanner._SEMICOLON:
+				IsEnd = true;
+				break;
+			}
+		}
+		public static void ProcessOperator(Scanner.token_t Operator){
+			switch (Operator.token_string) {
+			case Scanner.OperatorAdd:
+				Console.WriteLine ("PEEKTOKEN: " + PeekToken (CurrentToken + 1).token_string);
+				if (PeekToken (CurrentToken + 1).token_string == "(") {
+					Scanner.token_t mytok = new Scanner.token_t(); 
+					mytok = ReadToken ();
+					while (mytok.token_string != ")") {
+						mytok = ReadToken ();
+						Console.WriteLine ("DEBUG: " + mytok.token_string);
+						if (mytok.token_id != Scanner._OPERATOR && mytok.token_id != Scanner._LITERAL_NUM && mytok.token_id != Scanner._SEMICOLON && mytok.token_id != Scanner._BLOCKINDICATOR) {
+							throw new Exception (string.Format ("Unknown Character!"));
+						}
+						ProcessToken (mytok);
+					}
+				} else {
+					CodeGen.PushRegister (0);
+					Console.WriteLine (PeekToken (CurrentToken).token_string);
+					CodeGen.PushtoStack (Convert.ToInt32 (ReadToken ().token_string));
+					CodeGen.DoAddOnStack ();
+					CodeGen.PopRegister (0);
+				}
+				break;
+			case Scanner.OperatorMul:
+				CodeGen.PushRegister (0);
+				CodeGen.PushtoStack (Convert.ToInt32 (ReadToken ().token_string));
+				CodeGen.DoMulOnStack ();
+				CodeGen.PopRegister (0);
+				break;
+			case Scanner.OperatorSub:
+				CodeGen.PushRegister (0);
+				CodeGen.PushtoStack (Convert.ToInt32 (ReadToken ().token_string));
+				CodeGen.DoMulOnStack ();
+				CodeGen.PopRegister (0);
+				break;
+			case Scanner.OperatorDivide:
+				CodeGen.PushRegister (0);
+				CodeGen.PushtoStack (Convert.ToInt32 (ReadToken ().token_string));
+				CodeGen.DoDivOnStack ();
+				CodeGen.PopRegister (0);
+				break;
+			default:
+				Console.WriteLine (PeekToken (CurrentToken-1).token_string);
+				CodeGen.LoadRegisterWithImmediate (0, Convert.ToInt32 (PeekToken(CurrentToken-1).token_string));
+				break;
+			}
 		}
 		public static Scanner.token_t ReadToken(){
-			Scanner.token_t temp = TokenList [CurrentToken];
-			CurrentToken++;
-			if (CurrentToken >= TokenList.Count) {
-				Console.WriteLine ("Read all tokens. Parser Error!");
-
-			}
-			return temp;
-		}
-		public static bool OpenParenThesis() {
-			if (TokenList [CurrentToken].token_string == "(" && TokenList[CurrentToken].token_id == Scanner._BLOCKINDICATOR) {
-				return true;
+			if (CurrentToken >= GlobalTokenList.Count) {
+				Console.WriteLine ("Unexpected end of file");
+				throw new Exception (string.Format ("Parser Error: Unexpected end of file reached"));
 			} else {
-				return false;
+				CurrentToken++;
+				return GlobalTokenList [CurrentToken-1];
 			}
 		}
-		public static bool CheckSemiColon(){
-			if (TokenList [CurrentToken].token_string == ";" && TokenList [CurrentToken].token_id == Scanner._OPERATOR) {
-				return true;
+		public static Scanner.token_t PeekToken(int index){
+			if (index > GlobalTokenList.Count) {
+				return GlobalTokenList [GlobalTokenList.Count];
 			} else {
-				return false;
+				return GlobalTokenList [index];
 			}
-		}
-		public static bool CloseParenThesis(){
-			if (TokenList [CurrentToken].token_string == ")" && TokenList [CurrentToken].token_id == Scanner._BLOCKINDICATOR) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-		public static List<string> ReadUntilEndParenthesis(){
-			Stack<string> ParenthesisStack = new Stack<string>();
-			List<string> ArgList = new List<string> ();
-			string mystring = "";
-			while (mystring != null) {
-				mystring = ReadToken ().token_string;
-				if (mystring == "(") {
-					ParenthesisStack.Push ("(");
-					ArgList.Add ("(");
-				} else if (mystring == ")") {
-					ParenthesisStack.Pop ();
-					ArgList.Add (")");
-					if (ParenthesisStack.Count == 0) {
-						return ArgList;
-					}
-				} else if (mystring == "{" || mystring == null || mystring == ";") {
-					return ArgList;
-				} else {
-					ArgList.Add (mystring);
-				}
-			}
-			return ArgList;
-		}
-		public static string ReturnParserString(int off){
-			return TokenList [off].token_string;
-		}
-		public static List<string> ReadUntilSemiColon(){
-			List<string> stuff = new List<string> ();
-			string mystring = "";
-			while (mystring != ";" || mystring != null) {
-				mystring = ReadToken ().token_string;
-				if (String.IsNullOrWhiteSpace (mystring) == true || mystring == ";") {
-					return stuff;
-				} else {
-					stuff.Add (mystring);
-				}
-			}
-			return stuff;
 		}
 	}
 }
