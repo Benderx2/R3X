@@ -25,13 +25,13 @@ Graphics_t* InitGraphics(void)
 		fprintf(stderr, "Can't gather Video Information: %s\n", SDL_GetError());
 		exit(1);
 	}
-	graphics->Width = 720;
-	graphics->Height = 540;
+	graphics->Width = 800;
+	graphics->Height = 608;
 	graphics->Depth = graphics->VideoInfo->vfmt->BitsPerPixel;
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-    	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-    	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
    	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	graphics->SDLFlags = SDL_OPENGL;
 	if((graphics-> Screen = SDL_SetVideoMode(graphics->Width, graphics->Height, graphics->Depth, graphics->SDLFlags)) == 0){

@@ -23,8 +23,8 @@ get_system_information:
 	push BIOS_VER
 	push IS_UNIX
 	ret
-CPU_STRING: db "REX CPU, Based upon FVM Technology. (C) Benderx2", 0x0A, 0
-BIOS_STRING: db "R3X BIOS 0.1.7 --- Beefy Bacon", 0x0A, 0
+CPU_STRING: db "R3X CPU, Based upon FVM Technology. (C) Benderx2", 0x0A, 0
+BIOS_STRING: db "R3X BIOS 0.1.7b --- Crispy Pie (Stable)", 0x0A, 0
 is_exec: dd 0
 _END:
 	times 512 - _END db 0
