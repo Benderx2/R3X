@@ -15,13 +15,15 @@ body {
 The BIOS is the first thing that is loaded and executed by the REX virtual machine. It is a separate program with a fixed size of 512 bytes<br>
 located in /executable_directory/bios/bios,bin as defined by the standard. It is loaded at address 0 and has an implementation defined format<br>
 (binary for the offical implementation).<br>
-Although what the BIOS actually does is totally based upon the implementation, however there is one special requirement that a REX BIOS<br>
-needs to adhere to, it is giving the program system information through interrupt 0x20.<br>
-A REX BIOS is supposed to register interrupt 0x20, when a program calls interrupt 0x20, the handler<br> is supposed to:<br>
-1. Push the REX CPU ID to normal stack
-2. Push the BIOS ID to normal stack 
-3. Push the IS_UNIX flag to normal stack (1 = System running on a UNIX-compliant OS / 2 = Running on a non-standard OS)
-...and return to code without changing the value of ANY registers and without modifying the call stack.
+
+The BIOS is the part of the main thread, and hence is responsible for executing the application. The CPU passes the address of the application's<br>
+init in register R0. The BIOS is supposed to jump to this address, and NOT modify the value of R0.<br>
+
+The BIOS provides a function known as 'sysinfo', which is installed at interrupt 0x20, calling this interrupt would<br>
+push the system information values in the following order:<br>
+MACHINE_VER - Version of the CPU
+BIOS_VER - Version of the BIOS 
+IS_UNIX - Running on a UNIX-Complaint operating system (0=no, any non-zero value = yes)
 </pre>
 </font>
 </html>

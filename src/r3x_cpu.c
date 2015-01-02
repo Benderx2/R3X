@@ -63,8 +63,11 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 	temp_typecast32.__num8.b = 0;
 	temp_typecast32.__num8.c = 0;
 	temp_typecast32.__num8.d = 0;
-	r3x_dispatch_job(header->r3x_init, 1, CPU->RootDomain, true);
+	r3x_dispatch_job(BIOS_START, 1, CPU->RootDomain, true);
 	CPU->RootDomain->CurrentJobID = 0;
+	r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
+	CPU->Regs[0] = header->r3x_init;
+	r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 	// Initialise keyboard thread.
 	#ifdef REX_GRAPHICS
 	SDL_Thread *kthread = NULL;

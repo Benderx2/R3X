@@ -2,22 +2,10 @@
 ; Configures initial system information
 ; The BIOS has no format, so just directly include the header..
 include 'libR3X/r3x_asm.inc'
-define MACHINE_VER 10
-define BIOS_VER 1
+define MACHINE_VER 017
+define BIOS_VER 005
 define IS_UNIX 1
 init:
-	loadr R0, is_exec
-	lodsd
-	pushr R1
-	push 0
-	cmp
-	pop 
-	pop 
-	je .store
-	exit
-.store:
-	loadr R1, 1
-	stosd
 	; Print System Information
 	push BIOS_STRING
 	syscall SYSCALL_PUTS
@@ -28,7 +16,8 @@ init:
 	; Load Interrupts and jump to 1MB 
 	loadi 0x20, get_system_information
 	; Return back to the CPU...
-	exit
+	pushar R0
+	ret
 get_system_information:
 	push MACHINE_VER
 	push BIOS_VER

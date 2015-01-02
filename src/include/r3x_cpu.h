@@ -13,6 +13,7 @@
 #define LFLAG_BIT 2
 #define ZFLAG_BIT 3
 #define R3X_FALSE 0
+#define BIOS_START 0
 #define CPU_INVALID_OPCODE_SIGNAL -1
 #define CPU_EXIT_SIGNAL -2
 #define CPU_INCREMENT_SINGLE 1

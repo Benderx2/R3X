@@ -51,8 +51,6 @@ int main(int argc, char* argv[])
 	// Allocate memory for CPU structure
 	r3_cpu = nt_malloc(sizeof(r3x_cpu_t));
 	r3_cpu->Graphics = NULL;
-	// Allocate memory for BIOS's header
-	r3x_header_t* bios_header = nt_malloc(sizeof(r3x_header_t));
 	// Initialise Memory
 	r3_cpu->Memory = r3x_load_executable(ExecutableName, r3_header);
 	#ifdef REX_GRAPHICS
@@ -61,21 +59,18 @@ int main(int argc, char* argv[])
 	r3_cpu->Graphics->font = loadfont("./bios/128x128.png");
 	#endif
 	// Run the BIOS
-	r3_cpu->MemorySize = 512;
 	r3_cpu->RootDomain = r3x_init_domain();
-	r3x_load_bios(bios_header, r3_cpu);
-	r3x_cpu_loop(r3_cpu, bios_header);
-	// Now run the program
+	r3_header = (r3x_header_t*)&r3_cpu->Memory[PROG_EXEC_POINT];
+	r3_cpu->MemorySize = r3_header->total_size + PROG_EXEC_POINT;
+	r3_cpu->HeapAddr = r3_cpu->MemorySize;
+	printf("init: %u\n", r3_header->r3x_init);
 	r3_cpu->use_frequency = true;
 	r3_cpu->CPUFrequency = freqcpu;
 	if(freqcpu==0.0f){
 		r3_cpu->CPUFrequency = 0;
 		r3_cpu->use_frequency = false;
 	}
-	r3_header = (r3x_header_t*)&r3_cpu->Memory[PROG_EXEC_POINT];
-	r3_cpu->InstructionPointer = r3_header->r3x_init;
-	r3_cpu->MemorySize = r3_header->total_size + PROG_EXEC_POINT;
-	r3_cpu->HeapAddr = r3_cpu->MemorySize;
+	r3x_load_bios(r3_cpu);
 	r3x_cpu_loop(r3_cpu, r3_header);
 	// Show exit status
 	printf("Program exitted with status: %u\n", Stack.GetItem(r3_cpu->Stack, r3_cpu->Stack->top_of_stack-1));

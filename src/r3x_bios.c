@@ -2,7 +2,7 @@
 #include <nt_malloc.h>
 #include <assert.h>
 extern char* ApplicationPath;
-void r3x_load_bios(r3x_header_t* header, r3x_cpu_t* CPU) {
+void r3x_load_bios(r3x_cpu_t* CPU) {
 	// Load the bios, not really sure whatthefuck should i reallyfucking write here.
 	char* BIOSPath = nt_concat(ApplicationPath, "/bios/bios.bin");
 	FILE* biosfile = fopen(BIOSPath, "r");
@@ -19,8 +19,6 @@ void r3x_load_bios(r3x_header_t* header, r3x_cpu_t* CPU) {
 		    exit(1);
 
 		}
-		header->r3x_init = 0;
-		header->r3x_text_size = 512;
 		fclose(biosfile);
 	} 
 }
