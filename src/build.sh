@@ -23,7 +23,7 @@ set +x
 if [ "$USEGL" == "yes" ] 
 	then 
 	 export USEGL="-D REX_GRAPHICS"
-	 export GLFLAGS="-lSDL -lSDL_image -lGL"
+	 export GLFLAGS="-lSDL -lSDL_image -lGL -lX11"
 	 export GL_FILES="r3x_font.o r3x_graphics.o"
 fi
 if [ "$USEDYNAMIC" == "yes" ]

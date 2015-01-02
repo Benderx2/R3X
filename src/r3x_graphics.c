@@ -1,9 +1,11 @@
+#include <X11/Xlib.h>
 #include <r3x_graphics.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
 void Update(SDL_Surface*);
 Graphics_t* InitGraphics(void)
 {
+	XInitThreads();
 	// F**k SDL, we gotta use stdio output redirection...
 	Graphics_t* graphics = nt_malloc(sizeof(Graphics_t));
 	graphics->Width = 0;
