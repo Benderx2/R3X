@@ -75,20 +75,12 @@ set -x
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
+export CCFLAGS="$ARCHID $USEDYNAMIC $USEGL $ENDIANFLAGS $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS"
 # compile VM
-$CC $ARCHID $USEDYNAMIC $USEGL $ENDIANFLAGS $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_cpu.c -o r3x_cpu.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_object.c -o r3x_object.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_main.c -o r3x_main.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_font.c -o r3x_font.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_format.c -o r3x_format.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_native.c -o r3x_native.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_stack.c -o r3x_stack.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_graphics.c -o r3x_graphics.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_exception.c -o r3x_exception.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_bios.c -o r3x_bios.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_dispatcher.c -o r3x_dispatcher.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_dynamic.c -o r3x_dynamic.o
-$CC $ARCHID $USEDYNAMIC $USEGL $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS -c r3x_stream.c -o r3x_stream.o
+for i in *.c
+do
+   $CC $CCFLAGS -c $i -o ${i%.c}.o
+done
 $CC -o r3x_vm.out $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
 # compile programs
 $AS programs/r3x_ex.asm

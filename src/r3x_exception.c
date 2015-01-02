@@ -40,7 +40,7 @@ void debugger(void) {
 			printf("quit -- Exits the VM and debugger");
 		}
 		else if(strncmp(input, "quit", 4) == 0) {
-			exit(EXIT_FAILURE);				
+			exit(EXIT_SUCCESS);				
 		}
 		else if(strncmp(input, "memprobe", 8) == 0){ 
 			memcpy(&str2, (&str[0] + 9),  MAX_INPUT_LEN-10);
