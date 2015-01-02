@@ -1,4 +1,4 @@
-echo "REX Compilation Script, version 0.03"
+echo "REX Compilation Script, version 0.56a"
 set -o verbose
 # Change to x86_64, x86_32, aarch64, aarch64-big, depending upon stuff..
 export TARGET="x86_64"

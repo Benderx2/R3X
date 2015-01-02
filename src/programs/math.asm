@@ -1,5 +1,5 @@
 include 'libR3X/libR3X.inc'
-.text {
+.text {	
 	Console.Write "Hello, this example will showcase R3X's math functions"
 	Console.NewLine
 	Console.Write "Sine, Cosine, and tangent of 30 DEG: "

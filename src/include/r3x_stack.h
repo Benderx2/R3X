@@ -8,16 +8,16 @@
 #define DEFAULT_STACK_SIZE 16 * sizeof(int)
 typedef struct __stack {
 	int* content;
-	int top_of_stack;
-	int stack_count;
+	unsigned int top_of_stack;
+	unsigned int stack_count;
 } vstack_t;
 typedef struct __stack_construct {
 	vstack_t* (*Create)(void);
 	int32_t(*Push)(vstack_t*, int32_t);
 	int32_t(*Pop)(vstack_t*);
 	int32_t(*Duplicate)(vstack_t*);
-	int32_t(*GetItem)(vstack_t*, int);
-	void(*SetItem)(vstack_t*, int, int32_t);
+	int32_t(*GetItem)(vstack_t*, unsigned int);
+	void(*SetItem)(vstack_t*, unsigned int, int32_t);
 	void(*DestroyStack)(vstack_t*);
 } stack_construct;
 stack_construct Stack;

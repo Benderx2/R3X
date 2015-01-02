@@ -64,6 +64,7 @@ typedef struct r3x_cpu {
 <pre>
 Note: The instructions prefixed with 'M' in this doc are macro instructions which means the CPU doesn't support those instructions but they are implemented
 through existing ones, and using them may slow down performace<br>
+Note2: If the description says nothing about the result, it is assumed that the result is pushed to stack<br>
 <b>push</b> <i>imm</i> - Pushes an <i>immediate</i> to stack (use an 'f' suffix for floats). 
 <b>pop</b> - Pops value from stack.
 <b>pushf</b> - Push FLAGS register
@@ -87,6 +88,7 @@ through existing ones, and using them may slow down performace<br>
 <b>store</b> - Store the value last pushed to stack, to the address, pushed second last (32-bit)
 <b>or, xor, and</b> - Does the apporpriate bitwise operation on the last 2 values pushed to stack and pushes the result.
 <b>neg, not</b> - Does the appropriate bitwise operation on the last value pushed to stack and pushes the result.
+<b>ror, rol</b> - Rotates the integer pushed second last by number of bits pushed last, and pushes result.
 <b>call</b> <i>imm</i> - Push return value to stack and jump to imm.
 <b>ret</b> - Returns to address popped from Call Stack.
 <b>loadr</b> <i>register index</i>, <i>imm</i> - Load register with immediate
@@ -108,12 +110,17 @@ through existing ones, and using them may slow down performace<br>
 <b>loadlib</b> - Loads a dynamic native library, the last value pushed to stack must be a pointer to a string containing the library's exact location.
 <b>libexec</b> - Calls a function from the library, 2nd last value pushed to stack = pointer to string containing library name, last value must be a pointer to string containing function name. (both must be 0 terminated)
 <b>syscall</b> <i>imm</i> - Call VMs internal functions (NOTE: IMPLEMENTATION DEFINED)
-<b>shr, shl</b> - Shift right/left second last item on stack by last.
+<b>shr, shl</b> - Shift right/left second last item on stack by bits pushed last and push result.
 <b>calldynamic</b> - Call a dynamic library
 <b>fsin, fcos, ftan, asin, acos, atan</b> - Does the appropriate trig operation on the value pushed to stack and pushes the result
 <b>rconv, aconv</b> - Converts angle to radian (rconv), or radian to angle (aconv) whose value is pushed to stack. The result is pushed to stack.
 <b>mod</b> - Does a modulo operation to integer on stack
 <b>fmod</b> - Same as 'mod' but for floats
+<b>tern</b> - Do a ternary operation on stack, expects 3 arguments to be pushed on stack, with pushed in the following order:
+push BOOLEAN
+push VALUE 1
+push VALUE 2
+If BOOLEAN is true (any non-zero number), then VALUE 1 will be popped out, if BOOLEAN is false, Value 2 will be pooped out.
 <b>exit</b> - Returns a CPU_EXIT_SIGNAL, and quits the program..
 
 </font>

@@ -14,6 +14,7 @@ dd 0x0
 dd _end_bss - _begin
 dd REX_EXENAME
 dd REX_PUBNAME
+; End of header.
 REX_EXENAME: db 'Default REX Executable', 0
 REX_PUBNAME: db '<No publisher>', 0
 define R3_ERROR_CODE 0xFFFFFFFF
@@ -21,7 +22,10 @@ define R3_ERROR_CODE 0xFFFFFFFF
 define SEEK_SET 0
 define SEEK_CUR 1
 define SEEK_END 2
+define R_FALSE 0
+define R_TRUE 1
 define M_PI 3.141592f
+define M_E 2.718281f
 define R3_LOAD_POINT 0x100000
 define VIDEO_MEMORY_START 512
 define R3X_LIB_VERSION 0x10C

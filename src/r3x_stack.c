@@ -2,10 +2,10 @@
 #include <nt_malloc.h>
 int PushtoStack(vstack_t* stack, int32_t object);
 int32_t PopFromStack(vstack_t* stack);
-int32_t GetItemS(vstack_t* stack, int idx);
+int32_t GetItemS(vstack_t* stack, unsigned int idx);
 vstack_t* CreateStack(void);
 int Duplicate(vstack_t* stack);
-void SetItemS(vstack_t* stack, int idx, int32_t i);
+void SetItemS(vstack_t* stack, unsigned int idx, int32_t i);
 void DestroyStack(vstack_t* Stack);
 void init_stack_construct(void)
 {
@@ -22,13 +22,17 @@ int Duplicate(vstack_t* stack)
 	PushtoStack(stack, stack->content[stack->stack_count]);
 	return 0;
 }
-int32_t GetItemS(vstack_t* stack, int idx)
+int32_t GetItemS(vstack_t* stack, unsigned int idx)
 {
+	if(stack == NULL) { return -1; }
+	if(stack->top_of_stack==0 || stack->stack_count == 0){ return -1; }
 	if (idx > stack->stack_count){ return -1; }
 	else { return (stack->content[idx]); }
 }
-void SetItemS(vstack_t* stack, int idx, int32_t i)
+void SetItemS(vstack_t* stack, unsigned int idx, int32_t i)
 {
+	if(stack == NULL) { return; }
+	if(stack->top_of_stack==0 || stack->stack_count == 0){ return; }
 	if (idx > stack->stack_count){ return; }
 	else { stack->content[idx] = i; }
 }

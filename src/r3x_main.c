@@ -20,9 +20,12 @@
 char* ApplicationPath = NULL;
 char* ExecutableName = NULL;
 void GetApplicationPath(void);
+double freqcpu = 0;
 r3x_cpu_t* r3_cpu = NULL;
 r3x_header_t* r3_header = NULL;
 void quitSDL(void);
+void ParseArguments(int argc, char* argv[]);
+void PrintHelp(void);
 int main(int argc, char* argv[])
 {
 	GetApplicationPath();
@@ -34,26 +37,11 @@ int main(int argc, char* argv[])
 	nt_malloc_init(false);
 	#endif
 	load_lib_manager();
-	double freqcpu = 0;
 	init_stream_manager();
 	if (argc < 2){
 		printf("main: Expected Argument : executable name!\n");
 	}
-	for(int i = 0; i < argc; i++){
-		if(strncmp(argv[i], "-f", 2)==0){
-			if(i+1 >= argc){
-				printf("Error: -f option. Frequency not specified\n");
-				exit(EXIT_FAILURE);
-			}
-			freqcpu = atof(argv[i+1]);
-		} else if(strncmp(argv[i], "-exe", 4)==0){
-			if(i+1 >= argc){
-				printf("Error: -exe option. filename not specified\n");
-				exit(EXIT_FAILURE);
-			}
-			ExecutableName = argv[i+1];
-		}
-	}
+	ParseArguments(argc, argv);
 	atexit(quitSDL);
 	// Install signal handlers
 	signal(SIGSEGV, REX_EXCEPTION_HANDLER);
@@ -130,6 +118,43 @@ void GetApplicationPath(void) {
 	#error "GetApplicationPath unimplemented for target, please write your own fucking implementation"
 	#endif
 }
+void ParseArguments(int argc, char* argv[]){
+	for(int i = 0; i < argc; i++){
+		if(strncmp(argv[i], "-f", 2)==0){
+			if(i+1 >= argc){
+				printf("Error: -f option. Frequency not specified\n");
+				exit(EXIT_FAILURE);
+			}
+			freqcpu = atof(argv[i+1]);
+		} else if(strncmp(argv[i], "-exe", 4)==0){
+			if(i+1 >= argc){
+				printf("Error: -exe option. filename not specified\n");
+				exit(EXIT_FAILURE);
+			}
+			ExecutableName = argv[i+1];
+		} else if(strncmp(argv[i], "-h", 2)==0||strncmp(argv[i], "-help", 5)==0||strncmp(argv[i], "--help", 6)==0){
+			PrintHelp();
+			exit(EXIT_SUCCESS);
+		}
+	}
+}
 void PrintHelp(void) {
-	
+	printf("%s\n", R3X_SYSTEM_VERSION);
+	printf("\n\n");
+	printf("R3X Virtual Machine - help\n");
+	printf("Usage r3x_vm.out -exe [exe file name] optional(-f [CPU Frequency])\n\n");
+	printf("Copyright (C) 2015 Benderx2 <https://github.com/Benderx2>\n\n");
+	printf("R3X is free software and is licensed under 2-clause BSD License <http://opensource.org/licenses/BSD-2-Clause>\n");
+	printf("You are free to modify, redistrubute, or make profit of this program provided\n");
+	printf("you respect it's license and terms.\n");
+	printf("\n\n");
+	printf("THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\n");
+	printf("AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,\n"); 
+	printf("THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.\n"); 
+	printf("IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"); 
+	printf("INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,\n"); 
+	printf("BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;\n"); 
+	printf("OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, \n");
+	printf("WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) \n");
+	printf("ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
 }

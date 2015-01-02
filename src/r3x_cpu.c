@@ -14,6 +14,8 @@
 #endif
 #include <r3x_exception.h>
 #include <nt_malloc.h>
+#define  ROL_C(num, bits) ((uint32_t)num << (uint32_t)bits) | ((uint32_t)num >> (32 - (uint32_t)bits))
+#define  ROR_C(num, bits) ((uint32_t)num >> (uint32_t)bits) | ((uint32_t)num << (32 - (uint32_t)bits))
 #define cpu_sleep(time, unit) usleep(time*unit)
 #define SLEEP_MILLISECONDS 1000
 #define get_item_from_stack_top(x) Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-x)
@@ -403,10 +405,22 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, (unsigned int)get_item_from_stack_top(2) << (unsigned int)get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_TERN:
+			if(get_item_from_stack_top(3)!=R3X_FALSE){
+				// If it's true pop out the first var
+				Stack.Pop(CPU->Stack);
+			} else {
+				Stack.SetItem(CPU->Stack, CPU->Stack->top_of_stack-2, get_item_from_stack_top(1));
+				Stack.Pop(CPU->Stack);
+			}
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		case R3X_ROR:
+			Stack.Push(CPU->Stack, ROR_C(get_item_from_stack_top(2), get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_ROL:
+			Stack.Push(CPU->Stack, ROL_C(get_item_from_stack_top(2), get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Native library support (calling native procedures from .so files)

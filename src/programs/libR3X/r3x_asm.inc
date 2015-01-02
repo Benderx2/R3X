@@ -128,6 +128,12 @@ macro xor {
 macro and {
 	db 0x12
 }
+macro ror {
+	db 0x4C
+}
+macro rol {
+	db 0x4D
+}
 macro loadlib {
 	db 0x22
 }
@@ -297,6 +303,9 @@ macro pushf {
 }
 macro popf {
 	db 0x6A
+}
+macro tern {
+	db 0x6B
 }
 macro loadrm size, reg1, memaddr {
 	pushr R0

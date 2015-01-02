@@ -1,0 +1,471 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<style>
+body {
+  background-image: url(data/background.jpg);
+  background-size: cover;
+}
+</style>
+<font color=#FFFFFF face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>Opcodes</h2>
+REX uses opcodes with a length of 8-bits, with variable number of arguments.<br>
+Below is an opcode table composed of all R3X instructions<br>
+For a description of what these instructions do, refer to the CPU manual.<br>
+<table border="1" style="width:75%">
+  <tr>
+  <th>
+	<td>Instruction mnemonic</td>
+	<td>Opcode</td>
+	<td>Arguments</td>
+  </th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>sleep</td>
+    <td>0x00</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>push</td>
+    <td>0x01</td>
+    <td>32-bit Constant</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>pop</td>
+    <td>0x02</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td>add</td>
+    <td>0x03</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>sub</td>
+    <td>0x04</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>6</td>
+    <td>mul</td>
+    <td>0x05</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>7</td>
+    <td>div</td>
+    <td>0x06</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>8</td>
+    <td>fadd</td>
+    <td>0x07</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>9</td>
+    <td>fsub</td>
+    <td>0x08</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td>fmul</td>
+    <td>0x09</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>11</td>
+    <td>fdiv</td>
+    <td>0x0A</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>12</td>
+    <td>cmp</td>
+    <td>0x0B</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>13</td>
+    <td>je</td>
+    <td>0x0C</td>
+    <td>32-bit constant</td>
+  </tr>
+  <tr>
+    <td>14</td>
+    <td>jl</td>
+    <td>0x0D</td>
+    <td>32-bit constant</td>
+  </tr>
+  <tr>
+    <td>15</td>
+    <td>jg</td>
+    <td>0x0E</td>
+    <td>32-bit constant</td>
+  </tr>
+  <tr>
+    <td>16</td>
+    <td>jz</td>
+    <td>0x11</td>
+    <td>32-bit constant</td>
+  </tr>
+   <tr>
+    <td>17</td>
+    <td>jmp</td>
+    <td>0x20</td>
+    <td>32-bit constant</td>
+  </tr>
+  <tr>
+    <td>18</td>
+    <td>and</td>
+    <td>0x12</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>19</td>
+    <td>or</td>
+    <td>0x13</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td>xor</td>
+    <td>0x14</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>21</td>
+    <td>dup</td>
+    <td>0x15</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>22</td>
+    <td>loads</td>
+    <td>0x17</td>
+    <td>32-bit constant</td>
+  </tr>
+  <tr>
+    <td>23</td>
+    <td>load</td>
+    <td>0x18</td>
+    <td>No arguments</td>
+  </tr>
+   <tr>
+    <td>24</td>
+    <td>store</td>
+    <td>0x19</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>25</td>
+    <td>exit</td>
+    <td>0x1F</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>26</td>
+    <td>syscall</td>
+    <td>0x21</td>
+    <td>8-bit constant</td>
+  </tr>
+  <tr>
+    <td>27</td>
+    <td>loadlib</td>
+    <td>0x22</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>28</td>
+    <td>libexec</td>
+    <td>0x23</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>29</td>
+    <td>call</td>
+    <td>0x24</td>
+    <td>32-bit constant</td>
+  </tr>
+   <tr>
+    <td>30</td>
+    <td>ret</td>
+    <td>0x25</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>31</td>
+    <td>pusha</td>
+    <td>0x26</td>
+    <td>32-bit constant</td>
+  </tr>
+   <tr>
+    <td>32</td>
+    <td>popa</td>
+    <td>0x27</td>
+    <td>No arguments</td>
+  </tr>
+   <tr>
+    <td>33</td>
+    <td>memcpy</td>
+    <td>0x28</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>34</td>
+    <td>lodsb</td>
+    <td>0x29</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>35</td>
+    <td>lodsw</td>
+    <td>0x62</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>36</td>
+    <td>lodsd</td>
+    <td>0x31</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>37</td>
+    <td>stosb</td>
+    <td>0x2A</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>38</td>
+    <td>stosw</td>
+    <td>0x61</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>39</td>
+    <td>stosd</td>
+    <td>0x2E</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>40</td>
+    <td>cmpsb</td>
+    <td>0x2F</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>41</td>
+    <td>cmpsw</td>
+    <td>0x63</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>42</td>
+    <td>cmpsd</td>
+    <td>0x30</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+    <td>43</td>
+    <td>loadr</td>
+    <td>0x2B</td>
+    <td>8-bit register index, 32-bit constant</td>
+  </tr>
+  <tr>
+    <td>44</td>
+    <td>pushr</td>
+    <td>0x2C</td>
+    <td>8-bit register index</td>
+  </tr>
+   <tr>
+    <td>45</td>
+    <td>popr</td>
+    <td>0x2D</td>
+    <td>8-bit register index</td>
+  </tr>
+   <tr>
+    <td>46</td>
+    <td>incr</td>
+    <td>0x32</td>
+    <td>8-bit register index</td>
+  </tr>
+   <tr>
+    <td>47</td>
+    <td>decr</td>
+    <td>0x33</td>
+    <td>8-bit register index</td>
+  </tr>
+  <tr>
+    <td>48</td>
+    <td>int</td>
+    <td>0x34</td>
+    <td>8-bit ISR index</td>
+  </tr>
+  <tr>
+    <td>49</td>
+    <td>loadi</td>
+    <td>0x35</td>
+    <td>8-bit ISR index, 32-bit constant</td>
+  </tr>
+   <tr>
+    <td>50</td>
+    <td>not</td>
+    <td>0x36</td>
+    <td>No arguments</td>
+  </tr>
+   <tr>
+	<td>51</td>
+    <td>neg</td>
+    <td>0x37</td>
+    <td>No arguments</td>
+  </tr>
+  <tr>
+	<td>52</td>
+    <td>pushar</td>
+    <td>0x38</td>
+    <td>8-bit Register Index</td>
+  </tr>
+  <tr>
+	<td>53</td>
+    <td>popar</td>
+    <td>0x39</td>
+    <td>8-bit Register Index</td>
+  </tr>
+  <tr>
+	<td>54</td>
+    <td>shl</td>
+    <td>0x4B</td>
+    <td>No Arguments</td>
+  </tr>
+  <tr>
+	<td>55</td>
+    <td>shr</td>
+    <td>0x4A</td>
+    <td>No Arguments</td>
+  </tr>
+  <tr>
+	<td>56</td>
+	<td>calldynamic</td>
+	<td>0x53</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>57</td>
+	<td>fsin</td>
+	<td>0x56</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>58</td>
+	<td>fcos</td>
+	<td>0x57</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>59</td>
+	<td>ftan</td>
+	<td>0x58</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>60</td>
+	<td>asin</td>
+	<td>0x59</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>61</td>
+	<td>acos</td>
+	<td>0x5A</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>62</td>
+	<td>atan</td>
+	<td>0x5B</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>63</td>
+	<td>fpow</td>
+	<td>0x5C</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>64</td>
+	<td>mod</td>
+	<td>0x5D</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>65</td>
+	<td>fmod</td>
+	<td>0x5E</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>66</td>
+	<td>rconv</td>
+	<td>0x5F</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>67</td>
+	<td>aconv</td>
+	<td>0x60</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>68</td>
+	<td>cmps</td>
+	<td>0x67</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>69</td>
+	<td>popn</td>
+	<td>0x68</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>70</td>
+	<td>pushf</td>
+	<td>0x69</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>71</td>
+	<td>popf</td>
+	<td>0x6A</td>
+	<td>No Arguments</td>
+  </tr>
+   <tr>
+	<td>72</td>
+	<td>tern</td>
+	<td>0x6B</td>
+	<td>No Arguments</td>
+  </tr>
+  <tr>
+	<td>73</td>
+	<td>ror</td>
+	<td>0x4C</td>
+	<td>No Arguments</td>
+  </tr>
+  <tr>
+	<td>74</td>
+	<td>rol</td>
+	<td>0x4D</td>
+	<td>No Arguments</td>
+  </tr>
+</table> 
+</font>
+</html>
