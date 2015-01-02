@@ -75,6 +75,8 @@
 #define R3X_PUSHF 0x69
 #define R3X_POPF 0x6A
 #define R3X_TERN 0x6B
+#define R3X_CATCH 0x6C
+#define R3X_THROW 0x6D
 // Relocatable instructions
 #define R3X_LODSB_RELOC 0x4E
 #define R3X_LODSW_RELOC 0x66

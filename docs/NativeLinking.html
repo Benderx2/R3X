@@ -1,0 +1,53 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<style>
+body {
+  background-image: url(data/background.jpg);
+  background-size: cover;
+}
+</style>
+<font color=#FFFFFF face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>Native Linking</h2>
+REX programs are written in byte code, but can also use native code if required, through shared objects.<br>
+This is known as native linking.<br>
+Please note that native linking is an experimental feature, and can be subject to changes in future<br>
+<pre>
+<h1>Writing a shared library</h1>
+First, get a copy of r3x_cpu.h, r3x_graphics.h and r3x_stack.h, from src/include
+Then compile r3x_stack.c to an object file.
+Then write your library like this:
+#define REX_GRAPHICS // Don't if you're using a version of REX that is not compiled with graphics support
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;math.h&gt;
+#include &lt;SDL/SDL.h&gt;
+#include &lt;SDL/SDL_image.h&gt;
+#include &lt;GL/glew.h&gt;
+#include &lt;GL/gl.&gt;
+#include &lt;r3x_stack.h&gt;
+#include &lt;r3x_cpu.h&gt;
+r3x_cpu_t* CPUptr = NULL;
+void Start(r3x_cpu_t* CPU) {
+	CPUptr = CPU;
+}
+...
+Having a start function is mandatory, this will save your CPU pointer which the VM passes, now you can
+use this pointer to do operations on the CPU when your function is called.
+Compile the library using:
+gcc -c -Wall -Werror -fpic mylib.c -o mylib.o
+gcc -c -Wall -Werror -fpic r3x_stack.c -o r3x_stack.o
+gcc -shared -o mylib.so mylib.o r3x_stack.o -lSDL -lSDL_image -lGL
+Then in your program, load the library like this:
+pushstring "mylib.so"
+loadlib
+Execute functions, like this:
+pushstring "mylib.so"
+pushstring "myfunction"
+libexec
+</pre>

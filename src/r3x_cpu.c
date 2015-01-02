@@ -37,6 +37,8 @@ uint32_t unset_bit32(uint32_t num, int bit);
 uint32_t toggle_bit32(uint32_t num, int bit);
 bool test_bit32(uint32_t num, int bit);
 void r3x_syscall(r3x_cpu_t* CPU);
+void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID);
+void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t ExceptionHandler);
 typedef union __32bit_typecast {
 	uint32_t __num32;
 	struct {
@@ -237,7 +239,8 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		// Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		case R3X_LOAD:
 			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;			
 			}
 			Stack.Push(CPU->Stack, *(uint32_t*)(CPU->Memory + get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
@@ -245,7 +248,8 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		// Store a value which was pushed to stack to an address pushed second last.
 		case R3X_STORE:
 			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;		
 			}
 			*((uint32_t*)&(CPU->Memory[get_item_from_stack_top(2)])) = get_item_from_stack_top(1);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
@@ -253,63 +257,72 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		// Memory access for registers...
 		case R3X_LODSB:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;		
 			}
 			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LODSW:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;			
 			}
 			CPU->Regs[1] = *((uint16_t*)(&CPU->Memory[CPU->Regs[0]]));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LODSD:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;		
 			}
 			CPU->Regs[1] = *((uint32_t*)(&CPU->Memory[CPU->Regs[0]]));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_STOSB:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;			
 			}
 			CPU->Memory[CPU->Regs[0]] = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_STOSW:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])) = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_STOSD:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])) = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSB:
 			if(CPU->Regs[3] > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSW:
 			if(CPU->Regs[3] > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint16_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSD:
 			if(CPU->Regs[3] > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
@@ -317,63 +330,72 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		// Relocatable versions of those..
 		case R3X_STOSB_RELOC:
 			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)] = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_STOSW_RELOC:
 			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			*((uint16_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_STOSD_RELOC:
 			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			*((uint32_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSD_RELOC:
 			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;			
 			}
 			CPU->Regs[1] = *((uint32_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)]));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSW_RELOC:
 			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;		
 			}
 			CPU->Regs[1] = *((uint16_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)]));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSB_RELOC:
 			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)];
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSB_RELOC:
 			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSW_RELOC:
 			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint16_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSD_RELOC:
 			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
-				raise(SIGSEGV);
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]+return_32bit_int_from_ip(CPU)]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
@@ -429,7 +451,8 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		// Native library support (calling native procedures from .so files)
 		case R3X_LOADLIB:
 			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);		
+				break;	
 			}
 			#ifdef REX_DYNAMIC
 				load_native_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU);
@@ -440,10 +463,12 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		case R3X_LIBEXEC:
 			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
+				break;		
 			}
 			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize) { 
-				raise(SIGSEGV);			
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
+				break;		
 			}
 			#ifdef REX_DYNAMIC
 			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + get_item_from_stack_top(1)), returnhandle((char*)(CPU->Memory + get_item_from_stack_top(2)))));
@@ -470,7 +495,8 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		// fast memory copy
 		case R3X_MEMCPY:
 			if((unsigned int)get_item_from_stack_top(3)+(unsigned int)get_item_from_stack_top(1) > CPU->MemorySize || (unsigned int)get_item_from_stack_top(2) + (unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
-					raise(SIGSEGV);			
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					break;			
 			}
 			memcpy(CPU->Memory + get_item_from_stack_top(3), CPU->Memory + get_item_from_stack_top(2), get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
@@ -538,9 +564,9 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		// Support for REX object files (*.ro)
 		case R3X_CALLDYNAMIC:	
 			if(dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1))==0)	{
-				printf("Invalid dynamic call, aborting application\n");
-				return -2;
-							
+				printf("Invalid dynamic call, causing CPU_EXCEPTION_INVALIDACCESS.\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;			
 			}
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
 			CPU->InstructionPointer = dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1));
@@ -592,18 +618,26 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, return_int_from_float(fmod(return_float(get_item_from_stack_top(2)), return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Epic-ass, first class, sexy error handling
+		case R3X_CATCH:
+			set_exception_handlers(CPU, get_item_from_stack_top(1), get_item_from_stack_top(2));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_THROW:
+			handle_cpu_exception(CPU, get_item_from_stack_top(1));
+			break;
 		// Exit application
 		case R3X_EXIT:
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {		
 				r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
-				return -2; // Main... exitted close everything and return...
+				return CPU_EXIT_SIGNAL; // Main... exitted close everything and return...
 			}
 			r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			return 0;
-		// Rudimentary error handling
 		default:
 			printf("Unknown Opcode: %x, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);
-			raise(SIGSEGV);
+			handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
+			break;
 	}
 	return 0;
 }
@@ -723,7 +757,10 @@ int keyboard_thread(void* data) {
 void r3x_syscall(r3x_cpu_t* CPU) { 
 		if (CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTS){
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
-					raise(SIGSEGV);
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					// Syscall will increment the instruction by 2 bytes.
+					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
+					return;
 				}
 				#ifdef REX_GRAPHICS
 				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + get_item_from_stack_top(1)), CPU->Graphics);	
@@ -785,14 +822,20 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ATOI) {
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-					raise(SIGSEGV);
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					// Syscall will increment the instruction by 2 bytes.
+					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
+					return;
 				}
 				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[get_item_from_stack_top(1)]));			
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ALLOC) { 
 				if((unsigned int)get_item_from_stack_top(1) > 4096) { 
 					printf("Attempt to allocate memory more than 4096 bytes at once\n");
-					raise(SIGSEGV);
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					// Syscall will increment the instruction by 2 bytes.
+					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
+					return;
 				}	
 				Stack.Push(CPU->Stack, CPU->MemorySize);
 				CPU->MemorySize += get_item_from_stack_top(1);
@@ -800,20 +843,29 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_DISPATCH) {
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){
-					raise(SIGSEGV);
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					// Syscall will increment the instruction by 2 bytes.
+					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
+					return;
 				}
 				r3x_dispatch_job(get_item_from_stack_top(1), 1, CPU->RootDomain, true);
 							
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_LOADDYNAMIC) { 
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-					raise(SIGSEGV);
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					// Syscall will increment the instruction by 2 bytes.
+					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
+					return;
 				}
 				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU));			
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_OPENSTREAM) { 
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-					raise(SIGSEGV);
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					// Syscall will increment the instruction by 2 bytes.
+					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
+					return;
 				}
 				Stack.Push(CPU->Stack, stream_open((char*)(&CPU->Memory[get_item_from_stack_top(1)])));
 			}
@@ -825,13 +877,19 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_READSTREAM) {
 				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) { 
-					raise(SIGSEGV);
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					// Syscall will increment the instruction by 2 bytes.
+					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
+					return;
 				}
 				Stack.Push(CPU->Stack, stream_read((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_WRITESTREAM) {
 				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) { 
-					raise(SIGSEGV);
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					// Syscall will increment the instruction by 2 bytes.
+					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
+					return;
 				}
 				Stack.Push(CPU->Stack, stream_write((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
 			}
@@ -913,4 +971,25 @@ void pop_flags(r3x_cpu_t* CPU){
 	}
 	printf("EFLAGS: E: %s, G: %s, L: %s, Z: %s\n", CPU->EqualFlag ? "true" : "false", CPU->GreaterFlag ? "true" : "false", CPU->LesserFlag ? "true" : "false", CPU->ZeroFlag ? "true" : "false");
 	Stack.Pop(CPU->Stack);
+}
+void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t ExceptionHandler){
+	if(ExceptionID > TOTAL_EXCEPTIONS){
+			printf("Process %u tried to set an invalid exception handler\n", CPU->RootDomain->CurrentJobID);
+			return;
+	} else {
+			printf("Process is setting exception handler %u to IP %u\n", ExceptionID, ExceptionHandler);
+			CPU->ExceptionHandlers[ExceptionID] = ExceptionHandler;
+	}
+}
+void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
+	if(ExceptionID > TOTAL_EXCEPTIONS){
+		printf("Process caused an unknown exception! WTF?!\n");
+		raise(SIGSEGV);
+	} else if(CPU->ExceptionHandlers[ExceptionID]==0){
+		printf("Unhandled Exception!\n");
+		raise(SIGSEGV);
+	} else {
+		CPU->InstructionPointer = CPU->ExceptionHandlers[ExceptionID];
+		return;
+	}
 }

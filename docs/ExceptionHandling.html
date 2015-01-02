@@ -1,0 +1,42 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<style>
+body {
+  background-image: url(data/background.jpg);
+  background-size: cover;
+}
+</style>
+<font color=#FFFFFF face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>Exception Handling</h2>
+Exception Handling in the REX architecture is in it's very early stages, however<br>
+it is fully functional.<br>
+<h3>Kinds of exceptions</h3>
+As of now, there are 3 types of exceptions that can be handled, they are given below<br>
+INVALID_ACCESS - Invalid Memory Access<br>
+INVALID_OPCODE - Invalid Instruction <br>
+R_EXCEP - Program defined exception <br>
+<h3>Handling Exceptions</h3>
+Exceptions can be handled by assigning them with specific handlers, using the "catch" instruction.<br>
+Example Usage: <br>
+<pre>
+push handler_address
+push R_EXCEP/INVALID_ACCESS/INVALID_OPCODE --- Exception ID
+catch
+popn 2 ; Optional but recommended
+</pre>
+<h3>Throwing custom exceptions</h3>
+The INVALID_ACCESS/INVALID_OPCODE exceptions are caused when a program does an invalid memory access or<br>
+executes an unknown instruction. But there are a third type of exception as shown above: "R_EXCEP"<br>
+The 'throw' instruction is used to intentionally cause an exception. Example usage show below:<br>
+<pre>
+push error_code
+push R_EXCEP
+throw
+</pre>
+One advice would be to 'pop' out the exception ID at the start of the handler, which would make the error_code at the top of stack.<br>
+An example is shown in src/programs/exception.asm
+</font>
+</html>

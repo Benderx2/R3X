@@ -121,6 +121,8 @@ push BOOLEAN
 push VALUE 1
 push VALUE 2
 If BOOLEAN is true (any non-zero number), then VALUE 1 will be popped out, if BOOLEAN is false, Value 2 will be pooped out.
+<b>throw</b> - Throw an exception, exception id must be pushed to stack (INVALID_ACCESS, INVALID_OPCODE, R_EXCEP)
+<b>catch</b> - Set exception handler, push the exception handler's address first, then the exception ID.
 <b>exit</b> - Returns a CPU_EXIT_SIGNAL, and quits the program..
 
 </font>

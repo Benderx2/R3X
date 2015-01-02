@@ -16,6 +16,9 @@ define SYSCALL_CLOSESTREAM 0xC
 define SYSCALL_READSTREAM 0xD
 define SYSCALL_WRITESTREAM 0xE
 define SYSCALL_TELLSTREAM 0xF
+define INVALID_ACCESS 0
+define INVALID_OPCODE 1
+define R_EXCEP 2
 define __REX_WORD 4
 define __REX_8 1
 define __REX_8 2
@@ -306,6 +309,12 @@ macro popf {
 }
 macro tern {
 	db 0x6B
+}
+macro catch {
+	db 0x6C
+}
+macro throw {
+	db 0x6D
 }
 macro loadrm size, reg1, memaddr {
 	pushr R0

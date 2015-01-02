@@ -19,7 +19,6 @@ export ARFLAGS="-rsc"
 export INCLUDE_DIR="./include/"  
 export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -fstack-protector-all -fomit-frame-pointer"
 export IFLAGS="-I$INCLUDE_DIR"
-set +x
 if [ "$USEGL" == "yes" ] 
 	then 
 	 export USEGL="-D REX_GRAPHICS"
@@ -71,7 +70,6 @@ else
 fi
 export LFLAGS="-lc -lm -ldl -rdynamic"
 export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_stack.o  r3x_dispatcher.o r3x_dynamic.o r3x_stream.o libntmalloc.a"
-set -x
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
@@ -79,7 +77,9 @@ export CCFLAGS="$ARCHID $USEDYNAMIC $USEGL $ENDIANFLAGS $ARCHFLAGS $CFLAGS $OFLA
 # compile VM
 for i in *.c
 do
+   set -x
    $CC $CCFLAGS -c $i -o ${i%.c}.o
+   set +x
 done
 $CC -o r3x_vm.out $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
 # compile programs
@@ -88,13 +88,14 @@ $AS programs/math.asm
 $AS programs/stream.asm
 $AS programs/simplelib.asm
 $AS programs/bios.asm
+$AS programs/exception.asm
 # now transfer it 
 mv r3x_vm.out $BINDIR/
 mv programs/r3x_ex.exe $BINDIR/
 mv programs/math.exe $BINDIR/
 mv programs/stream.exe $BINDIR/
+mv programs/exception.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 # remove all object files
 rm *.o
-set +x

@@ -21,6 +21,9 @@
 #define CPU_INCREMENT_WITH_32_OP 5
 #define CPU_INCREMENT_WITH_32_OP_2 9
 #define CPU_INCREMENT_WITH_32_OP_3 13
+#define CPU_EXCEPTION_INVALIDACCESS 0
+#define CPU_EXCEPTION_INVALIDOPCODE 1
+#define CPU_EXCEPTION_EXCEPTION 2
 #define R_LOCK 0
 #define R_SHUTDOWN 1
 #define R_KEYPRESS 2  
@@ -29,7 +32,8 @@ typedef struct r3x_job {
 	uint32_t InstructionPointer;
 	vstack_t* Stack;
 	vstack_t* CallStack;
-	int Regs[21];
+	uint32_t Regs[21];
+	uint32_t ExceptionHandlers[4];
 	bool EqualFlag;
 	bool GreaterFlag;
 	bool LesserFlag;
@@ -46,6 +50,7 @@ typedef struct r3x_global_domain {
 	unsigned int TotalNumberOfJobs;
 } r3x_global_domain_t;
 #define MAX_NUMBER_OF_REGISTERS 20
+#define TOTAL_EXCEPTIONS 3
 typedef struct r3x_cpu {
 	// Not global -- Thread dependent
 	vstack_t* Stack;
@@ -58,6 +63,7 @@ typedef struct r3x_cpu {
 	bool ZeroFlag;	
 	uint32_t FLAGS;
 	uint32_t Regs[21];
+	uint32_t ExceptionHandlers[4];
 	// Global -- Thread Independent.
 	uint8_t* Memory;
 	uint32_t ISR_handlers[256];
