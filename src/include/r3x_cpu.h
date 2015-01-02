@@ -62,6 +62,8 @@ typedef struct r3x_cpu {
 	unsigned int CurrentInstruction;
 	unsigned int MemorySize;
 	unsigned int HeapAddr;
+	bool use_frequency;
+	double CPUFrequency;
 	r3x_global_domain_t* RootDomain;
 	Graphics_t* Graphics;
 	ObjectList_t* ObjectList;

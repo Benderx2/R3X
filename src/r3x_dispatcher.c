@@ -70,7 +70,7 @@ void r3x_save_job_state(r3x_cpu_t* CPU, r3x_global_domain_t* Domain, unsigned in
 		Domain->Jobs[JobID]->EqualFlag = CPU->EqualFlag;
 		Domain->Jobs[JobID]->ZeroFlag = CPU->ZeroFlag;
 		Domain->Jobs[JobID]->LesserFlag = CPU->LesserFlag;
-		CPU->GreaterFlag = Domain->Jobs[JobID]->GreaterFlag;
+		Domain->Jobs[JobID]->GreaterFlag = CPU->GreaterFlag; 
 		for(int i = 0; i <= MAX_NUMBER_OF_REGISTERS; i++) {
 			Domain->Jobs[JobID]->Regs[i] = CPU->Regs[i];		
 		}

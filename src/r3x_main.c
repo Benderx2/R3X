@@ -17,7 +17,8 @@
 #include <nt_malloc.h>
 #include <r3x_dynamic.h>
 #include <assert.h>
-char* ApplicationPath;
+char* ApplicationPath = NULL;
+char* ExecutableName = NULL;
 void GetApplicationPath(void);
 r3x_cpu_t* r3_cpu = NULL;
 r3x_header_t* r3_header = NULL;
@@ -33,9 +34,25 @@ int main(int argc, char* argv[])
 	nt_malloc_init(false);
 	#endif
 	load_lib_manager();
+	double freqcpu = 0;
 	init_stream_manager();
 	if (argc < 2){
 		printf("main: Expected Argument : executable name!\n");
+	}
+	for(int i = 0; i < argc; i++){
+		if(strncmp(argv[i], "-f", 2)==0){
+			if(i+1 >= argc){
+				printf("Error: -f option. Frequency not specified\n");
+				exit(EXIT_FAILURE);
+			}
+			freqcpu = atof(argv[i+1]);
+		} else if(strncmp(argv[i], "-exe", 4)==0){
+			if(i+1 >= argc){
+				printf("Error: -exe option. filename not specified\n");
+				exit(EXIT_FAILURE);
+			}
+			ExecutableName = argv[i+1];
+		}
 	}
 	atexit(quitSDL);
 	// Install signal handlers
@@ -49,7 +66,7 @@ int main(int argc, char* argv[])
 	// Allocate memory for BIOS's header
 	r3x_header_t* bios_header = nt_malloc(sizeof(r3x_header_t));
 	// Initialise Memory
-	r3_cpu->Memory = r3x_load_executable(argv[1], r3_header);
+	r3_cpu->Memory = r3x_load_executable(ExecutableName, r3_header);
 	#ifdef REX_GRAPHICS
 	// Initialise Graphics Device and load default font.
 	r3_cpu->Graphics = InitGraphics();
@@ -61,6 +78,12 @@ int main(int argc, char* argv[])
 	r3x_load_bios(bios_header, r3_cpu);
 	r3x_cpu_loop(r3_cpu, bios_header);
 	// Now run the program
+	r3_cpu->use_frequency = true;
+	r3_cpu->CPUFrequency = freqcpu;
+	if(freqcpu==0.0f){
+		r3_cpu->CPUFrequency = 0;
+		r3_cpu->use_frequency = false;
+	}
 	r3_header = (r3x_header_t*)&r3_cpu->Memory[PROG_EXEC_POINT];
 	r3_cpu->InstructionPointer = r3_header->r3x_init;
 	r3_cpu->MemorySize = r3_header->total_size + PROG_EXEC_POINT;
@@ -106,4 +129,7 @@ void GetApplicationPath(void) {
 	#else 
 	#error "GetApplicationPath unimplemented for target, please write your own fucking implementation"
 	#endif
+}
+void PrintHelp(void) {
+	
 }

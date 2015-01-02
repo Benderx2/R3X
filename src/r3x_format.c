@@ -7,11 +7,15 @@
 uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 {
 	// open file for reading
+	if(name == NULL) {
+		printf("r3x_load_executable: failed to load file (Name not passed to VM), specify file using -exe <filename>\n");
+		exit(EXIT_FAILURE);
+	}
 	FILE* fp = fopen(name, "r+b");
 	if (fp == NULL)
 	{
-		printf("r3x_load_executable: failed to load file.\n");
-		return NULL;
+		printf("r3x_load_executable: failed to load file. (File Not Found!)\n");
+		exit(EXIT_FAILURE);
 	}
 	// seek to end of file
 	fseek(fp, 0L, SEEK_END);

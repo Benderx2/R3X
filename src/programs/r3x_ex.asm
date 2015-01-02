@@ -3,10 +3,6 @@ include 'simplelib.inc'
 .text {
 	Console.Write "Calling Dynamic Library (simplelib.ro)"
 	Console.NewLine
-	push 12
-	push 15
-	popn 0
-	syscall SYSCALL_PUTI
 	loadsimplelib
 	simplelib_myfunc1
 	Console.Write "Hello, World!"

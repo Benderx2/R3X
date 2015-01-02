@@ -14,6 +14,8 @@
 #endif
 #include <r3x_exception.h>
 #include <nt_malloc.h>
+#define cpu_sleep(time, unit) usleep(time*unit)
+#define SLEEP_MILLISECONDS 1000
 #define get_item_from_stack_top(x) Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-x)
 bool exitcalled = false;
 int r3x_emulate_instruction(r3x_cpu_t* CPU);
@@ -67,7 +69,15 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 	kthread = SDL_CreateThread(keyboard_thread, NULL );
 	#endif
 	code = 0;
+	double milliseconds = 0;
+	if(CPU->use_frequency == true){
+		milliseconds = (1 / CPU->CPUFrequency);
+		printf("CPU Frequency %f\n", milliseconds);
+	}
 	while (CPU->InstructionPointer < CPU->MemorySize && code != CPU_EXIT_SIGNAL && code != CPU_INVALID_OPCODE_SIGNAL){
+			if(milliseconds != 0) {
+				cpu_sleep(milliseconds, SLEEP_MILLISECONDS);
+			}
 			if(exitcalled == true) { 
 				break;
 			}
@@ -111,7 +121,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			for(unsigned int i = 0; i < return_32bit_int_from_ip(CPU); i++){
 				Stack.Pop(CPU->Stack);
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		// Push the FLAGS register on stack
 		case R3X_PUSHF:
@@ -166,7 +176,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// Compare 2 values on stack and set flags..
 		case R3X_CMP:
-			compare_and_set_flag_unsigned(CPU, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
+			compare_and_set_flag_unsigned(CPU, get_item_from_stack_top(2), get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPS:
@@ -845,6 +855,30 @@ void push_flags(r3x_cpu_t* CPU){
 	}
 	Stack.Push(CPU->Stack, CPU->FLAGS);
 }
+char* itoa(unsigned int value, char* result, int base);
+char* itoa(unsigned int value, char* result, int base) {
+		// check that the base if valid
+		if (base < 2 || base > 36) { *result = '\0'; return result; }
+
+		char* ptr = result, *ptr1 = result, tmp_char;
+		int tmp_value;
+
+		do {
+			tmp_value = value;
+			value /= base;
+			*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
+		} while ( value );
+
+		// Apply negative sign
+		if (tmp_value < 0) *ptr++ = '-';
+		*ptr-- = '\0';
+		while(ptr1 < ptr) {
+			tmp_char = *ptr;
+			*ptr--= *ptr1;
+			*ptr1++ = tmp_char;
+		}
+		return result;
+}
 void pop_flags(r3x_cpu_t* CPU){
 	uint32_t flags = (uint32_t)get_item_from_stack_top(1);
 	CPU->EqualFlag = false; CPU->GreaterFlag = false; CPU->LesserFlag = false; CPU->ZeroFlag = false;
@@ -860,5 +894,6 @@ void pop_flags(r3x_cpu_t* CPU){
 	if(test_bit32(flags, ZFLAG_BIT)==true){
 		CPU->ZeroFlag = true;
 	}
+	printf("EFLAGS: E: %s, G: %s, L: %s, Z: %s\n", CPU->EqualFlag ? "true" : "false", CPU->GreaterFlag ? "true" : "false", CPU->LesserFlag ? "true" : "false", CPU->ZeroFlag ? "true" : "false");
 	Stack.Pop(CPU->Stack);
 }
