@@ -3,6 +3,7 @@
 #include <string.h>
 /* For dlopen(), dlsym(), and dlerror()s */
 #include <r3x_native.h>
+#include <nt_malloc.h>
 native_handle_t* head;
 native_handle_t* tail;
 int number_of_handles;
@@ -14,7 +15,7 @@ void* load_native_library(char* name, r3x_cpu_t* CPU)
 		printf("\nFATAL: Unable to load shared object: %s\n", name);
 	}	
 	
-	native_handle_t* newhandle = (native_handle_t*)malloc(sizeof(native_handle_t));
+	native_handle_t* newhandle = nt_malloc(sizeof(native_handle_t));
 	newhandle->soname = name;
 	newhandle->handle = handle;
 	newhandle->next = NULL;
@@ -23,7 +24,8 @@ void* load_native_library(char* name, r3x_cpu_t* CPU)
 	printf("Finding Start....\n");
 	if(Start == NULL)
 	{
-		printf("WARNING: Start function not found!\n");
+		printf("ERROR: Start function not found!\n");
+		exit(EXIT_FAILURE);
 	}
 	else {
 		(*Start)(CPU);
@@ -66,7 +68,8 @@ int native_call(char* name, void* handle)
 	*(void**)(&function) = dlsym(handle, name);
 	if(function == NULL)
 	{
-		printf("WARNING: Requested function not found! Name: %s\n", name);
+		printf("ERROR: Requested function not found! Name: %s\n", name);
+		exit(EXIT_FAILURE);
 	}
 	return (*function)();
 }
