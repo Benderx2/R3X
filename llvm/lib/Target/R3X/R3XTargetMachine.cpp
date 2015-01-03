@@ -6,12 +6,12 @@
 #include "llvm/Support/TargetRegistry.h"
 using namespace llvm;
 
-extern "C" void LLVMInitializeSparcTarget() {
+extern "C" void LLVMInitializeR3XTarget() {
   // Register the target.
   RegisterTargetMachine<R3XTargetMachine> X(R3XTarget);
 }
 
-/// SparcTargetMachine ctor - Create an ILP32 architecture model
+/// Create an R3X sub-machine class
 ///
 R3XTargetMachine::R3XTargetMachine(const Target &T, StringRef TT,
                                        StringRef CPU, StringRef FS,
