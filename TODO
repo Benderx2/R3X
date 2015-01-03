@@ -4,7 +4,7 @@ HI = High priority, ME = Medium, LO = Low.
 [LO] 2. Remove useless comments
 [ME] 3. Don't USE redundant typecasts
 [ME] 4. Proper whitespacing
-[LO] 5. Remove 'r3x_' prefix from source files
+[LO] 5. Remove 'r3x_' prefix from source files -- Fixed
 [HI] 6. Make typecasting mechanism local. -- Fixed
 [HI] 7. Print errors to stderr not to stdout.
 [HI] 8. 'fopen' returns null on not just file ceasing to exits. Add a proper message

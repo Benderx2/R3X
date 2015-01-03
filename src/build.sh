@@ -23,13 +23,13 @@ if [ "$USEGL" == "yes" ]
 	then
 	 export USEGL="-D REX_GRAPHICS"
 	 export GLFLAGS="-lSDL -lSDL_image -lGL -lX11"
-	 export GL_FILES="r3x_font.o r3x_graphics.o"
+	 export GL_FILES="font.o graphics.o"
 fi
 if [ "$USEDYNAMIC" == "yes" ]
 	then
 	 export USEDYNAMIC="-D REX_DYNAMIC"
 	 export DYNAMICFLAGS="-ldl"
-	 export DYNAMIC_FILES="r3x_native.o"
+	 export DYNAMIC_FILES="native.o"
 fi
 if [ "$TARGET" == "x86_64" ]
 	then
@@ -77,7 +77,7 @@ else
 	exit -1
 fi
 export LFLAGS="-lc -lm -ldl -rdynamic"
-export LINKER_FILES="r3x_cpu.o r3x_object.o r3x_main.o r3x_bios.o r3x_format.o r3x_exception.o r3x_stack.o  r3x_dispatcher.o r3x_dynamic.o r3x_stream.o libntmalloc.a"
+export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o libntmalloc.a"
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
