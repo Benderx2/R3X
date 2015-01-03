@@ -29,5 +29,5 @@ Urgent:
 27. Don't use strncmp for comparision, since it works without error on things like ("helpppppppp" instead of showing an error message)
 28. Update "r3x_version.h" to simply have 1 name for all architectures, use standard functions to detect system rather than manually specifying it.
 29. Improve code overall, try to make it more readable, at the same time run with decent performance.
-30. 
+30. Exit on not receiving arguments --> Fixed.
 Thanks to guys at #osdev for these suggestions!
