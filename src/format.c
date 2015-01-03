@@ -90,7 +90,8 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	fclose(fp); // Free the file no need..
 	header = (r3x_header_t*)&mem2[PROG_EXEC_POINT];
 	#ifdef R3X_BIG_ENDIAN
-	printf("Compiled for big endian machine, not bothering to show contents\n");
+	printf("Executable Name: %s\n", (char*)&mem2[BIG_ENDIAN_INT(header->nameaddr)]);
+	printf("Publisher Name: %s\n", (char*)&mem2[BIG_ENDIAN_INT(header->pulibsheraddr)]); 
 	#else
 	printf("Executable Name: %s\n", (char*)&mem2[header->nameaddr]);
 	printf("Publisher Name: %s\n", (char*)&mem2[header->pulibsheraddr]); 
