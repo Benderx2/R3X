@@ -65,7 +65,7 @@ void R3XPassConfig::addPreEmitPass(){
 
 void R3XTargetMachine::anchor() { }
 
-R3XTargetMachine::SparcV8TargetMachine(const Target &T,
+R3XTargetMachine::R3XTargetMachine(const Target &T,
                                            StringRef TT, StringRef CPU,
                                            StringRef FS,
                                            const TargetOptions &Options,
