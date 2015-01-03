@@ -12,3 +12,7 @@ Urgent:
 10. Use something like a debug macro, to fix nt_malloc_init
 11. Stop using swear words.
 12. Stop using multiple printfs
+13. Fix identation
+14. Remove useless 'else' statements
+15. Remove offensive error messages (Keep it PG13)
+ 
