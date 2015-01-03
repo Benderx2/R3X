@@ -1,10 +1,10 @@
 echo "REX Compilation Script, version 0.61b"
 set -o verbose
 # Change to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
-export TARGET="ppc"
+export TARGET="x86_64"
 # Set to empty if compiling for other arch without dynamic linking support or graphics
-export USEGL=""
-export USEDYNAMIC=""
+export USEGL="yes"
+export USEDYNAMIC="yes"
 # Change to -O3 for more optimization or -O0 for no optimization
 export OFLAGS="-O3"
 # Change to empty if you don't want debugging information with the binary
