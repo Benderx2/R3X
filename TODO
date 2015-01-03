@@ -1,33 +1,36 @@
 TODO: Stuff that needs to be done
-Urgent:
-1. Remove shitty build.sh and use a proper build system.
-2. Remove useless comments
-3. Don't USE redundant typecasts
-4. Proper whitespacing
-5. Remove 'r3x_' prefix from source files
-6. Make typecasting mechanism local.
-7. Print errors to stderr not to stdout.
-8. 'fopen' returns null on not just file ceasing to exits. Add a proper message
-9. Stop using different case styles, use either normal_case, CamelCase, or cameCase.
-10. Use something like a debug macro, to fix nt_malloc_init
-11. Stop using swear words.
-12. Stop using multiple printfs
-13. Fix identation
-14. Remove useless 'else' statements
-15. Remove offensive error messages (Keep it down)
-16. Use a standard header for endianess (<endian.h>), remove big_endian.h
-17. Write standard-compliant code.
-18. Rewrite include guards, to not use reserved prefixes.
-19. Rewrite big_endian.h to use <byteswap.h>
-20. Remove all references to R3X_BIG_ENDIAN, and use a common function to read a 32-bit integer from memory.
-21. Show message for big endian machines too. Use a common function to read as above.
-22. Remove the little malloc wrapper. It's problematic.
-23. Remove /fasm/ directory and use git's submodule system to link it to fasm's repository.
-24. Use strdup() instead of manually using malloc to create duplicate of strings
-25. Remove useless binaries from /src/ directory.
-26. Use the current directory, (and not the executable directory) for devenv.
-27. Don't use strncmp for comparision, since it works without error on things like ("helpppppppp" instead of showing an error message)
-28. Update "r3x_version.h" to simply have 1 name for all architectures, use standard functions to detect system rather than manually specifying it.
-29. Improve code overall, try to make it more readable, at the same time run with decent performance.
-30. Exit on not receiving arguments --> Fixed.
+HI = High priority, ME = Medium, LO = Low.
+[HI] 1. Remove shitty build.sh and use a proper build system.
+[LO] 2. Remove useless comments
+[ME] 3. Don't USE redundant typecasts
+[ME] 4. Proper whitespacing
+[LO] 5. Remove 'r3x_' prefix from source files
+[HI] 6. Make typecasting mechanism local.
+[HI] 7. Print errors to stderr not to stdout.
+[HI] 8. 'fopen' returns null on not just file ceasing to exits. Add a proper message
+[ME] 9. Stop using different case styles, use either normal_case, CamelCase, or cameCase.
+[HI] 10. Use something like a debug macro, to fix nt_malloc_init
+[LO] 11. Stop using swear words.
+[ME] 12. Stop using multiple printfs
+[ME] 13. Fix identation
+[HI] 14. Remove useless 'else' statements
+[LO] 15. Remove offensive error messages (Keep it down)
+[HI] 16. Use a standard header for endianess (<endian.h>), remove big_endian.h
+[Too high to describe] 17. Write standard-compliant code.
+[HI] 18. Rewrite include guards, to not use reserved prefixes.
+[HI] 19. Rewrite big_endian.h to use <byteswap.h>
+[HI] 20. Remove all references to R3X_BIG_ENDIAN, and use a common function to read a 32-bit integer from memory.
+[ME] 21. Show message for big endian machines too. Use a common function to read as above.
+[HI] 22. Remove the little malloc wrapper. It's problematic.
+[ME] 23. Remove /fasm/ directory and use git's submodule system to link it to fasm's repository.
+[HI] 24. Use strdup() instead of manually using malloc to create duplicate of strings
+[ME] 25. Remove useless binaries from /src/ directory.
+[ME] 26. Use the current directory, (and not the executable directory) for devenv.
+[HI] 27. Don't use strncmp for comparision, since it works without error on things like ("helpppppppp" instead of showing an error message)
+[HI] 28. Update "r3x_version.h" to simply have 1 name for all architectures, use standard functions to detect system rather than manually specifying it.
+[Too high to describe] 29. Improve code overall, try to make it more readable, at the same time run with decent performance.
+[Very High] 30. Exit on not receiving arguments --> Fixed.
+[HI] 31. Use size_t instead of 'int' while comparing return values from strlen.
+[ME] 32. Add license headers in each file. Maybe remove the license in "help" option too.
+
 Thanks to guys at #osdev for these suggestions!
