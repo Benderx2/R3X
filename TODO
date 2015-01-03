@@ -4,23 +4,23 @@ HI = High priority, ME = Medium, LO = Low.
 [LO] 2. Remove useless comments
 [ME] 3. Don't USE redundant typecasts
 [ME] 4. Proper whitespacing
-[LO] 5. Remove 'r3x_' prefix from source files -- Fixed
-[HI] 6. Make typecasting mechanism local. -- Fixed
+[X] 5. Remove 'r3x_' prefix from source files -- Fixed
+[X] 6. Make typecasting mechanism local. -- Fixed
 [HI] 7. Print errors to stderr not to stdout.
 [HI] 8. 'fopen' returns null on not just file ceasing to exits. Add a proper message
 [ME] 9. Stop using different case styles, use either normal_case, CamelCase, or cameCase.
-[HI] 10. Use something like a debug macro, to fix nt_malloc_init -- Fixed
+[X] 10. Use something like a debug macro, to fix nt_malloc_init -- Fixed
 [LO] 11. Stop using swear words.
-[ME] 12. Stop using multiple printfs --- Fixed
+[X] 12. Stop using multiple printfs --- Fixed
 [ME] 13. Fix identation
 [HI] 14. Remove useless 'else' statements
 [LO] 15. Remove offensive error messages (Keep it down)
 [HI] 16. Use a standard header for endianess (<endian.h>), remove big_endian.h
 [Too high to describe] 17. Write standard-compliant code.
-[HI] 18. Rewrite include guards, to not use reserved prefixes. -- Fixed
+[X] 18. Rewrite include guards, to not use reserved prefixes. -- Fixed
 [HI] 19. Rewrite big_endian.h to use <byteswap.h>
 [HI] 20. Remove all references to R3X_BIG_ENDIAN, and use a common function to read a 32-bit integer from memory.
-[ME] 21. Show message for big endian machines too. Use a common function to read as above.
+[ME] 21. Show message for big endian machines too. Use a common function to read as above. -- Partially Fixed
 [HI] 22. Remove the little malloc wrapper. It's problematic.
 [ME] 23. Remove /fasm/ directory and use git's submodule system to link it to fasm's repository.
 [HI] 24. Use strdup() instead of manually using malloc to create duplicate of strings
@@ -29,9 +29,9 @@ HI = High priority, ME = Medium, LO = Low.
 [HI] 27. Don't use strncmp for comparision, since it works without error on things like ("helpppppppp" instead of showing an error message)
 [HI] 28. Update "r3x_version.h" to simply have 1 name for all architectures, use standard functions to detect system rather than manually specifying it.
 [Too high to describe] 29. Improve code overall, try to make it more readable, at the same time run with decent performance.
-[Very High] 30. Exit on not receiving arguments --> Fixed.
+[X] 30. Exit on not receiving arguments --> Fixed.
 [HI] 31. Use size_t instead of 'int' while comparing return values from strlen.
-[ME] 32. Add license headers in each file. Maybe remove the license in "help" option too. -- Fixed 
+[X] 32. Add license headers in each file. Maybe remove the license in "help" option too. -- Fixed 
 
 Thanks to guys at #osdev for these suggestions!
 Want to report something? Head to the issues section.
