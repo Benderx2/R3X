@@ -19,4 +19,5 @@ Urgent:
 17. Write standard-compliant code.
 18. Rewrite include guards, to not use reserved prefixes.
 19. Rewrite big_endian.h to use <byteswap.h>
+20. Remove all references to R3X_BIG_ENDIAN, and use a common function to read a 32-bit integer from memory.
 Thanks to guys at #osdev for these suggestions!

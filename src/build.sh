@@ -17,7 +17,7 @@ export DYNAMICFLAGS=""
 export DYANMIC_FILES=""
 export ARFLAGS="-rsc"
 export INCLUDE_DIR="./include/"  
-export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -fstack-protector-all -fomit-frame-pointer"
+export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-aliasing -Wstrict-prototypes -Wmissing-prototypes -fstack-protector-all -fomit-frame-pointer"
 export IFLAGS="-I$INCLUDE_DIR"
 if [ "$USEGL" == "yes" ] 
 	then 
