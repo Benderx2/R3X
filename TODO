@@ -1,0 +1,14 @@
+TODO: Stuff that needs to be done
+Urgent:
+1. Remove shitty build.sh and use a proper build system.
+2. Remove useless comments
+3. Don't USE redundant typecasts
+4. Proper whitespacing
+5. Remove 'r3x_' prefix from source files
+6. Make typecasting mechanism local.
+7. Print errors to stderr not to stdout.
+8. 'fopen' returns null on not just file ceasing to exits. Add a proper message
+9. Stop using different case styles, use either normal_case, CamelCase, or cameCase.
+10. Use something like a debug macro, to fix nt_malloc_init
+11. Stop using swear words.
+12. Stop using multiple printfs
