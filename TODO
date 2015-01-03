@@ -22,5 +22,12 @@ Urgent:
 20. Remove all references to R3X_BIG_ENDIAN, and use a common function to read a 32-bit integer from memory.
 21. Show message for big endian machines too. Use a common function to read as above.
 22. Remove the little malloc wrapper. It's problematic.
-23. 
+23. Remove /fasm/ directory and use git's submodule system to link it to fasm's repository.
+24. Use strdup() instead of manually using malloc to create duplicate of strings
+25. Remove useless binaries from /src/ directory.
+26. Use the current directory, (and not the executable directory) for devenv.
+27. Don't use strncmp for comparision, since it works without error on things like ("helpppppppp" instead of showing an error message)
+28. Update "r3x_version.h" to simply have 1 name for all architectures, use standard functions to detect system rather than manually specifying it.
+29. Improve code overall, try to make it more readable, at the same time run with decent performance.
+30. 
 Thanks to guys at #osdev for these suggestions!
