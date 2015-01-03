@@ -8,7 +8,7 @@ export USEDYNAMIC="yes"
 # Change to -O3 for more optimization or -O0 for no optimization
 export OFLAGS="-O3"
 # Change to empty if you don't want debugging information with the binary
-export DFLAGS="-g"
+export DFLAGS="-g -DR_DEBUG"
 # DONT MODIFY
 export AS="fasm"
 export GLFLAGS=""

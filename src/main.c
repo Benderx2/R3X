@@ -37,9 +37,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_format.h>
 #include <r3x_exception.h>
 #include <r3x_stream.h>
-#ifdef REX_GRAPHICS
-#include <r3x_graphics.h>
-#endif
 #include <r3x_dispatcher.h>
 #include <r3x_bios.h>
 #include <r3x_version.h>
@@ -47,22 +44,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_dynamic.h>
 #include <big_endian.h>
 #include <assert.h>
-char* ApplicationPath = NULL;
-char* ExecutableName = NULL;
-void GetApplicationPath(void);
-double freqcpu = 0;
-r3x_cpu_t* r3_cpu = NULL;
-r3x_header_t* r3_header = NULL;
+#ifdef REX_GRAPHICS
+#include <r3x_graphics.h>
+#endif
 void quitSDL(void);
 void ParseArguments(int argc, char* argv[]);
 void PrintHelp(void);
+void GetApplicationPath(void);
+// names for vars
+double ChosenCPUFrequency = 0;
+r3x_cpu_t* r3_cpu = NULL;
+r3x_header_t* r3_header = NULL;
+char* ApplicationPath = NULL;
+char* ExecutableName = NULL;
 int main(int argc, char* argv[])
 {
 	GetApplicationPath();
 	init_stack_construct();
-	#ifdef REX_GRAPHICS
-	// Set this to true to enable debugging info.
-	nt_malloc_init(false);
+	#ifdef R3X_DEBUG
+	nt_malloc_init(true);
 	#else
 	nt_malloc_init(false);
 	#endif
@@ -101,8 +101,8 @@ int main(int argc, char* argv[])
 	r3_cpu->HeapAddr = r3_cpu->MemorySize;
 	printf("init: %u\n", r3_header->r3x_init);
 	r3_cpu->use_frequency = true;
-	r3_cpu->CPUFrequency = freqcpu;
-	if(freqcpu==0.0f){
+	r3_cpu->CPUFrequency = ChosenCPUFrequency;
+	if(ChosenCPUFrequency==0.0f){
 		r3_cpu->CPUFrequency = 0;
 		r3_cpu->use_frequency = false;
 	}
@@ -110,6 +110,7 @@ int main(int argc, char* argv[])
 	r3x_cpu_loop(r3_cpu, r3_header);
 	// Show exit status
 	printf("Program exitted with status: %u\n", Stack.GetItem(r3_cpu->Stack, r3_cpu->Stack->top_of_stack-1));
+	free(ApplicationPath); // Allocated using strdup
 	// Free all 
 	nt_freeall();
 	// Exit
@@ -124,7 +125,12 @@ void quitSDL(void) {
 }
 void GetApplicationPath(void) { 
 	#ifdef __linux__
+	#ifndef FILENAME_MAX
+	#warning "Assuming max filename as 1024 bytes"
+	char buf[1024];
+	#else 
 	char buf[FILENAME_MAX];
+	#endif
 	memset(buf, 0, sizeof(buf));
 	/* Note we use sizeof(buf)-1 since we may need an extra char for NUL. */
 	if (readlink("/proc/self/exe", buf, sizeof(buf)-1) < 0)
@@ -135,9 +141,8 @@ void GetApplicationPath(void) {
 		printf("FATAL: Unable to read /proc/self/exe!");
 		exit(EXIT_FAILURE);
 	}
-	ApplicationPath = malloc(strlen(buf)+1);
-	strcpy(ApplicationPath, buf);
-	for(int i = strlen(ApplicationPath); i != 0; i--){
+	ApplicationPath = strdup(buf);
+	for(size_t i = strlen(ApplicationPath); i != 0; i--){
 		// Backwards babe...
 		/** Remove the executable name from the path **/
 		if(ApplicationPath[i] == '/'){
@@ -146,7 +151,7 @@ void GetApplicationPath(void) {
 		}
 	}
 	#else 
-	#error "GetApplicationPath unimplemented for target, please write your own fucking implementation"
+	#error "GetApplicationPath unimplemented for target, please write your own implementation"
 	#endif
 }
 void ParseArguments(int argc, char* argv[]){
@@ -156,7 +161,7 @@ void ParseArguments(int argc, char* argv[]){
 				printf("Error: -f option. Frequency not specified\n");
 				exit(EXIT_FAILURE);
 			}
-			freqcpu = atof(argv[i+1]);
+			ChosenCPUFrequency = atof(argv[i+1]);
 		} else if(strncmp(argv[i], "-exe", 4)==0){
 			if(i+1 >= argc){
 				printf("Error: -exe option. filename not specified\n");
@@ -171,21 +176,21 @@ void ParseArguments(int argc, char* argv[]){
 }
 void PrintHelp(void) {
 	printf("%s\n", R3X_SYSTEM_VERSION);
-	printf("\n\n");
-	printf("R3X Virtual Machine - help\n");
-	printf("Usage r3x_vm.out -exe [exe file name] optional(-f [CPU Frequency])\n\n");
-	printf("Copyright (C) 2015 Benderx2 <https://github.com/Benderx2>\n\n");
-	printf("R3X is free software and is licensed under 2-clause BSD License <http://opensource.org/licenses/BSD-2-Clause>\n");
-	printf("You are free to modify, redistrubute, or make profit of this program provided\n");
-	printf("you respect it's license and terms.\n");
-	printf("\n\n");
-	printf("THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\n");
-	printf("AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,\n"); 
-	printf("THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.\n"); 
-	printf("IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"); 
-	printf("INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,\n"); 
-	printf("BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;\n"); 
-	printf("OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, \n");
-	printf("WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) \n");
-	printf("ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
+	printf("\n\n"
+		   "R3X Virtual Machine - help\n"
+	       "Usage r3x_vm.out -exe [exe file name] optional(-f [CPU Frequency])\n\n"
+		   "Copyright (C) 2015 Benderx2 <https://github.com/Benderx2>\n\n"
+	       "R3X is free software and is licensed under 2-clause BSD License <http://opensource.org/licenses/BSD-2-Clause>\n"
+		   "You are free to modify, redistrubute, or make profit of this program provided\n"
+		   "you respect it's license and terms.\n"
+		   "\n\n"
+	       "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\n"
+	       "AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,\n"
+	       "THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.\n"
+		   "IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
+		   "INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,\n"
+	       "BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;\n"
+	       "OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, \n"
+	       "WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) \n"
+	       "ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
 }
