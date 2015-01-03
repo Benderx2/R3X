@@ -1,0 +1,2 @@
+This directory contains the target specifications for LLVM.
+It's currently under progress, bother to checkout later!
