@@ -4,7 +4,7 @@ R3X
 Official repository for the R3X (REX) virtual machine. See docs/REX.html for more details.<br>
 ![Alt text](http://i.imgur.com/JC2MJtD.png "R3X Running on Linux64 with example program")
 <h1>What is REX?</h1>
-R3X is a runtime environment for portable applications. it has currently been ported to x86, x86-64, and ARM architectures.<br>
+R3X is a runtime environment for portable applications. it has currently been ported to x86, x86-64, PPC, and ARM architectures.<br>
 <br>
 R3X programs are compiled to it's own bytecode, which can be run using the VM and are architecture independent.<br>
 The main goal for R3X is to create an environment which offers maximum portability, while ensuring performance and features.<br>

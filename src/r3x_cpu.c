@@ -14,6 +14,7 @@
 #endif
 #include <r3x_exception.h>
 #include <nt_malloc.h>
+#include <big_endian.h>
 #define  ROL_C(num, bits) ((uint32_t)num << (uint32_t)bits) | ((uint32_t)num >> (32 - (uint32_t)bits))
 #define  ROR_C(num, bits) ((uint32_t)num >> (uint32_t)bits) | ((uint32_t)num << (32 - (uint32_t)bits))
 #define cpu_sleep(time, unit) usleep(time*unit)
@@ -42,9 +43,10 @@ void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t E
 typedef union __32bit_typecast {
 	uint32_t __num32;
 	struct {
-		#ifdef LITTLE_ENDIAN
+		#ifdef R3X_LITTLE_ENDIAN
 		uint8_t a, b, c, d;
-		#else
+		#endif
+		#ifdef R3X_BIG_ENDIAN
 		uint8_t d, c, b, a;
 	 	#endif
 	} __num8;
@@ -771,7 +773,7 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTI){
 				 char buffer[33];
 				 memset(buffer, 0, 33);
-				 printfstring(buffer, "%d ", get_item_from_stack_top(1));
+				 printfstring(buffer, "%u ", (unsigned int)get_item_from_stack_top(1));
 				 #ifdef REX_GRAPHICS
 				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
 				 #else
@@ -982,11 +984,22 @@ void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t E
 	}
 }
 void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
-	if(ExceptionID > TOTAL_EXCEPTIONS){
-		printf("Process caused an unknown exception! WTF?!\n");
-		raise(SIGSEGV);
-	} else if(CPU->ExceptionHandlers[ExceptionID]==0){
-		printf("Unhandled Exception!\n");
+ 	if(CPU->ExceptionHandlers[ExceptionID]==0){
+		printf("Unhandled Exception!\nException Type: ");
+		switch(ExceptionID){
+			case CPU_EXCEPTION_INVALIDACCESS:
+				printf("Invalid memory access by program\n");
+				break;
+			case CPU_EXCEPTION_INVALIDOPCODE:
+				printf("Attempt to Execute an invalid instruction\n");
+				break;
+			case CPU_EXCEPTION_EXCEPTION:
+				printf("Unhandled exception thrown by program itself\n");
+				break;
+			default:
+				printf("Unknown Exception!\n");
+				break;
+		}
 		raise(SIGSEGV);
 	} else {
 		CPU->InstructionPointer = CPU->ExceptionHandlers[ExceptionID];

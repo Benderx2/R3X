@@ -1,6 +1,6 @@
 echo "REX Compilation Script, version 0.56a"
 set -o verbose
-# Change to x86_64, x86_32, aarch64, aarch64-big, depending upon stuff..
+# Change to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
 export TARGET="x86_64"
 # Set to empty if compiling for other arch without dynamic linking support or graphics
 export USEGL="yes"
@@ -34,7 +34,7 @@ fi
 if [ "$TARGET" == "x86_64" ]
 	then
 	 export ARCHFLAGS="-m64" 
-	 export ENDIANFLAGS="-D LITTLE_ENDIAN" 
+	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN" 
          export ARCHID="-D LINUX_ARCH_X8664"
 	 export CC="gcc" 
 	 export AR="ar"
@@ -42,7 +42,7 @@ if [ "$TARGET" == "x86_64" ]
 elif [ "$TARGET" == "x86" ]
 	then
 	 export ARCHFLAGS="-m32"
-	 export ENDIANFLAGS="-D LITTLE_ENDIAN"
+	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN"
 	 export ARCHID="-D LINUX_ARCH_X8632"
 	 export CC="gcc"
 	 export AR="ar"
@@ -51,7 +51,7 @@ elif [ "$TARGET" == "aarch64-big" ]
 	then 
          # Don't use unless you've got big-endian target libraries..
 	 export ARCHFLAGS="-mbig-endian"
-	 export ENDIANFLAGS="-D BIG_ENDIAN"
+	 export ENDIANFLAGS="-D R3X_BIG_ENDIAN"
 	 export ARCHID="-D LINUX_ARCH_ARM64"
 	 export CC="arm-linux-gnueabi-gcc"
 	 export AR="arm-linux-gnueabi-ar"
@@ -59,11 +59,19 @@ elif [ "$TARGET" == "aarch64-big" ]
 elif [ "$TARGET" == "aarch64" ]
 	then 
 	 export ARCHFLAGS=""
-	 export ENDIANFLAGS="-D LITTLE_ENDIAN"
+	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN"
 	 export ARCHID="-D LINUX_ARCH_ARM64"
 	 export CC="arm-linux-gnueabi-gcc"
 	 export AR="arm-linux-gnueabi-ar"
 	 export BINDIR="../binAARCH64" 
+elif [ "$TARGET" == "ppc" ]
+	then
+	 export ARCHFLAGS=""
+	 export ENDIANFLAGS="-D R3X_BIG_ENDIAN"
+	 export ARCHID="-D LINUX_ARCH_PPC"
+	 export CC="powerpc-linux-gnu-gcc -static"
+	 export AR="powerpc-linux-gnu-ar"
+	 export BINDIR="../binppc" 
 else 
  	echo "What the fuck? Unknown or unsupported target architecture specified"
 	exit -1

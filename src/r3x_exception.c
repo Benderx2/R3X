@@ -148,7 +148,7 @@ void printstatus(void) {
 		printf("Exception: Instruction Pointer overflow\n");
 	}
 	else {
-		printf("Last Instruction Executed [OPCODE] : %x\n", r3_cpu->CurrentInstruction);	
+		printf("Last Instruction Executed [OPCODE] : 0x%x\n", r3_cpu->CurrentInstruction);	
 	}
 	printf("Log complete.\n");
 }

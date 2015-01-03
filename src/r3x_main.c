@@ -16,6 +16,7 @@
 #include <r3x_version.h>
 #include <nt_malloc.h>
 #include <r3x_dynamic.h>
+#include <big_endian.h>
 #include <assert.h>
 char* ApplicationPath = NULL;
 char* ExecutableName = NULL;
@@ -61,7 +62,12 @@ int main(int argc, char* argv[])
 	// Run the BIOS
 	r3_cpu->RootDomain = r3x_init_domain();
 	r3_header = (r3x_header_t*)&r3_cpu->Memory[PROG_EXEC_POINT];
+	#ifdef R3X_BIG_ENDIAN
+	r3_cpu->MemorySize = BIG_ENDIAN_INT(r3_header->total_size) + PROG_EXEC_POINT;
+	r3_header->r3x_init = BIG_ENDIAN_INT(r3_header->r3x_init);
+	#else
 	r3_cpu->MemorySize = r3_header->total_size + PROG_EXEC_POINT;
+	#endif
 	r3_cpu->HeapAddr = r3_cpu->MemorySize;
 	printf("init: %u\n", r3_header->r3x_init);
 	r3_cpu->use_frequency = true;
