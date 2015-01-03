@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
 	init_stream_manager();
 	if (argc < 2){
 		printf("main: Expected Argument : executable name!\n");
+		exit(EXIT_FAILURE);
 	}
 	ParseArguments(argc, argv);
 	atexit(quitSDL);
