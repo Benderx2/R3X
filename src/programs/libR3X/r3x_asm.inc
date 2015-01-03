@@ -316,6 +316,9 @@ macro catch {
 macro throw {
 	db 0x6D
 }
+macro handle {
+	db 0x6E
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1

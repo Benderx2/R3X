@@ -27,11 +27,13 @@ _invalidexception_handler:
 	push INVAEXCEPTION_STRING
 	syscall SYSCALL_PUTS
 	pop
+	handle
 	jmp _doinvalid_opcode_exception
 _invalid_opcode_handler:
 	push INVOEXCEPTION_STRING
 	syscall SYSCALL_PUTS
 	pop
+	handle
 	jmp _dorandom_exception
 _exception_handler:
 	pop ; Pop out exception code
@@ -41,6 +43,7 @@ _exception_handler:
 	; The program pushed the error code remember?
 	syscall SYSCALL_PUTI
 	Console.WaitKey
+	handle
 	System.Quit 0
 }
 .data {

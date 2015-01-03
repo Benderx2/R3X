@@ -18,7 +18,7 @@ with key differences.
 </pre>
 <h3>CPU Structure</h3>
 <h3>The R3X CPU has 2 stacks and 15 general purpose registers (R0-R15), and an IP register.</h3>
-The CPU structure used by the REX Virtual Machine is defined in src/include/r3x_cpu.h:43<br>
+The CPU structure used by the REX Virtual Machine is defined in src/include/r3x_cpu.h:85<br>
 <textarea name="code" class="c#" cols="60" rows="10">
 typedef struct r3x_cpu {
 	// Not global -- Thread dependent
@@ -29,15 +29,19 @@ typedef struct r3x_cpu {
 	bool EqualFlag;
 	bool GreaterFlag;
 	bool LesserFlag;
-	bool ZeroFlag;	
+	bool ZeroFlag;
+	bool ExceptionFlag;
 	uint32_t FLAGS;
 	uint32_t Regs[21];
+	uint32_t ExceptionHandlers[4];
 	// Global -- Thread Independent.
 	uint8_t* Memory;
 	uint32_t ISR_handlers[256];
 	unsigned int CurrentInstruction;
 	unsigned int MemorySize;
 	unsigned int HeapAddr;
+	bool use_frequency;
+	double CPUFrequency;
 	r3x_global_domain_t* RootDomain;
 	Graphics_t* Graphics;
 	ObjectList_t* ObjectList;
@@ -52,13 +56,17 @@ typedef struct r3x_cpu {
 <b><i>Graphics_t* Graphics</i></b>: Pointer to a special structure which functions like a graphics output device.<br>
 <b><i>int ErrorCode</i></b>: Used by CPU to track errors.<br>
 <b><i>bool EqualFlag, GreaterFlag, LesserFlag, ZeroFlag</i></b>: CPU's EF, GF, LF, ZF flags.<br>
+<b><i>bool ExceptionFlag;</i></b>: CPU's EXF (Exception Flag).<br>
 <b><i>uint32_t FLAGS</i></b> - CPU FLAGS register constructed from the above. The layout (in bits) is as follows:<br>
-<pre>|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|Z|L|G|E|</pre><br>
+<pre>|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|EXF|Z|L|G|E|</pre><br>
 <b><i>uint32_t Regs[21]</i></b>: Array of integers containing CPU's registers<br>
 <b><i>unsigned int CurrentInstruction</i></b>: Stores the current instruction executed by CPU (for debugging purposes).<br>
 <b><i>unsigned int MemorySize</i></b>: Total memory size of CPU<br>
 <b><i>ObjectList_t* ObjectList</i></b>: List of objects maintained by the CPU<br>
-<b><i>r3x_global_domain_t* RootDomain</i></b>: CPU's Root Domain
+<b><i>r3x_global_domain_t* RootDomain</i></b>: CPU's Root Domain<br>
+<b><i>bool use_frequency;</b></i>: Internal check done by the VM if it should use the CPUFrequency Variable. <br>
+<b><i>double CPUFrequency</b></i>: CPU's frequency (0.0f = Real Time)<br>
+<b><i>uint32_t ExceptionHandlers[4];</i></b>: CPU's exception handlers.<br>
 </pre>
 <h3>CPU Instructions</h3>
 <pre>
@@ -121,8 +129,9 @@ push BOOLEAN
 push VALUE 1
 push VALUE 2
 If BOOLEAN is true (any non-zero number), then VALUE 1 will be popped out, if BOOLEAN is false, Value 2 will be pooped out.
-<b>throw</b> - Throw an exception, exception id must be pushed to stack (INVALID_ACCESS, INVALID_OPCODE, R_EXCEP)
+<b>throw</b> - Throw an exception and set EXF to true, exception id must be pushed to stack (INVALID_ACCESS, INVALID_OPCODE, R_EXCEP)
 <b>catch</b> - Set exception handler, push the exception handler's address first, then the exception ID.
+<b>handle</b> - Set EXF to false.
 <b>exit</b> - Returns a CPU_EXIT_SIGNAL, and quits the program..
 
 </font>

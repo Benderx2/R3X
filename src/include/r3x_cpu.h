@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define GFLAG_BIT 1
 #define LFLAG_BIT 2
 #define ZFLAG_BIT 3
+#define EXFLAG_BIT 4
 #define R3X_FALSE 0
 #define BIOS_START 0
 #define CPU_INVALID_OPCODE_SIGNAL -1
@@ -66,7 +67,8 @@ typedef struct r3x_job {
 	bool EqualFlag;
 	bool GreaterFlag;
 	bool LesserFlag;
-	bool ZeroFlag;	
+	bool ZeroFlag;
+	bool ExceptionFlag;
 	int CycleUpdate;
 	int JobID;
 	bool ismain;
@@ -89,7 +91,8 @@ typedef struct r3x_cpu {
 	bool EqualFlag;
 	bool GreaterFlag;
 	bool LesserFlag;
-	bool ZeroFlag;	
+	bool ZeroFlag;
+	bool ExceptionFlag;
 	uint32_t FLAGS;
 	uint32_t Regs[21];
 	uint32_t ExceptionHandlers[4];

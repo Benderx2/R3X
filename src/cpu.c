@@ -680,6 +680,10 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		case R3X_THROW:
 			handle_cpu_exception(CPU, get_item_from_stack_top(1));
 			break;
+		case R3X_HANDLE:
+			CPU->ExceptionFlag = false;
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		// Exit application
 		case R3X_EXIT:
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {		
@@ -985,11 +989,15 @@ void push_flags(r3x_cpu_t* CPU){
 	if(CPU->ZeroFlag == true){
 		CPU->FLAGS = set_bit32(CPU->FLAGS, ZFLAG_BIT);
 	}
+	if(CPU->ExceptionFlag == true){
+		CPU->FLAGS = set_bit32(CPU->FLAGS, EXFLAG_BIT);
+	}
 	Stack.Push(CPU->Stack, CPU->FLAGS);
 }
 void pop_flags(r3x_cpu_t* CPU){
 	uint32_t flags = (uint32_t)get_item_from_stack_top(1);
 	CPU->EqualFlag = false; CPU->GreaterFlag = false; CPU->LesserFlag = false; CPU->ZeroFlag = false;
+	CPU->ExceptionFlag = false;
 	if(test_bit32(flags, EFLAG_BIT)==true){
 		CPU->EqualFlag = true;
 	} 
@@ -1002,7 +1010,9 @@ void pop_flags(r3x_cpu_t* CPU){
 	if(test_bit32(flags, ZFLAG_BIT)==true){
 		CPU->ZeroFlag = true;
 	}
-	printf("EFLAGS: E: %s, G: %s, L: %s, Z: %s\n", CPU->EqualFlag ? "true" : "false", CPU->GreaterFlag ? "true" : "false", CPU->LesserFlag ? "true" : "false", CPU->ZeroFlag ? "true" : "false");
+	if(test_bit32(flags, EXFLAG_BIT)==true){
+		CPU->ExceptionFlag = true;
+	}
 	Stack.Pop(CPU->Stack);
 }
 void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t ExceptionHandler){
@@ -1015,6 +1025,10 @@ void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t E
 	}
 }
 void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
+	if(CPU->ExceptionFlag==true){
+		printf("Bad Exception handler, IP: %u. ABORTING...\n", CPU->InstructionPointer);
+		raise(SIGSEGV);
+	}
  	if(CPU->ExceptionHandlers[ExceptionID]==0){
 		printf("Unhandled Exception!\nException Type: ");
 		switch(ExceptionID){
@@ -1034,6 +1048,7 @@ void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
 		raise(SIGSEGV);
 	} else {
 		CPU->InstructionPointer = CPU->ExceptionHandlers[ExceptionID];
+		CPU->ExceptionFlag = true;
 		return;
 	}
 }
