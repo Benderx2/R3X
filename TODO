@@ -15,4 +15,8 @@ Urgent:
 13. Fix identation
 14. Remove useless 'else' statements
 15. Remove offensive error messages (Keep it PG13)
+16. Use a standard header for endianess (<endian.h>), remove big_endian.h
+17. Write standard-compliant code.
+18. Rewrite include guards, to not use reserved prefixes.
+19. Rewrite big_endian.h to use <byteswap.h>
 Thanks to guys at #osdev for these suggestions!
