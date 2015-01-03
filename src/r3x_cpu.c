@@ -1,3 +1,32 @@
+/*
+Copyright (c) 2015 Benderx2, 
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of R3X nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,37 +38,13 @@
 #include <r3x_native.h>
 #include <r3x_dynamic.h>
 #include <r3x_stream.h>
-#ifdef REX_GRAPHICS
-#include <r3x_graphics.h>
-#endif
 #include <r3x_exception.h>
 #include <nt_malloc.h>
 #include <big_endian.h>
-#define  ROL_C(num, bits) ((uint32_t)num << (uint32_t)bits) | ((uint32_t)num >> (32 - (uint32_t)bits))
-#define  ROR_C(num, bits) ((uint32_t)num >> (uint32_t)bits) | ((uint32_t)num << (32 - (uint32_t)bits))
-#define cpu_sleep(time, unit) usleep(time*unit)
-#define SLEEP_MILLISECONDS 1000
-#define get_item_from_stack_top(x) Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-x)
-bool exitcalled = false;
-int r3x_emulate_instruction(r3x_cpu_t* CPU);
-void push_flags(r3x_cpu_t* CPU);
-void pop_flags(r3x_cpu_t* CPU);
-uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
-uint32_t return_32bit_int_from_ip(r3x_cpu_t*);
-float return_float(uint32_t num32);
-int keyboard_thread(void* data);
-uint32_t return_int_from_float(float fl32);
-void printfstring(char* string, const char * format, ... );
-void compare_and_set_flag_signed(r3x_cpu_t* CPU, int op1, int op2);
-void compare_and_set_flag_unsigned(r3x_cpu_t* CPU, unsigned int op1, unsigned int op2);
-void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
-uint32_t set_bit32(uint32_t num, int bit);
-uint32_t unset_bit32(uint32_t num, int bit);
-uint32_t toggle_bit32(uint32_t num, int bit);
-bool test_bit32(uint32_t num, int bit);
-void r3x_syscall(r3x_cpu_t* CPU);
-void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID);
-void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t ExceptionHandler);
+#ifdef REX_GRAPHICS
+#include <r3x_graphics.h>
+#endif
+// Unions to make life easier
 typedef union __32bit_typecast {
 	uint32_t __num32;
 	struct {
@@ -51,22 +56,69 @@ typedef union __32bit_typecast {
 	 	#endif
 	} __num8;
 } __32bit_typecast;
+
 typedef union __float_typecast {
 	uint32_t __num32;
 	float float32;
 } __float_typecast;
-__32bit_typecast temp_typecast32;
-__float_typecast temp_typecastFL;
+
+// A few constants
+const int SLEEP_MILLISECONDS = 1000;
+
+// Bools and global stuff
+bool exitcalled = false;
 bool is_read = true;
 char keycode = 0;
 int code = 0;
 SDL_Event key_event = {SDL_USEREVENT};
+
+// Helpful macros
+#define get_item_from_stack_top(x) Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-x)
+#define cpu_sleep(time, unit) usleep(time*unit)
+
+
+// Rotate ints
+#define  ROL_C(num, bits) ((uint32_t)num << (uint32_t)bits) | ((uint32_t)num >> (32 - (uint32_t)bits))
+#define  ROR_C(num, bits) ((uint32_t)num >> (uint32_t)bits) | ((uint32_t)num << (32 - (uint32_t)bits))
+
+
+// <type>-to-uint32 helpers
+uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
+uint32_t return_32bit_int_from_ip(r3x_cpu_t*);
+float return_float(uint32_t);
+uint32_t return_int_from_float(float);
+
+
+// Flag push/pop/compare and helper functions
+void push_flags(r3x_cpu_t*);
+void pop_flags(r3x_cpu_t*);
+void compare_and_set_flag_signed(r3x_cpu_t*, int, int);
+void compare_and_set_flag_unsigned(r3x_cpu_t*, unsigned int, unsigned int);
+void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
+void handle_cpu_exception(r3x_cpu_t*, unsigned int);
+void set_exception_handlers(r3x_cpu_t*, unsigned int, uint32_t);
+void r3x_syscall(r3x_cpu_t* CPU);
+
+
+// Something to print string to buffer
+void printfstring(char*, const char * format, ... );
+
+
+// Let's call it, uh, bitutils? ;)
+uint32_t set_bit32(uint32_t, int);
+uint32_t unset_bit32(uint32_t, int);
+uint32_t toggle_bit32(uint32_t, int);
+bool     test_bit32(uint32_t, int);
+
+
+// CPU Emulation Funciton
+int r3x_emulate_instruction(r3x_cpu_t*);
+
+// Keyboard Thread
+int keyboard_thread(void* data);
+
 int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 {
-	temp_typecast32.__num8.a = 0;
-	temp_typecast32.__num8.b = 0;
-	temp_typecast32.__num8.c = 0;
-	temp_typecast32.__num8.d = 0;
 	r3x_dispatch_job(BIOS_START, 1, CPU->RootDomain, true);
 	CPU->RootDomain->CurrentJobID = 0;
 	r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
@@ -645,6 +697,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 }
 uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 {
+	__32bit_typecast temp_typecast32;
 	temp_typecast32.__num32 = 0;
 	temp_typecast32.__num8.a = a;
 	temp_typecast32.__num8.b = b;
@@ -653,13 +706,15 @@ uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 	return temp_typecast32.__num32;
 }
 float return_float(uint32_t num32)
-{
+{	
+	__float_typecast temp_typecastFL;;
 	temp_typecastFL.float32 = 0.0f;
 	temp_typecastFL.__num32 = num32;
 	return temp_typecastFL.float32;
 }
 uint32_t return_int_from_float(float fl32)
 {
+	__float_typecast temp_typecastFL;
 	temp_typecastFL.float32 = 0.0f;
 	temp_typecastFL.__num32 = 0;
 	temp_typecastFL.float32 = fl32;
@@ -931,30 +986,6 @@ void push_flags(r3x_cpu_t* CPU){
 		CPU->FLAGS = set_bit32(CPU->FLAGS, ZFLAG_BIT);
 	}
 	Stack.Push(CPU->Stack, CPU->FLAGS);
-}
-char* itoa(unsigned int value, char* result, int base);
-char* itoa(unsigned int value, char* result, int base) {
-		// check that the base if valid
-		if (base < 2 || base > 36) { *result = '\0'; return result; }
-
-		char* ptr = result, *ptr1 = result, tmp_char;
-		int tmp_value;
-
-		do {
-			tmp_value = value;
-			value /= base;
-			*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
-		} while ( value );
-
-		// Apply negative sign
-		if (tmp_value < 0) *ptr++ = '-';
-		*ptr-- = '\0';
-		while(ptr1 < ptr) {
-			tmp_char = *ptr;
-			*ptr--= *ptr1;
-			*ptr1++ = tmp_char;
-		}
-		return result;
 }
 void pop_flags(r3x_cpu_t* CPU){
 	uint32_t flags = (uint32_t)get_item_from_stack_top(1);

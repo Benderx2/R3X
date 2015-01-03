@@ -1,4 +1,4 @@
-echo "REX Compilation Script, version 0.56a"
+echo "REX Compilation Script, version 0.61b"
 set -o verbose
 # Change to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
 export TARGET="x86_64"
@@ -9,18 +9,18 @@ export USEDYNAMIC="yes"
 export OFLAGS="-O3"
 # Change to empty if you don't want debugging information with the binary
 export DFLAGS="-g"
-# DONT MODIFY 
+# DONT MODIFY
 export AS="fasm"
 export GLFLAGS=""
 export GL_FILES=""
 export DYNAMICFLAGS=""
 export DYANMIC_FILES=""
 export ARFLAGS="-rsc"
-export INCLUDE_DIR="./include/"  
-export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-aliasing -Wstrict-prototypes -Wmissing-prototypes -fstack-protector-all -fomit-frame-pointer"
+export INCLUDE_DIR="./include/"
+export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-aliasing -Wstrict-prototypes -Wmissing-prototypes -fomit-frame-pointer"
 export IFLAGS="-I$INCLUDE_DIR"
-if [ "$USEGL" == "yes" ] 
-	then 
+if [ "$USEGL" == "yes" ]
+	then
 	 export USEGL="-D REX_GRAPHICS"
 	 export GLFLAGS="-lSDL -lSDL_image -lGL -lX11"
 	 export GL_FILES="r3x_font.o r3x_graphics.o"
@@ -73,7 +73,7 @@ elif [ "$TARGET" == "ppc" ]
 	 export AR="powerpc-linux-gnu-ar"
 	 export BINDIR="../binppc" 
 else 
- 	echo "What the fuck? Unknown or unsupported target architecture specified"
+ 	echo "Unsupported platform. Supported platforms: x86, x86_64, ppc, aarch64, aarch64-big"
 	exit -1
 fi
 export LFLAGS="-lc -lm -ldl -rdynamic"
@@ -107,3 +107,5 @@ mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 # remove all object files
 rm *.o
+# Remove static libs
+rm *.a
