@@ -319,6 +319,10 @@ macro throw {
 macro handle {
 	db 0x6E
 }
+macro stores off {
+	db 0x6F
+	dd off
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1

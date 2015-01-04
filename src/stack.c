@@ -34,7 +34,7 @@ int32_t PopFromStack(vstack_t* stack);
 int32_t GetItemS(vstack_t* stack, unsigned int idx);
 vstack_t* CreateStack(void);
 int Duplicate(vstack_t* stack);
-void SetItemS(vstack_t* stack, unsigned int idx, int32_t i);
+int SetItemS(vstack_t* stack, unsigned int idx, int32_t i);
 void DestroyStack(vstack_t* Stack);
 void init_stack_construct(void)
 {
@@ -58,12 +58,13 @@ int32_t GetItemS(vstack_t* stack, unsigned int idx)
 	if (idx > stack->stack_count){ return -1; }
 	else { return (stack->content[idx]); }
 }
-void SetItemS(vstack_t* stack, unsigned int idx, int32_t i)
+int SetItemS(vstack_t* stack, unsigned int idx, int32_t i)
 {
-	if(stack == NULL) { return; }
-	if(stack->top_of_stack==0 || stack->stack_count == 0){ return; }
-	if (idx > stack->stack_count){ return; }
+	if(stack == NULL) { return -1; }
+	if(stack->top_of_stack==0 || stack->stack_count == 0){ return -1; }
+	if (idx > stack->stack_count){ return -1; }
 	else { stack->content[idx] = i; }
+	return 0;
 }
 vstack_t* CreateStack(void)
 {

@@ -2,6 +2,11 @@ include 'libR3X/libR3X.inc'
 import 'simplelib.inc'
 import 'libR3X/corelib.pkg'
 .text {
+	push 1337
+	push 2000
+	stores 2
+	pop
+	syscall SYSCALL_PUTI
 	Console.Write "Calling Dynamic Library (simplelib.ro)"
 	Console.NewLine
 	loadsimplelib

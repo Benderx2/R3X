@@ -189,6 +189,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			push_flags(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		// Pop flags from stack
 		case R3X_POPF:
 			pop_flags(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
@@ -290,6 +291,16 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - return_32bit_int_from_ip(CPU)));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
+		// Store a value to stack offset
+		case R3X_STORES:
+			// TODO: Stop using hacks!
+			get_item_from_stack_top(1);
+			int ret = Stack.SetItem(CPU->Stack, CPU->Stack->top_of_stack-return_32bit_int_from_ip(CPU), get_item_from_stack_top(1));
+			if(ret==-1){
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+			}
+			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;	
 		// Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		case R3X_LOAD:
 			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){ 

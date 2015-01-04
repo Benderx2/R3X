@@ -92,8 +92,9 @@ Note2: If the description says nothing about the result, it is assumed that the 
 <i>M </i><b><i>jne, jge, jle</i></b> - Jump if not equal, Jump if greater or equal, Jump if lesser or equal
 <b>dup</b> - Duplicate value last pushed.
 <b>load</b> - Load from address pushed to stack, and push the value (32-bit)
-<b>loads</b> <i>imm</i> - Load from an offset in Stack, and push value (32-bit)
+<b>loads</b> <i>imm</i> - Load from CPU->Stack[top of stack - imm], and push value (32-bit)
 <b>store</b> - Store the value last pushed to stack, to the address, pushed second last (32-bit)
+<b>stores</b> <i>imm</i> - Store the value pushed to stack to CPU->Stack[top of stack - imm].
 <b>or, xor, and</b> - Does the apporpriate bitwise operation on the last 2 values pushed to stack and pushes the result.
 <b>neg, not</b> - Does the appropriate bitwise operation on the last value pushed to stack and pushes the result.
 <b>ror, rol</b> - Rotates the integer pushed second last by number of bits pushed last, and pushes result.

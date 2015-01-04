@@ -46,7 +46,7 @@ typedef struct __stack_construct {
 	int32_t(*Pop)(vstack_t*);
 	int32_t(*Duplicate)(vstack_t*);
 	int32_t(*GetItem)(vstack_t*, unsigned int);
-	void(*SetItem)(vstack_t*, unsigned int, int32_t);
+	int(*SetItem)(vstack_t*, unsigned int, int32_t);
 	void(*DestroyStack)(vstack_t*);
 } stack_construct;
 stack_construct Stack;
