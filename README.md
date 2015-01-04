@@ -12,7 +12,5 @@ R3X aims to provide a C-like enviroment, at the same time being highly portable 
 It currently supports streams, exception handling, multithreading, dynamic memory allocation and dynamic linking<br>
 The VM also comes with an inbuilt debugger<br>
 <br>
-An compiler toolchain for the R3X architecture is currently in progress. See the 'rcc' directory for progress<br>
-See docs/REX.html for more details.<br>
 
 Good news! We're finally stable! 0.1.7b stable (Crispy Pie) has been released.<br>

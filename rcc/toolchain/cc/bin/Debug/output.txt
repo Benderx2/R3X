@@ -1,8 +1,0 @@
-include "libR3X/libR3X.inc"
-.text {
-loadr R0, 5
-pushr R0
-push 3
-add
-popr R0
-pushr R0
