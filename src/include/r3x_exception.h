@@ -36,4 +36,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assert.h>
 #include <r3x_cpu.h>
 void REX_EXCEPTION_HANDLER(int);
+void SIGUSR1_handler(int);
 #endif

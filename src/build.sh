@@ -89,7 +89,7 @@ do
    $CC $CCFLAGS -c $i -o ${i%.c}.o
    set +x
 done
-$CC -o r3x_vm.out $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
+$CC -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
 # compile programs
 $AS programs/r3x_ex.asm
 $AS programs/math.asm
@@ -98,7 +98,7 @@ $AS programs/simplelib.asm
 $AS programs/bios.asm
 $AS programs/exception.asm
 # now transfer it 
-mv r3x_vm.out $BINDIR/
+mv rxvm $BINDIR/
 mv programs/r3x_ex.exe $BINDIR/
 mv programs/math.exe $BINDIR/
 mv programs/stream.exe $BINDIR/

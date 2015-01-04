@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_version.h>
 #include <nt_malloc.h>
 #include <unistd.h>
+extern bool UseServer;
 extern r3x_cpu_t* r3_cpu;
 #define MAX_INPUT_LEN 80
 char str[MAX_INPUT_LEN+1];
@@ -46,6 +47,11 @@ void REX_EXCEPTION_HANDLER(int SIGNUM) {
 }
 void debugger(void) { 
 	printstatus();
+	if(UseServer == true){
+		printf("Virtual Machine is running in client mode. Cannot run debugger\n");
+		printf("Quitting\n");
+		exit(EXIT_FAILURE);
+	}
 	printf("Welcome to REX Debugger, based upon FVM Technology. %s.\nType 'help' for help.", R3X_SYSTEM_VERSION);
 	// go into debugger 
 	while(true) { 
@@ -186,4 +192,10 @@ void printregstatus(void) {
 	for(unsigned int i = 0; i <= MAX_NUMBER_OF_REGISTERS; i++) {
 		printf("R%u: %u\t", i, (unsigned int)r3_cpu->Regs[i]);	
 	}
+}
+void SIGUSR1_handler(int signum){
+	(void)signum;
+	printf("Host requesting for status\n");
+	printstatus();
+	printregstatus();
 }

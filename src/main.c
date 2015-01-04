@@ -57,6 +57,7 @@ r3x_cpu_t* r3_cpu = NULL;
 r3x_header_t* r3_header = NULL;
 char* ApplicationPath = NULL;
 char* ExecutableName = NULL;
+bool UseServer = false;
 int main(int argc, char* argv[])
 {
 	GetApplicationPath();
@@ -73,10 +74,14 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 	ParseArguments(argc, argv);
+	if(UseServer == true){
+		printf("VM is running under client mode\n");
+	}
 	atexit(quitSDL);
 	// Install signal handlers
 	signal(SIGSEGV, REX_EXCEPTION_HANDLER);
 	signal(SIGINT,  REX_EXCEPTION_HANDLER);
+	signal(SIGUSR1, SIGUSR1_handler);
 	// Print version
 	printf("%s\n", R3X_SYSTEM_VERSION);
 	// Allocate memory for CPU structure
@@ -168,6 +173,9 @@ void ParseArguments(int argc, char* argv[]){
 				exit(EXIT_FAILURE);
 			}
 			ExecutableName = argv[i+1];
+			printf("Executable Name %s\n", ExecutableName);
+		} else if(strncmp(argv[i], "-s", 2)==0){
+			UseServer = true;
 		} else if(strncmp(argv[i], "-h", 2)==0||strncmp(argv[i], "-help", 5)==0||strncmp(argv[i], "--help", 6)==0){
 			PrintHelp();
 			exit(EXIT_SUCCESS);
@@ -178,7 +186,7 @@ void PrintHelp(void) {
 	printf("%s\n", R3X_SYSTEM_VERSION);
 	printf("\n\n"
 		   "R3X Virtual Machine - help\n"
-	       "Usage r3x_vm.out -exe [exe file name] optional(-f [CPU Frequency])\n\n"
+	       "Usage rxvm -exe [exe file name] optional(-f [CPU Frequency])\n\n"
 		   "Copyright (C) 2015 Benderx2 <https://github.com/Benderx2>\n\n"
 	       "R3X is free software and is licensed under 2-clause BSD License <http://opensource.org/licenses/BSD-2-Clause>\n"
 		   "You are free to modify, redistrubute, or make profit of this program provided\n"

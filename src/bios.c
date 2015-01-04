@@ -35,7 +35,7 @@ void r3x_load_bios(r3x_cpu_t* CPU) {
 	// Load the bios, not really sure whatthefuck should i reallyfucking write here.
 	char* BIOSPath = nt_concat(ApplicationPath, "/bios/bios.bin");
 	FILE* biosfile = fopen(BIOSPath, "r");
-	if(biosfile == NULL) { printf("Error : %s is missing\n", BIOSPath); nt_freeall(); exit(1); } 
+	if(biosfile == NULL) { perror("Unable to read BIOS image <vm dir>/bios/bios.bin"); nt_freeall(); exit(1); } 
 	else { 
 		// read 512 bytes
 		fseek(biosfile, 0L, SEEK_END);

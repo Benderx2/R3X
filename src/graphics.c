@@ -28,9 +28,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <X11/Xlib.h>
+#include <unistd.h>
 #include <r3x_graphics.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
+extern bool UseServer;
 void Update(SDL_Surface*);
 Graphics_t* InitGraphics(void)
 {
@@ -67,7 +69,13 @@ Graphics_t* InitGraphics(void)
 		 fprintf(stderr, "Video mode set failed: %s\n", SDL_GetError());
 		 exit(1);
 	}
-	SDL_WM_SetCaption(R3X_SYSTEM_VERSION , NULL);
+	if(UseServer == false){
+		SDL_WM_SetCaption(R3X_SYSTEM_VERSION , NULL);
+	} else {
+		char buffer[33];
+		sprintf(buffer, "%d", getpid());
+		SDL_WM_SetCaption(nt_concat("Running as client, process ID: ", buffer), NULL);
+	}
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF);
 	graphics->ScreenX = 0;
