@@ -275,3 +275,6 @@ macro jle addr {
 	jl addr
 	je addr
 }
+macro import file {
+	include #file
+}

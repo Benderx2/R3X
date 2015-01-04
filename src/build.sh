@@ -91,12 +91,12 @@ do
 done
 $CC -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
 # compile programs
-$AS programs/r3x_ex.asm
-$AS programs/math.asm
-$AS programs/stream.asm
-$AS programs/simplelib.asm
-$AS programs/bios.asm
-$AS programs/exception.asm
+$AS programs/r3x_ex.il 
+$AS programs/math.il 
+$AS programs/stream.il 
+$AS programs/simplelib.il 
+$AS programs/bios.il 
+$AS programs/exception.il 
 # now transfer it 
 mv rxvm $BINDIR/
 mv programs/r3x_ex.exe $BINDIR/

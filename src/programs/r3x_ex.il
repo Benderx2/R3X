@@ -1,9 +1,7 @@
 include 'libR3X/libR3X.inc'
-include 'simplelib.inc'
+import 'simplelib.inc'
+import 'libR3X/corelib.pkg'
 .text {
-	push 0xff
-	rol
-	syscall SYSCALL_PUTI
 	Console.Write "Calling Dynamic Library (simplelib.ro)"
 	Console.NewLine
 	loadsimplelib
