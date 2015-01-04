@@ -34,6 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct r3x_header {
 	uint32_t header_id;
 	uint32_t program_header;
+	uint16_t minor;
+	uint16_t major;
 	uint32_t r3x_init;
 	uint32_t r3x_text_size;
 	uint32_t r3x_data;

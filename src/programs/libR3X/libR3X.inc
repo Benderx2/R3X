@@ -4,6 +4,8 @@ org 0x100000
 _begin:
 dd 0xBA5EBA11
 dd _begin
+dw 0 ; Minor version
+dw 0 ; Major version
 dd _init
 dd _end_text - _init
 dd _data

@@ -17,6 +17,8 @@ in src/include/r3x_format.h:5<br>
 typedef struct r3x_header {
 	uint32_t header_id;
 	uint32_t program_header;
+	uint16_t minor;
+	uint16_t major;
 	uint32_t r3x_init;
 	uint32_t r3x_text_size;
 	uint32_t r3x_data;
@@ -33,6 +35,8 @@ typedef struct r3x_header {
 <pre>
 <b><i>uint32_t header_id</i></b>: A magic number used for identification. 0xBA5EBA11 as defined by the REX standard.<br>
 <b><i>uint32_t program_header</i></b>: Pointer to the first byte in the executable.<br>
+<b><i>uint16_t minor</i></b>: Minor version of the program<br>
+<b><i>uint16_t major</i></b>: Major version of the program<br>
 <b><i>uint32_t r3x_init</i></b>: Pointer to the program's start function.<br>
 <b><i>uint32_t r3x_text_size</i></b>: Size of the .text section.<br>
 <b><i>uint32_t r3x_data</i></b>: Pointer to the program's data function.<br>
