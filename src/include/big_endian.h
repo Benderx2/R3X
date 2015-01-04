@@ -29,11 +29,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef BIG_ENDIAN_H
 #define BIG_ENDIAN_H
+#include <stdint.h>
 #ifdef R3X_BIG_ENDIAN
-#ifdef __GNUC__
-#define BIG_ENDIAN_INT(x) (uint32_t)__builtin_bswap32(x)
-#else 
-#error "Fuck this compiler, use a GNU compliant one"
-#endif
+// Swaps an integer
+static inline uint32_t BIG_ENDIAN_INT (uint32_t i) {
+   #ifdef __GNUC__
+   // Use GNUs builtin
+   return (uint32_t)__builtin_bswap32(i);
+   #else
+   uint32_t convswap = (i & 0xFFFF) << 16 | (i & 0xFFFF0000) >> 16;
+   convswap = (convswap & 0x00FF00FF) << 8 | (convswap & 0xFF00FF00) >> 8;
+   return convswap;
+   #endif 
+}
 #endif
 #endif
