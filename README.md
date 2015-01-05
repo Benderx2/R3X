@@ -13,4 +13,4 @@ It currently supports streams, exception handling, multithreading, dynamic memor
 The VM also comes with an inbuilt debugger<br>
 <br>
 
-Good news! We're finally stable! 0.1.7b stable (Crispy Pie) has been released.<br>
+Current version is 0.2.8a Fruity Fun (unstable)<br>
