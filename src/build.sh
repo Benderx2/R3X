@@ -1,4 +1,4 @@
-echo "REX Compilation Script, version 0.61b"
+echo "REX Compilation Script, version 0.63a"
 set -o verbose
 # Change to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
 export TARGET="x86_64"
@@ -39,7 +39,7 @@ if [ "$TARGET" == "x86_64" ]
 	 export CC="gcc" 
 	 export AR="ar"
 	 export BINDIR="../bin64"
-elif [ "$TARGET" == "x86" ]
+elif [ "$TARGET" == "x86_32" ]
 	then
 	 export ARCHFLAGS="-m32"
 	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN"
@@ -89,7 +89,7 @@ do
    $CC $CCFLAGS -c $i -o ${i%.c}.o
    set +x
 done
-$CC -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
+$CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
 # compile programs
 $AS programs/r3x_ex.il 
 $AS programs/math.il 

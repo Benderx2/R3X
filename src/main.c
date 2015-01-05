@@ -52,6 +52,8 @@ void ParseArguments(int argc, char* argv[]);
 void PrintHelp(void);
 void GetApplicationPath(void);
 int max_stack = DEFAULT_MAX_STACK_SIZE;
+int ScreenWidth = 640;
+int ScreenHeight = 480;
 // names for vars
 double ChosenCPUFrequency = 0;
 r3x_cpu_t* r3_cpu = NULL;
@@ -181,6 +183,18 @@ void ParseArguments(int argc, char* argv[]){
 				exit(EXIT_SUCCESS);
 			}
 			max_stack = atoi(argv[i+1]);
+		} else if(strncmp(argv[i], "-w", 2)==0){
+			if(i+1 >= argc){
+				printf("Error: -w option, width not specified.\n");
+				exit(EXIT_SUCCESS);
+			}
+			ScreenWidth = atoi(argv[i+1]);
+		} else if(strncmp(argv[i], "-h", 2)==0){
+			if(i+1 >= argc){
+				printf("Error: -h option, height not specified.\n");
+				exit(EXIT_SUCCESS);
+			}
+			ScreenHeight = atoi(argv[i+1]);
 		} else if(strncmp(argv[i], "-s", 2)==0){
 			UseServer = true;
 		} else if(strncmp(argv[i], "-h", 2)==0||strncmp(argv[i], "-help", 5)==0||strncmp(argv[i], "--help", 6)==0){

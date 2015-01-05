@@ -33,6 +33,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_version.h>
 #include <nt_malloc.h>
 extern bool UseServer;
+extern int ScreenWidth;
+extern int ScreenHeight;
 void Update(SDL_Surface*);
 Graphics_t* InitGraphics(void)
 {
@@ -56,8 +58,8 @@ Graphics_t* InitGraphics(void)
 		fprintf(stderr, "Can't gather Video Information: %s\n", SDL_GetError());
 		exit(1);
 	}
-	graphics->Width = 800;
-	graphics->Height = 608;
+	graphics->Width = ScreenWidth; 
+	graphics->Height = ScreenHeight; 
 	graphics->Depth = graphics->VideoInfo->vfmt->BitsPerPixel;
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
@@ -83,7 +85,7 @@ Graphics_t* InitGraphics(void)
 	graphics->FontSize = 16; // using 16x16 fonts...
 	graphics->CharMaxW = graphics->Width / graphics->FontSize;
 	graphics->CharMaxH = graphics->Height / graphics->FontSize;
-	graphics->FontScale = 2.0f;
+	graphics->FontScale = 1.0f;
 	graphics->TextBuf = nt_malloc(graphics->CharMaxH * graphics->CharMaxW);
 	graphics->TextOffset = 0;
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	

@@ -206,8 +206,11 @@ void vm_putc(char a, Graphics_t* Graphics)
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GLUpdate(); 
-		GLUpdate();
-		memcpy(Graphics->TextBuf, Graphics->TextBuf + Graphics->CharMaxW, (Graphics->CharMaxH - 1)*(Graphics->CharMaxW));
+		//GLUpdate();
+		//memcpy(Graphics->TextBuf, Graphics->TextBuf + Graphics->CharMaxW, (Graphics->CharMaxH - 1)*(Graphics->CharMaxW));
+        for(int i = 0; i < (Graphics->CharMaxH-1)*(Graphics->CharMaxW); i++){
+            Graphics->TextBuf[i] = Graphics->TextBuf[i+Graphics->CharMaxW];
+        }
 		memset(Graphics->TextBuf + (Graphics->CharMaxH - 1)*Graphics->CharMaxW, 0, Graphics->CharMaxW);
 		Graphics->TextOffset -=  ((Graphics->Width)/(Graphics->FontSize));
 		if(a != 0 && a != '\n'){
