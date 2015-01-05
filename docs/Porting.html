@@ -16,9 +16,62 @@ seem to require a lot of dependencies, but this can be minimized.<br>
 There are a few defines which can change the course of compilation, here is<br>
 a small list of them:<br>
 <pre>REX_GRAPHICS</pre>
-Defines whether to use SDL/OpenGL libraries, note that compilations without using<br>
+Defines whether to use SDL/OpenGL/X11 libraries, note that compilations without using<br>
 this would have problems with user input. This bug is currently being fixed.<br>
 <pre>R_DEBUG</pre>
-Defines
+Defines whether to print debugging information or not<br>
+<pre>REX_DYNAMIC</pre>
+Defines whether to use dynamic linking (note: VM compiled without this would not be able to run programs using native linking)<br>
+<pre>LITTLE_ENDIAN</pre>
+If this macro is defined, the VM assumes that the target is little endian<br>
+<pre>BIG_ENDIAN</pre>
+If this macro is defined, the VM assumes that the target is big endian<br>
+<pre>LINUX_ARCH_X8664, LINUX_ARCH_X8632, LINUX_ARCH_AARCH64, LINUX_ARCH_PPC</pre>
+Target set to the corresponding defines above<br>
+<h3>Compilers supported</h3>
+Officially supported compilers are: gcc (4.8.1), gcc (4.8.2), gcc (4.9.0), clang (3.4), clang (3.5)<br>
+<h3>Officially supported operating systems</h3>
+The officially supported operating system currently is Linux. The program has been successfully tested on Linux (x86), Linux (x64),<br> 
+Linux (ARM64), and Linux (PowerPC).<br>
+Support for Windows (x86 and x64) is planned.<br>
+<h3>OS Specific routines</h3>
+R3X does not need much from the target operating system except for a standard C library. (*printf, string routines, memory allocation, streams, signals)<br>
+However, there is one special OS specific routine defined in "src/main.c"<br>
+<pre>
+void GetApplicationPath(void) { 
+	#ifdef __linux__
+	#ifndef FILENAME_MAX
+	#warning "Assuming max filename as 1024 bytes"
+	char buf[1024];
+	#else 
+	char buf[FILENAME_MAX];
+	#endif
+	memset(buf, 0, sizeof(buf));
+	/* Note we use sizeof(buf)-1 since we may need an extra char for NUL. */
+	if (readlink("/proc/self/exe", buf, sizeof(buf)-1) &lt 0)
+	{
+		/* There was an error...  Perhaps the path does not exist
+		* or the buffer is not big enough.  errno has the details. */
+		perror("readlink");
+		printf("FATAL: Unable to read /proc/self/exe!");
+		exit(EXIT_FAILURE);
+	}
+	ApplicationPath = strdup(buf);
+	for(size_t i = strlen(ApplicationPath); i != 0; i--){
+		// Backwards babe...
+		/** Remove the executable name from the path **/
+		if(ApplicationPath[i] == '/'){
+			memset((char*)((intptr_t)ApplicationPath + i), 0, strlen(ApplicationPath)-i);
+			return;
+		}
+	}
+	#else 
+	#error "GetApplicationPath unimplemented for target, please write your own implementation"
+	#endif
+}
+</pre>
+The "GetApplicationPath" supposed to get the <i><b>absolute</b></i> path to the directory of the VM executable<br>
+and the store it in a string (char*) called "ApplicationPath".<br>
+The string is uninitialized, which means that the routine must do the allocation itself.<br>
 </font>
 </html>
