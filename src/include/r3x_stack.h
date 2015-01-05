@@ -34,11 +34,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <string.h>
 #define STACK_UFLOW_ERR -1
-#define DEFAULT_STACK_SIZE 16 * sizeof(int)
+#define DEFAULT_STACK_SIZE 16 * sizeof(int32_t)
+#define DEFAULT_MAX_STACK_SIZE 262144
 typedef struct __stack {
-	int* content;
+	int32_t* content;
 	unsigned int top_of_stack;
 	unsigned int stack_count;
+	unsigned int max_stack; 
 } vstack_t;
 typedef struct __stack_construct {
 	vstack_t* (*Create)(void);

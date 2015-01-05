@@ -32,6 +32,6 @@ HI = High priority, ME = Medium, LO = Low.
 [X] 30. Exit on not receiving arguments --> Fixed.
 [HI] 31. Use size_t instead of 'int' while comparing return values from strlen.
 [X] 32. Add license headers in each file. Maybe remove the license in "help" option too. -- Fixed 
-
+[X] 33. Add a stack overflow check. --Fixed
 Thanks to guys at #osdev for these suggestions!
 Want to report something? Head to the issues section.

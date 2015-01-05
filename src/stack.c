@@ -27,6 +27,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include <signal.h>
 #include <r3x_stack.h>
 #include <nt_malloc.h>
 int PushtoStack(vstack_t* stack, int32_t object);
@@ -73,10 +74,18 @@ vstack_t* CreateStack(void)
 	new_stack->content = NULL;
 	new_stack->top_of_stack = 0;
 	new_stack->stack_count = 0;
+	new_stack->max_stack = DEFAULT_MAX_STACK_SIZE;
 	return new_stack;
 }
 int PushtoStack(vstack_t* stack, int32_t object)
 {
+	// Check if we have reached the maximum value..
+	if(stack->top_of_stack >= stack->max_stack){
+		printf("Max stack size exceeded. Top of stack : %u, Max Stack Size : %u\n", stack->top_of_stack, stack->max_stack);
+		printf("Use the -stack option to specify the number of 32-bit integers to be allocated\n");
+		printf("Switching to debugger\n");
+		raise(SIGSEGV);
+	}
 	// Check if we are going to overflow
 	if (stack->stack_count == stack->top_of_stack){
 		// Check if there exists a buffer

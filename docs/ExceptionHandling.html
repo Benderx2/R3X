@@ -44,5 +44,10 @@ sets the Exception Flag (EXF) to true. This means that any exception that is cau
 make the VM shutdown. This helps when the exception handlers themselves are bogus.<br>
 Before resuming execution, the exception handler, must execute the 'handle' instruction, which sets the exception flag to false.<br>
 If you fail to do this, the VM would simply shutdown with a "bad handler" message, if another exception is caused<br>
+
+<h3>Stack Overflow</h3>
+When a program causes a stack overflow exception, the virtual machine will simply return control to the debugger, giving a message<br>
+telling the user that the stack has exceeded it's limit. The size of the stack can be specified using the "-stack" option. Please
+see the "Building and Running" section about this option. The default stack size of assumed to be 262144 32-bit integers<br>
 </font>
 </html>

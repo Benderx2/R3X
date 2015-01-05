@@ -51,6 +51,7 @@ void quitSDL(void);
 void ParseArguments(int argc, char* argv[]);
 void PrintHelp(void);
 void GetApplicationPath(void);
+int max_stack = DEFAULT_MAX_STACK_SIZE;
 // names for vars
 double ChosenCPUFrequency = 0;
 r3x_cpu_t* r3_cpu = NULL;
@@ -174,6 +175,12 @@ void ParseArguments(int argc, char* argv[]){
 			}
 			ExecutableName = argv[i+1];
 			printf("Executable Name %s\n", ExecutableName);
+		} else if(strncmp(argv[i], "-stack", 6)==0){
+			if(i+1 >= argc){
+				printf("Error: -stack option, stack not specified.\n");
+				exit(EXIT_SUCCESS);
+			}
+			max_stack = atoi(argv[i+1]);
 		} else if(strncmp(argv[i], "-s", 2)==0){
 			UseServer = true;
 		} else if(strncmp(argv[i], "-h", 2)==0||strncmp(argv[i], "-help", 5)==0||strncmp(argv[i], "--help", 6)==0){

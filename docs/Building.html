@@ -37,5 +37,17 @@ Set to empty ("") if you don't want debugging information in the binary<br>
 6. The binary must be in /bin64, /bin32, /binAARCH64, depending upon target<br>
 7. "cd" to the directory, and run with: ./rxvm.out -exe [name of exe]<br>
 You can also use the "-f" option to specify frequency in Kilohertz (KHz) like this: -f 1.5
+<h2>Options</h2>
+There are a few options that can be used while invoking the VM, here is a list of them:<br>
+<pre>-exe [exename]</pre>
+Specifies the executable file to be used<br>
+<pre>-stack [stack size]</pre>
+Specifies the number of 32-bit integers that the stack is allowed to hold<br>
+<pre>-h, --help</pre>
+Displays licensing information and help<br>
+<pre>-f [frequency]</pre>
+Specifies what frequency to use in Kilohertz. The CPU runs in real time if no frequency is given<br>
+<pre>-s</pre>
+Runs the VM in client mode. NOTE: Should only be used by servers while invoking the VM.<br>
 </font>
 </html>

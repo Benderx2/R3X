@@ -13,5 +13,12 @@ body {
 <h2>Porting the R3X Virtual Machine</h2>
 As a program that makes use of multithreading, OpenGL and dynamic linking, R3X may<br>
 seem to require a lot of dependencies, but this can be minimized.<br>
+There are a few defines which can change the course of compilation, here is<br>
+a small list of them:<br>
+<pre>REX_GRAPHICS</pre>
+Defines whether to use SDL/OpenGL libraries, note that compilations without using<br>
+this would have problems with user input. This bug is currently being fixed.<br>
+<pre>R_DEBUG</pre>
+Defines
 </font>
 </html>

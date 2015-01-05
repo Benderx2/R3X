@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_dispatcher.h>
 #include <nt_malloc.h>
+extern int max_stack;
 r3x_global_domain_t* r3x_init_domain(void) {
 	r3x_global_domain_t* Domain = NULL; 
 	Domain = nt_malloc(sizeof(r3x_global_domain_t));
@@ -48,7 +49,10 @@ unsigned int r3x_dispatch_job(int InstructionPointer, int CycleUpdate, r3x_globa
 			Domain->Jobs[i] = nt_malloc(sizeof(r3x_job_t));
 			Domain->Jobs[i]->Stack = Stack.Create();
 			Domain->Jobs[i]->CallStack = Stack.Create();
+			Domain->Jobs[i]->Stack->max_stack = max_stack;
+			Domain->Jobs[i]->CallStack->max_stack = max_stack;
 			Stack.Push(Domain->Jobs[i]->Stack, 0);
+			Stack.Push(Domain->Jobs[i]->CallStack, 0);
 			Domain->Jobs[i]->EqualFlag = false;
 			Domain->Jobs[i]->GreaterFlag = false;
 			Domain->Jobs[i]->LesserFlag = false;

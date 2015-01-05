@@ -97,12 +97,14 @@ $AS programs/stream.il
 $AS programs/simplelib.il 
 $AS programs/bios.il 
 $AS programs/exception.il 
+$AS programs/overflow.il
 # now transfer it 
 mv rxvm $BINDIR/
 mv programs/r3x_ex.exe $BINDIR/
 mv programs/math.exe $BINDIR/
 mv programs/stream.exe $BINDIR/
 mv programs/exception.exe $BINDIR/
+mv programs/overflow.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 # remove all object files
