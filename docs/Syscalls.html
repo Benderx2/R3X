@@ -35,5 +35,8 @@ push [buffer address]<br>
 push [size] <br></pre>
 <b><i>SYSCALL_TELLSTREAM</i></b> - Pushes current pointer of a stream whose handle is pushed to stack<br>
 <b><i>SYSCALL_CLOSESTREAM</i></b> - Closes an open stream whose handle is pushed to stack<br>
+<h2>Non standard syscalls</h2>
+<b><i>SYSCALL_GETCPUCLOCK</b></i> - Returns current CPU time (pushes to stack).<br>
+<b><i>SYSCALL_GETCLOCKSPERSEC</b></i> - Return how many CPU clocks are equivalent to 1 second (pushes to stack)<br>
 </font>
 </html>

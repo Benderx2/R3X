@@ -1,5 +1,5 @@
-include 'libR3X/libR3X.inc'
-import 'simplelib.inc'
+include 'libR3X/libR3X.pkg'
+import 'simplelib.pkg'
 import 'libR3X/corelib.pkg'
 .text {
 	syscall SYSCALL_PUTI

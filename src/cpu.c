@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
 #include <r3x_format.h>
 #include <r3x_cpu.h>
 #include <r3x_opcodes.h>
@@ -119,6 +120,7 @@ int keyboard_thread(void* data);
 
 int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 {
+	CPU->CPUClock = clock();
 	r3x_dispatch_job(BIOS_START, 1, CPU->RootDomain, true);
 	CPU->RootDomain->CurrentJobID = 0;
 	r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
@@ -712,7 +714,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 }
 uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 {
-	__32bit_typecast temp_typecast32;
+	register __32bit_typecast temp_typecast32;
 	temp_typecast32.__num32 = 0;
 	temp_typecast32.__num8.a = a;
 	temp_typecast32.__num8.b = b;
@@ -722,14 +724,14 @@ uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 }
 float return_float(uint32_t num32)
 {	
-	__float_typecast temp_typecastFL;;
+	register __float_typecast temp_typecastFL;;
 	temp_typecastFL.float32 = 0.0f;
 	temp_typecastFL.__num32 = num32;
 	return temp_typecastFL.float32;
 }
 uint32_t return_int_from_float(float fl32)
 {
-	__float_typecast temp_typecastFL;
+	register __float_typecast temp_typecastFL;
 	temp_typecastFL.float32 = 0.0f;
 	temp_typecastFL.__num32 = 0;
 	temp_typecastFL.float32 = fl32;
@@ -737,10 +739,10 @@ uint32_t return_int_from_float(float fl32)
 }
 uint32_t return_32bit_int_from_ip(r3x_cpu_t* CPU)
 {
-	uint8_t a = CPU->Memory[CPU->InstructionPointer+1];
-	uint8_t b = CPU->Memory[CPU->InstructionPointer+2];
-	uint8_t c = CPU->Memory[CPU->InstructionPointer+3];
-	uint8_t d = CPU->Memory[CPU->InstructionPointer+4];
+	register uint8_t a = CPU->Memory[CPU->InstructionPointer+1];
+	register uint8_t b = CPU->Memory[CPU->InstructionPointer+2];
+	register uint8_t c = CPU->Memory[CPU->InstructionPointer+3];
+	register uint8_t d = CPU->Memory[CPU->InstructionPointer+4];
 	return return_32bit_int(a, b, c, d);
 }
 void compare_and_set_flag_signed(r3x_cpu_t* CPU, signed int op1, signed int op2)
@@ -965,8 +967,16 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 				}
 				Stack.Push(CPU->Stack, stream_write((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
 			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETCPUCLOCK){
+				CPU->CPUClock = (clock() - CPU->CPUClock);
+				Stack.Push(CPU->Stack, return_int_from_float((float)CPU->CPUClock));
+			}
+			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETCLOCKSPERSEC){
+				CPU->CPUClock = (clock() - CPU->CPUClock);
+				Stack.Push(CPU->Stack, return_int_from_float((float)CLOCKS_PER_SEC));
+			}
 			else {
-				printf("Invalid Argument passed to R3X_SYSCALL\n");
+				printf("Invalid Argument passed to syscall\n");
 			}
 }
 uint32_t set_bit32(uint32_t num, int bit){

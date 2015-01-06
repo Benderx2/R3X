@@ -1,4 +1,4 @@
-include 'libR3X/libR3X.inc'
+include 'libR3X/libR3X.pkg'
 .text {	
 	Console.Write "Hello, this example will showcase R3X's math functions"
 	Console.NewLine

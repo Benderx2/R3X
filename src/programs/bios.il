@@ -1,7 +1,7 @@
 ; R3X System BIOS
 ; Configures initial system information
 ; The BIOS has no format, so just directly include the header..
-include 'libR3X/r3x_asm.inc'
+include 'libR3X/r3x_asm.pkg'
 define MACHINE_VER 017
 define BIOS_VER 005
 define IS_UNIX 1

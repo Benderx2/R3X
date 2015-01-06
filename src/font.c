@@ -200,10 +200,10 @@ void vm_putc(char a, Graphics_t* Graphics)
 	}
 	else {
 		// Scroll the screen by 1 line
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
+		glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GLUpdate(); 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
+		glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GLUpdate(); 
 		//GLUpdate();

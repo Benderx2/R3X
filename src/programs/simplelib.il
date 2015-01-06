@@ -1,4 +1,4 @@
-include 'libR3X/dynR3X.inc'
+include 'libR3X/dynR3X.pkg'
 .text {
 myfunc1:
 	; For dynamically loaded libraries, DONT USE PUSH WHILE REFERRING TO ADDRESSES, use pushad (push relative address)

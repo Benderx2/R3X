@@ -1,4 +1,4 @@
-include 'libR3X/libR3X.inc'
+include 'libR3X/libR3X.pkg'
 .text {
 	; This example shows exception handling
 	push _invalidexception_handler

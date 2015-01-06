@@ -2,7 +2,7 @@ R3X
 ===
 ![Alt text](http://i.imgur.com/Klw1O26.png)<br>
 Official repository for the R3X (REX) virtual machine. See docs/REX.html for more details.<br>
-![Alt text](http://i.imgur.com/ZuhQHXB.png "R3X Running on Linux64 with example program")
+![Alt text](http://i.imgur.com/hoLVWnP.png "R3X Running on Linux64 with example program")
 <h1>What is REX?</h1>
 R3X is a runtime environment for portable applications. it has currently been ported to x86, x86-64, PPC, and ARM architectures.<br>
 <br>

@@ -1,4 +1,4 @@
-include 'r3x_asm.inc'
+include 'r3x_asm.pkg'
 format binary as 'ro'
 org 0
 dd 0xDEADBEEF
