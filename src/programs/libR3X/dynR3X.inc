@@ -2,6 +2,8 @@ include 'r3x_asm.inc'
 format binary as 'ro'
 org 0
 dd 0xDEADBEEF
+dd 0
+dd 0
 dd _text
 dd _end_text - _text
 dd _export
@@ -10,6 +12,10 @@ dd _data
 dd _end_data - _data
 dd _bss 
 dd _end_bss - _bss
+dd _name_addr
+dd _pub_addr
+_name_addr: db 'Default Shared Library', 0
+_pub_addr: db 'No publisher', 0
 macro pushad val {
 	db 0x52
 	dd val

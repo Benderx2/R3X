@@ -39,6 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define REX_DYNAMIC_HEADER_VAL 0xDEADBEEF
 typedef struct REX_DYNAMIC_HEADER {
 	uint32_t header;
+	uint32_t minor;
+	uint32_t major;
 	uint32_t text_section;
 	uint32_t text_size;
 	uint32_t export_section;
@@ -47,6 +49,8 @@ typedef struct REX_DYNAMIC_HEADER {
 	uint32_t data_size;
 	uint32_t bss_section;
 	uint32_t bss_size;
+	uint32_t nameaddr;
+	uint32_t publisheraddr;
 } r3x_dynamic_header_t;
 typedef struct export_struct {
 	uint32_t function_id;
