@@ -73,5 +73,29 @@ void GetApplicationPath(void) {
 The "GetApplicationPath" supposed to get the <i><b>absolute</b></i> path to the directory of the VM executable<br>
 and the store it in a string (char*) called "ApplicationPath".<br>
 The string is uninitialized, which means that the routine must do the allocation itself.<br>
+<h3>Required headers</h3>
+The R3X VM requires the following headers for a <b>minimal</b> compilation<br>
+<pre>
+&lt;assert.h&gt;
+&lt;math.h&gt;
+&lt;stdio.h&gt;
+&lt;stdlib.h&gt;
+&lt;stdint.h&gt;
+&lt;string.h&gt;
+&lt;stdbool.h&gt;
+&lt;signal.h&gt;
+&lt;unistd.h&gt;
+</pre>
+The following are required to compile with <b>native linking</b> support:<br>
+<pre>
+&lt;dlfcn.h&gt;
+</pre>
+The following are required to compile with <b>graphics</b> support:<br>
+<pre>
+&lt;SDL/SDL.h&gt;
+&lt;SDL/SDL_image.h&gt;
+&lt;GL/gl.h&gt;
+&lt;GL/glew.h&gt;
+</pre>
 </font>
 </html>
