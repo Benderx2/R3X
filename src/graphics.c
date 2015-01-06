@@ -35,6 +35,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern bool UseServer;
 extern int ScreenWidth;
 extern int ScreenHeight;
+double DefaultRGBA_r = 0.656875f;
+double DefaultRGBA_g = 0.1f;
+double DefaultRGBA_b = 0.40625f;
+double DefaultRGBA_a = 1.0f;
 void Update(SDL_Surface*);
 Graphics_t* InitGraphics(void)
 {

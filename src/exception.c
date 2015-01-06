@@ -28,6 +28,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_exception.h>
+#include <r3x_disassemble.h>
 #include <r3x_dispatcher.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
@@ -72,6 +73,7 @@ void debugger(void) {
 			printf("push x -- Pushes value x to stack\n");
 			printf("pop -- Pops from Stack\n");
 			printf("continue -- Continues execution\n");
+			printf("disasm IP size -- Dissassemble code at instruction pointer 'IP' and size 'size'\n");
 			printf("quit -- Exits the VM and debugger");
 		}
 		else if(strncmp(input, "quit", 4) == 0) {
@@ -142,6 +144,21 @@ void debugger(void) {
 		}
 		else if(strncmp(input, "continue", 8) == 0) {
 			return;		
+		} else if(strncmp(input, "disasm", 6)==0) {
+			char* token = strtok(input, " ");
+			char* token1 = strtok(NULL, " ");
+			char* token2 = strtok(NULL , " ");
+			if(token1 == NULL || token2 == NULL) {
+				printf("Error: expecting arguments");
+			} else {
+				a1 = atoi(token1);
+				a2 = atoi(token2);
+				if(a1 + a2 >= r3_cpu->MemorySize) {
+					printf("Invalid size/instruction pointer");
+				} else {
+					disassemble(&(r3_cpu->Memory[a1]), a2, stdout, "Disassembler Output: ");
+				}
+			}
 		} else if(strncmp(input, "\n", 1)==0){
 		}
 		else { 

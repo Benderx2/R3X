@@ -77,7 +77,7 @@ else
 	exit -1
 fi
 export LFLAGS="-lc -lm -ldl -rdynamic"
-export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o libntmalloc.a"
+export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a"
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
