@@ -214,10 +214,6 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				domain_num++;
 				i++;
 				break;
-			case R3X_LOADS:
-				fprintf(output, "loads %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
-				i += 5;
-				break;
 			case R3X_PUSHA:
 				fprintf(output, "pusha %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
@@ -227,7 +223,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				i += 6;
 				break;
 			case R3X_LOADR:
-				fprintf(output, "loadi R%u, %u\n", (*((uint8_t*)&input[i+1])),BYTE_SWAP(*((uint32_t*)&input[i+2])) );
+				fprintf(output, "loadr R%u, %u\n", (*((uint8_t*)&input[i+1])),BYTE_SWAP(*((uint32_t*)&input[i+2])) );
 				i += 6;
 				break;
 			case R3X_PUSHR:
@@ -286,11 +282,43 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				fprintf(output, "tern\n");
 				i += 1;
 				break;
+			case R3X_LOADS:
+				fprintf(output, "loads %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_STORES:
+				fprintf(output, "stores %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_LOADSR:
+				fprintf(output, "loadsr R%u\n", (uint8_t)input[i+1]);
+				i += 2;
+				break;
+			case R3X_STORESR:
+				fprintf(output, "storesr R%u\n", (uint8_t)input[i+1]);
+				i += 2;
+				break;
+			case R3X_PUSHF:
+				fprintf(output, "pushf\n");
+				i += 1;
+				break;
+			case R3X_POPF:
+				fprintf(output, "popf\n");
+				i += 1;
+				break;
+			case R3X_CALLDYNAMIC:
+				fprintf(output, "calldynamic\n");
+				i += 1;
+				break;
+			case R3X_POPN:
+				fprintf(output, "popn %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;
 				break;
 		}
 	}
-	fprintf(output, "}\n");
+	fprintf(output, "Disassembling Complete");
 }

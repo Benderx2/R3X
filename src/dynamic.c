@@ -252,6 +252,8 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			case R3X_SYSCALL:
 			case R3X_INCR:
 			case R3X_DECR:
+			case R3X_LOADSR:
+			case R3X_STORESR:
 			      i += 2;
 			      break;
 			default:

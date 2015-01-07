@@ -325,6 +325,14 @@ macro stores off {
 	db 0x6F
 	dd off
 }
+macro loadsr reg {
+	db 0x70
+	db reg
+}
+macro storesr reg {
+	db 0x71
+	db reg
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1

@@ -293,15 +293,30 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - return_32bit_int_from_ip(CPU)));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
+		case R3X_LOADSR:
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS){
+				Stack.Push(CPU->Stack, get_item_from_stack_top(CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]]));
+			}
+			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			break;
 		// Store a value to stack offset
 		case R3X_STORES:
-			// TODO: Stop using hacks!
-			get_item_from_stack_top(1);
-			int ret = Stack.SetItem(CPU->Stack, CPU->Stack->top_of_stack-return_32bit_int_from_ip(CPU), get_item_from_stack_top(1));
-			if(ret==-1){
+			if(Stack.SetItem(CPU->Stack, CPU->Stack->top_of_stack-return_32bit_int_from_ip(CPU), get_item_from_stack_top(1))==-1){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			break;	
+		case R3X_STORESR:
+			// TODO: Stop using hacks!
+			get_item_from_stack_top(1);
+			uint32_t val = 0;
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS){
+				val = CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]];
+			}
+			if(Stack.SetItem(CPU->Stack, CPU->Stack->top_of_stack-val, get_item_from_stack_top(1))==-1){
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+			}
+			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;	
 		// Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		case R3X_LOAD:
