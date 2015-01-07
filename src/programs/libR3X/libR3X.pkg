@@ -289,20 +289,6 @@ __WaitKey:
 		pop
 		je .loop_key
 		ret
-macro jne addr {
-	local no_jne
-	je no_jne
-	jmp addr
-	no_jne:
-}
-macro jge addr {
-	jg addr
-	je addr
-}
-macro jle addr {
-	jl addr
-	je addr
-}
 macro import file {
 	include #file
 }

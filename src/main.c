@@ -116,8 +116,6 @@ int main(int argc, char* argv[])
 	}
 	r3x_load_bios(r3_cpu);
 	r3x_cpu_loop(r3_cpu, r3_header);
-	// Show exit status
-	printf("Program exitted with status: %u\n", Stack.GetItem(r3_cpu->Stack, r3_cpu->Stack->top_of_stack-1));
 	free(ApplicationPath); // Allocated using strdup
 	// Free all 
 	nt_freeall();

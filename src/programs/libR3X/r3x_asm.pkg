@@ -333,6 +333,20 @@ macro storesr reg {
 	db 0x71
 	db reg
 }
+macro jne addr {
+	local no_jne
+	je no_jne
+	jmp addr
+	no_jne:
+}
+macro jge addr {
+	jg addr
+	je addr
+}
+macro jle addr {
+	jl addr
+	je addr
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1
