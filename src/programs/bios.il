@@ -2,8 +2,8 @@
 ; Configures initial system information
 ; The BIOS has no format, so just directly include the header..
 include 'libR3X/r3x_asm.pkg'
-define MACHINE_VER 017
-define BIOS_VER 005
+define MACHINE_VER 0x34A
+define BIOS_VER 007
 define IS_UNIX 1
 init:
 	; Print System Information
@@ -24,7 +24,7 @@ get_system_information:
 	push IS_UNIX
 	ret
 CPU_STRING: db "R3X CPU, Based upon FVM Technology. (C) Benderx2", 0x0A, 0
-BIOS_STRING: db "R3X BIOS 0.2.8a --- Fruity Fun", 0x0A, 0
+BIOS_STRING: db "R3X BIOS 0.3.4a --- LOLWTF", 0x0A, 0
 is_exec: dd 0
 _END:
 	times 512 - _END db 0

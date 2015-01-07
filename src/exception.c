@@ -145,7 +145,7 @@ void debugger(void) {
 		else if(strncmp(input, "continue", 8) == 0) {
 			return;		
 		} else if(strncmp(input, "disasm", 6)==0) {
-			char* token = strtok(input, " ");
+			(void)strtok(input, " ");
 			char* token1 = strtok(NULL, " ");
 			char* token2 = strtok(NULL , " ");
 			if(token1 == NULL || token2 == NULL) {

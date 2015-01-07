@@ -13,4 +13,4 @@ It currently supports streams, exception handling, multithreading, dynamic memor
 The VM also comes with an inbuilt debugger<br>
 <br>
 
-Current version is 0.2.8a Fruity Fun (unstable)<br>
+Current version is 0.3.4a LOLWTF (unstable)<br>
