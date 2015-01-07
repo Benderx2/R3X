@@ -2,6 +2,7 @@ include 'libR3X/libR3X.pkg'
 import 'simplelib.pkg'
 import 'libR3X/corelib.pkg'
 .text {
+	function main, "main"
 	syscall SYSCALL_PUTI
 	Console.Write "Calling Dynamic Library (simplelib.ro)"
 	Console.NewLine
@@ -26,11 +27,14 @@ import 'libR3X/corelib.pkg'
 	Console.WriteInt
 	Console.WaitKey
 	System.Quit 0
-randomjob:
+	endfunction main
+	
+	function randomjob, "randomjob"
 	loadr R20, 678910
 	; Note: This thread has it's own registers, stack, and call stack!
 	loadr R0, result
 	loadr R1, 0
+	endfunction randomjob
 .loop1:
 	incr R1
 	stosd

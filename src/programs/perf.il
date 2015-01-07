@@ -1,6 +1,7 @@
 ; Simple performance test
 include 'libR3X/libR3X.pkg'
 .text {
+	function main, "main"
 	syscall SYSCALL_GETCLOCK
 	popr R1
 	loadr R0, save_float
@@ -40,6 +41,7 @@ include 'libR3X/libR3X.pkg'
 	Console.WaitKey
 	push 0
 	exit
+	endfunction main
 }
 .data {
 	save_float: dd 0

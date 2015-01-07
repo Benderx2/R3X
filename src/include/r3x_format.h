@@ -40,6 +40,8 @@ typedef struct r3x_header {
 	uint32_t r3x_text_size;
 	uint32_t r3x_data;
 	uint32_t r3x_data_size;
+	uint32_t r3x_symbols;
+	uint32_t r3x_symbolsize;
 	uint32_t r3x_bss;
 	uint32_t r3x_bss_size;
 	uint32_t stack_size;
@@ -47,6 +49,12 @@ typedef struct r3x_header {
 	uint32_t nameaddr;
 	uint32_t pulibsheraddr;
 } r3x_header_t;
+typedef struct r3x_symbol {
+	uint32_t SymbolName;
+	uint32_t SymbolStart;
+	uint32_t SymbolEnd;
+} r3x_symbol_t;
 #define PROG_EXEC_POINT 0x100000// under 1 MB = System reserved.
 uint8_t* r3x_load_executable(char* name, r3x_header_t* header);
+void read_symbol_table(r3x_header_t* header, uint8_t* Memory, uint32_t size, uint32_t IP);
 #endif

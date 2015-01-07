@@ -10,6 +10,8 @@ dd _init
 dd _end_text - _init
 dd _data
 dd _end_data - _data
+dd _symbol_table
+dd _symbol_table_end - _symbol_table
 dd _bss
 dd _end_bss - _bss
 dd 0x0
@@ -52,16 +54,40 @@ macro DECLARE_SECTION name {
 DECLARE_SECTION text
 DECLARE_SECTION data
 DECLARE_SECTION bss
+DECLARE_SECTION symbols
 macro end {
+	db '.##$text', 0
 	_init:
+	jmp main
 	STORE_SECTION_text
 	_end_text:
+	db '.##$data', 0
 	_data:
 	STORE_SECTION_data
 	_end_data:
+	db '.##$symbol', 0
+	_symbol_table:
+	STORE_SECTION_symbols
+	_symbol_table_end:
+	db '.##$bss', 0
 	_bss:
 	STORE_SECTION_bss
 	_end_bss:
+}
+macro function name, symbol {
+	local symnameaddr
+	.data \{ 
+		symnameaddr: db symbol, 0
+	\}
+	.symbols \{
+		dd symnameaddr
+		dd name#
+		dd name#_end
+	\}
+	#name:
+}
+macro endfunction name {
+ 	name#_end:
 }
 macro pushstring string {
 	local addr, behind

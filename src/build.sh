@@ -100,6 +100,7 @@ $AS programs/exception.il
 $AS programs/overflow.il
 $AS programs/perf.il
 $AS programs/stack.il
+$AS programs/symbols.il
 # now transfer it 
 mv rxvm $BINDIR/
 mv programs/r3x_ex.exe $BINDIR/
@@ -109,6 +110,7 @@ mv programs/exception.exe $BINDIR/
 mv programs/overflow.exe $BINDIR/
 mv programs/perf.exe $BINDIR/
 mv programs/stack.exe $BINDIR/
+mv programs/symbols.exe ../disasm/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 # remove all object files

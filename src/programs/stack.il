@@ -15,6 +15,7 @@
 ; 35 65 35 12345 5 49 12 100
 include 'libR3X/libR3X.pkg'
 .text {
+	function main, "main"
 	; The push instruction pushes an integer (which could be anything pointer, number, pointer to structure..)
 	push 35
 	; Let's print what we just pushed!
@@ -89,6 +90,7 @@ include 'libR3X/libR3X.pkg'
 	Console.WaitKey
 	; And exit!
 	System.Quit 0
+	endfunction main
 }
 ; REMEMBER TO PUT THIS AT THE END OF EVERY MAIN MODULE!
 end 

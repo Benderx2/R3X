@@ -142,6 +142,8 @@ typedef struct r3x_header {
 	uint32_t r3x_text_size;
 	uint32_t r3x_data;
 	uint32_t r3x_data_size;
+	uint32_t r3x_symbols;
+	uint32_t r3x_symbolsize;
 	uint32_t r3x_bss;
 	uint32_t r3x_bss_size;
 	uint32_t stack_size;

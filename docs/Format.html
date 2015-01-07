@@ -41,6 +41,8 @@ typedef struct r3x_header {
 <b><i>uint32_t r3x_text_size</i></b>: Size of the .text section.<br>
 <b><i>uint32_t r3x_data</i></b>: Pointer to the program's data function.<br>
 <b><i>uint32_t r3x_data_size</i></b>: Size of the data section<br>
+<b><i>uint32_t r3x_symbols</i></b>: Pointer to start of symbol table<br>
+<b><i>uint32_t r3x_symbolsize</i></b>: Size of symbol table<br>
 <b><i>uint32_t r3x_bss</i></b>: Pointer to the program's BSS section.<br>
 <b><i>uint32_t r3x_bss_size</i></b>: Size of the bss section<br>
 <b><i>uint32_t stack_size</i></b>: Size of Stack (depends upon how the implementation treats it. Official implementation does not use this value)<br>
@@ -67,7 +69,14 @@ The template defined by the standard is thus, <br>
 <textarea name="code" class="c#" cols="60" rows="10">
 include 'libR3X/libR3X.pkg'
 .text {
- 	code here
+	; Code here
+	function main, "main"
+	; Main code
+	endfunction main
+	
+	function someotherfunction, "someotherfunction"
+	; Other code
+	endfunction someotherfunction
 }
 .data {
 	data here
@@ -87,5 +96,17 @@ end
 </textarea>
 For compiling the program please use FASM (flat assembler), get it here: http://flatassembler.net, or under the /fasm directory in the<br>
 repository. (Beware, it's not frequently updated)<br>
+<h2>REX symbol table</h2>
+The R3X Symbol table, is a special section in the executable, prefixed by ".##$symbols", it contains the program's function names, their start<br>
+addresses, and size infromation. <br>
+Each symbol looks like this in the symbol table:<br>
+<pre>
+uint32_t nameaddr
+uint32_t startIP
+uint32_t endIP
+</pre>
+Note that the symbol table is only <b>specific</b> to R3X executables, the R3X Dynamic linking system uses export tables, which are<br>
+a more efficient and less space consuming way, albeit less descriptive.<br>
+The R3X debugger command, "readsym" can be used to parse symbols, also the "readrex" utility can also be used to parse symbols<br>
 </font>
 </html>

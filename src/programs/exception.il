@@ -1,5 +1,6 @@
 include 'libR3X/libR3X.pkg'
 .text {
+	function main, "main"
 	; This example shows exception handling
 	push _invalidexception_handler
 	push INVALID_ACCESS
@@ -45,6 +46,7 @@ _exception_handler:
 	Console.WaitKey
 	handle
 	System.Quit 0
+	endfunction main
 }
 .data {
 	INVAEXCEPTION_STRING: db 'Invalid Memory Access. Exception Detected! Causing another one.. ;).', 0x0A, 0

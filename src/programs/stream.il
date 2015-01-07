@@ -1,5 +1,6 @@
 include 'libR3X/libR3X.pkg'
-.text {
+.text {	
+	function main, "main"
 	pushstring "./myfile.txt"
 	syscall SYSCALL_OPENSTREAM
 	push mybuf
@@ -14,6 +15,7 @@ include 'libR3X/libR3X.pkg'
 	Console.WritePointer mybuf
 	Console.WaitKey
 	exit
+	endfunction main
 }
 .data {
 	mybuf: times 256 db 0

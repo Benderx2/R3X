@@ -11,6 +11,8 @@ typedef struct r3x_header {
 	uint32_t r3x_text_size;
 	uint32_t r3x_data;
 	uint32_t r3x_data_size;
+	uint32_t r3x_symbols;
+	uint32_t r3x_symbolsize;
 	uint32_t r3x_bss;
 	uint32_t r3x_bss_size;
 	uint32_t stack_size;
@@ -18,6 +20,11 @@ typedef struct r3x_header {
 	uint32_t nameaddr;
 	uint32_t pulibsheraddr;
 } r3x_header_t;
+typedef struct r3x_symbol {
+	uint32_t SymbolName;
+	uint32_t SymbolStart;
+	uint32_t SymbolEnd;
+} r3x_symbol_t;
 typedef struct REX_DYNAMIC_HEADER {
 	uint32_t header;
 	uint32_t minor;
@@ -43,9 +50,12 @@ typedef struct export_struct {
 #define DLL_HEADER 0xDEADBEEF
 
 void ParseArguments(int argc, char* argv[]);
+void read_symbol_table(r3x_header_t* header, uint8_t* Memory, uint32_t size, uint32_t IP);
+
 void PrintHelp(void);
 char* InputFile = NULL;
 char* InputBuffer = NULL;
+
 int main(int argc, char* argv[]){
 	ParseArguments(argc, argv);
 	if(InputFile == NULL) {
@@ -79,6 +89,8 @@ int main(int argc, char* argv[]){
 		printf("Version (Major).(Minor): %u.%u\n", myheader->major, myheader->minor);
 		printf("Location of .text: %u\n", myheader->r3x_init);
 		printf("Size of .text: %u\n", myheader->r3x_text_size);
+		printf("Location of .symbols: %u\n", myheader->r3x_symbols);
+		printf("Size of .symbols: %u\n", myheader->r3x_symbolsize);
 		printf("Location of data: %u\n", myheader->r3x_data);
 		printf("Size of .data: %u\n", myheader->r3x_data_size);
 		printf("Location of .bss: %u\n", myheader->r3x_bss);
@@ -88,6 +100,11 @@ int main(int argc, char* argv[]){
 		} else {
 			printf("Name: %s\n", (char*)&InputBuffer[myheader->nameaddr - PROG_EXEC_POINT]);
 			printf("Publisher: %s\n", (char*)&InputBuffer[myheader->pulibsheraddr - PROG_EXEC_POINT]);
+		}
+		if(myheader->r3x_symbols - PROG_EXEC_POINT > size) {
+			printf("Invalid symbol table\n");
+		} else {
+			read_symbol_table(myheader, InputBuffer, size, 0);
 		}
 	} else if(*((uint32_t*)&InputBuffer[0]) == DLL_HEADER) {
 		printf("Type: Dynamic Shared Library\n");
@@ -147,6 +164,25 @@ void ParseArguments(int argc, char* argv[]){
 		} else if(strncmp(argv[i], "-h", 2)==0){
 			PrintHelp();
 			exit(EXIT_SUCCESS);
+		}
+	}
+}
+void read_symbol_table(r3x_header_t* header, uint8_t* Memory, uint32_t size, uint32_t IP) {
+	(void)IP;
+	if(header->r3x_symbols - PROG_EXEC_POINT > size) {
+		printf("Error: Corrupted symbol header! Unable to read symbol table!\n");
+		return;
+	} else {
+		int number_of_symbols = header->r3x_symbolsize / sizeof(r3x_symbol_t);
+		r3x_symbol_t* mysymbols = (r3x_symbol_t*)&Memory[header->r3x_symbols - PROG_EXEC_POINT];
+		for(int i = 0; i < number_of_symbols; i++) {
+			if(mysymbols[i].SymbolName - PROG_EXEC_POINT > size) {
+				printf("Name: Invalid\n");
+			} else {
+				printf("Name: %s\n", (char*)&Memory[mysymbols[i].SymbolName - PROG_EXEC_POINT]);
+			}
+			printf("Symbol start: 0x%X\n", mysymbols[i].SymbolStart);
+			printf("Symbol end: 0x%X\n", mysymbols[i].SymbolEnd);
 		}
 	}
 }

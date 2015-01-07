@@ -99,3 +99,32 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	// return the buffer
 	return mem2;
 }
+void read_symbol_table(r3x_header_t* header, uint8_t* Memory, uint32_t size, uint32_t IP) {
+	if(header->r3x_symbols > size) {
+		printf("Error: Corrupted symbol header! Unable to read symbol table!\n");
+		return;
+	} else {
+		int number_of_symbols = header->r3x_symbolsize / sizeof(r3x_symbol_t);
+		r3x_symbol_t* mysymbols = (r3x_symbol_t*)&Memory[header->r3x_symbols];
+		for(int i = 0; i < number_of_symbols; i++) {
+			if(mysymbols[i].SymbolName > size) {
+				printf("Name: Invalid\n");
+			} else {
+				printf("Name: %s\n", (char*)&Memory[mysymbols[i].SymbolName]);
+			}
+			printf("Symbol start: 0x%X\n", mysymbols[i].SymbolStart);
+			printf("Symbol end: 0x%X\n", mysymbols[i].SymbolEnd);
+		}
+		for(int i = 0; i <number_of_symbols; i++) {
+			if(mysymbols[i].SymbolStart < IP && mysymbols[i].SymbolEnd > IP) {
+					if(mysymbols[i].SymbolName > size) {
+						printf("Corrupt symbol name.\n");
+						return;
+					}
+					else {
+						printf("IP %u, belongs to symbol '%s'\n", IP, (char*)&Memory[mysymbols[i].SymbolName]);
+					}
+			}
+		}
+	}
+}

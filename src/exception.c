@@ -28,6 +28,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_exception.h>
+#include <r3x_format.h>
 #include <r3x_disassemble.h>
 #include <r3x_dispatcher.h>
 #include <r3x_version.h>
@@ -74,6 +75,7 @@ void debugger(void) {
 			printf("pop -- Pops from Stack\n");
 			printf("continue -- Continues execution\n");
 			printf("disasm IP size -- Dissassemble code at instruction pointer 'IP' and size 'size'\n");
+			printf("readsym - Read program's symbol table\n");
 			printf("quit -- Exits the VM and debugger");
 		}
 		else if(strncmp(input, "quit", 4) == 0) {
@@ -159,6 +161,8 @@ void debugger(void) {
 					disassemble(&(r3_cpu->Memory[a1]), a2, stdout, "Disassembler Output: ");
 				}
 			}
+		} else if(strncmp(input, "readsym", 7)==0){
+			read_symbol_table((r3x_header_t*)&r3_cpu->Memory[PROG_EXEC_POINT], r3_cpu->Memory, r3_cpu->MemorySize, r3_cpu->InstructionPointer);
 		} else if(strncmp(input, "\n", 1)==0){
 		}
 		else { 
