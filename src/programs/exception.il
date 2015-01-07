@@ -1,6 +1,6 @@
 include 'libR3X/libR3X.pkg'
 .text {
-	function main, "main"
+	function main
 	; This example shows exception handling
 	push _invalidexception_handler
 	push INVALID_ACCESS

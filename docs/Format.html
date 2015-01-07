@@ -69,12 +69,13 @@ The template defined by the standard is thus, <br>
 <textarea name="code" class="c#" cols="60" rows="10">
 include 'libR3X/libR3X.pkg'
 .text {
+	; main is mandatory
 	; Code here
-	function main, "main"
+	function main
 	; Main code
 	endfunction main
 	
-	function someotherfunction, "someotherfunction"
+	function someotherfunction
 	; Other code
 	endfunction someotherfunction
 }
@@ -84,15 +85,8 @@ include 'libR3X/libR3X.pkg'
 .bss {
 	bss here
 }
-; Don't forget to put an 'end' directive at the end of your program!
+; Don't forget to put an 'end' directive at the end of your main module!
 end 
-... Can skip between sections too. eg. 
-,text { 
-}
-.data {
-}
-.text {
-}
 </textarea>
 For compiling the program please use FASM (flat assembler), get it here: http://flatassembler.net, or under the /fasm directory in the<br>
 repository. (Beware, it's not frequently updated)<br>

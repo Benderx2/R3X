@@ -1,6 +1,6 @@
 include 'libR3X/libR3X.pkg'
 .text {	
-	function main, "main"
+	function main
 	pushstring "./myfile.txt"
 	syscall SYSCALL_OPENSTREAM
 	push mybuf

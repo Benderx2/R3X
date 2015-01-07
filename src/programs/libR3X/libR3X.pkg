@@ -74,10 +74,10 @@ macro end {
 	STORE_SECTION_bss
 	_end_bss:
 }
-macro function name, symbol {
+macro function name {
 	local symnameaddr
 	.data \{ 
-		symnameaddr: db symbol, 0
+		symnameaddr: db `name#, 0
 	\}
 	.symbols \{
 		dd symnameaddr

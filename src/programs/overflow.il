@@ -1,6 +1,6 @@
 include 'libR3X/libR3X.pkg'
 .text {
-	function main, "main"
+	function main
 	_loop:
 	push 0
 	jmp _loop

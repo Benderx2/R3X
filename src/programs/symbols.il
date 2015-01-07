@@ -1,18 +1,18 @@
 include 'libR3X/libR3X.pkg'
 .text {
-	function main, "main"
+	function main
 	System.Quit 0
 	endfunction main
 	
-	function itoa, "itoa"
+	function itoa
 	dd 0
 	endfunction itoa
 	
-	function atoi, "atoi"
+	function atoi
 	dd 0
 	endfunction atoi
 	
-	function puts, "puts"
+	function puts
 	dd 0
 	endfunction puts
 }

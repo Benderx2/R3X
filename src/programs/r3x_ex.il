@@ -2,7 +2,7 @@ include 'libR3X/libR3X.pkg'
 import 'simplelib.pkg'
 import 'libR3X/corelib.pkg'
 .text {
-	function main, "main"
+	function main
 	syscall SYSCALL_PUTI
 	Console.Write "Calling Dynamic Library (simplelib.ro)"
 	Console.NewLine
@@ -29,17 +29,17 @@ import 'libR3X/corelib.pkg'
 	System.Quit 0
 	endfunction main
 	
-	function randomjob, "randomjob"
+	function randomjob
 	loadr R20, 678910
 	; Note: This thread has it's own registers, stack, and call stack!
 	loadr R0, result
 	loadr R1, 0
-	endfunction randomjob
 .loop1:
 	incr R1
 	stosd
 	; A system.quit here will close ONLY this thread, while a system.quit in our init function will close all jobs.
 	jmp .loop1;
+	endfunction randomjob
 }	
 .data {
 	result: dd 0

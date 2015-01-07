@@ -1,7 +1,7 @@
 ; Simple performance test
 include 'libR3X/libR3X.pkg'
 .text {
-	function main, "main"
+	function main
 	syscall SYSCALL_GETCLOCK
 	popr R1
 	loadr R0, save_float
