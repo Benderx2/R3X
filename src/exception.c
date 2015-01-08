@@ -33,7 +33,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_dispatcher.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
-#include <unistd.h>
 extern bool UseServer;
 extern r3x_cpu_t* r3_cpu;
 #define MAX_INPUT_LEN 80

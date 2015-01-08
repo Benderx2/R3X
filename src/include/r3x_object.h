@@ -29,10 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_OBJECT_H
 #define R3X_OBJECT_H
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <system.h>
 #include <r3x_stack.h>
 typedef enum ObjectType {
 	R3X_OBJECT_INT,

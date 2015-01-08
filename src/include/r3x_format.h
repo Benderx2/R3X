@@ -29,7 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_FORMAT_H
 #define R3X_FORMAT_H
-#include <stdint.h>
+#include <system.h>
 #define R3X_HEADER_2033 0xBA5EBA11
 typedef struct r3x_header {
 	uint32_t header_id;

@@ -27,10 +27,6 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
 #include <r3x_cpu.h>
 #include <r3x_stack.h>
 #include <r3x_format.h>
@@ -42,12 +38,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <nt_malloc.h>
 #include <r3x_dynamic.h>
 #include <big_endian.h>
-#include <assert.h>
-#ifndef _WIN32
-#include <unistd.h>
-#else
-#include <windows.h>
-#endif
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
 #endif

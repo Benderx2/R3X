@@ -29,11 +29,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_NATIVE_H
 #define R3X_NATIVE_H
-#include <stdint.h>
+#include <system.h>
 #include <r3x_cpu.h>
-#ifdef REX_DYNAMIC
-#include <dlfcn.h>
-#endif
 typedef struct native_handle {
 	char* soname;
 	void* handle;

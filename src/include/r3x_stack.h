@@ -29,10 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_VSTACK_H
 #define R3X_VSTACK_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
+#include <system.h>
 #define STACK_UFLOW_ERR -1
 #define DEFAULT_STACK_SIZE 16 * sizeof(int32_t)
 #define DEFAULT_MAX_STACK_SIZE 262144

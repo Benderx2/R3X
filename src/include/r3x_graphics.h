@@ -29,12 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_GRAPHICS_H
 #define R3X_GRAPHICS_H
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <math.h>
+#include <system.h>
 #ifdef REX_GRAPHICS
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>

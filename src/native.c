@@ -28,10 +28,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifdef REX_DYNAMIC
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-/* For dlopen(), dlsym(), and dlerror()s */
 #include <r3x_native.h>
 #include <nt_malloc.h>
 native_handle_t* head;

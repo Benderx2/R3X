@@ -29,9 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_DISPATCHER_H
 #define R3X_DISPATCHER_H
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdint.h>
+#include <system.h>
 #include <r3x_cpu.h>
 #include <r3x_stack.h>
 r3x_global_domain_t* r3x_init_domain(void);

@@ -29,7 +29,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_bios.h>
 #include <nt_malloc.h>
-#include <assert.h>
 extern char* ApplicationPath;
 void r3x_load_bios(r3x_cpu_t* CPU) {
 	// Load the bios, not really sure whatthefuck should i reallyfucking write here.

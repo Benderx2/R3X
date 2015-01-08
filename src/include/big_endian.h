@@ -29,7 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef BIG_ENDIAN_H
 #define BIG_ENDIAN_H
-#include <stdint.h>
+#include <system.h>
 #ifdef R3X_BIG_ENDIAN
 // Swaps an integer
 static inline uint32_t BIG_ENDIAN_INT (uint32_t i) {

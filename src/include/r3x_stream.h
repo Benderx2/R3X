@@ -29,11 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_STREAM_H
 #define R3X_STREAM_H
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <system.h>
 #include <nt_malloc.h>
 void init_stream_manager(void);
 unsigned int stream_open(char* name);

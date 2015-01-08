@@ -29,10 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_DYNAMIC_H
 #define R3X_DYNAMIC_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
+#include <system.h>
 #include <r3x_opcodes.h>
 #include <r3x_cpu.h>
 #include <nt_malloc.h>

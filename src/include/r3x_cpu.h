@@ -29,14 +29,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_CPU_H
 #define R3X_CPU_H
-#include <stdint.h>
-#include <stdbool.h>
+#include <system.h>
 #include <r3x_format.h>
 #include <r3x_stack.h>
 #include <r3x_graphics.h>
 #include <r3x_object.h>
-#include <math.h>
-#include <time.h>
 #define EFLAG_BIT 0
 #define GFLAG_BIT 1
 #define LFLAG_BIT 2

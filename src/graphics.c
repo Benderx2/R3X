@@ -28,7 +28,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifdef REX_GRAPHICS
-#include <unistd.h>
 #include <r3x_graphics.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
