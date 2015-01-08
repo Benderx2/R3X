@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_stack.h>
 #include <nt_malloc.h>
+stack_construct Stack;
 int PushtoStack(vstack_t* stack, int32_t object);
 int32_t PopFromStack(vstack_t* stack);
 int32_t GetItemS(vstack_t* stack, unsigned int idx);

@@ -48,6 +48,6 @@ typedef struct __stack_construct {
 	int(*SetItem)(vstack_t*, unsigned int, int32_t);
 	void(*DestroyStack)(vstack_t*);
 } stack_construct;
-stack_construct Stack;
+extern stack_construct Stack;
 void init_stack_construct(void);
 #endif
