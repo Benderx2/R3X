@@ -1,4 +1,4 @@
-echo "REX Compilation Script, version 0.63a"
+echo "REX Compilation Script, version 0.65a"
 set -o verbose
 # Change to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
 export TARGET="x86_64"
@@ -28,17 +28,25 @@ fi
 if [ "$USEDYNAMIC" == "yes" ]
 	then
 	 export USEDYNAMIC="-D REX_DYNAMIC"
-	 export DYNAMICFLAGS="-ldl"
+	 export DYNAMICFLAGS="-ldl -rdynamic"
 	 export DYNAMIC_FILES="native.o"
 fi
 if [ "$TARGET" == "x86_64" ]
 	then
 	 export ARCHFLAGS="-m64" 
 	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN" 
-         export ARCHID="-D LINUX_ARCH_X8664"
+     export ARCHID="-D LINUX_ARCH_X8664"
 	 export CC="gcc" 
 	 export AR="ar"
 	 export BINDIR="../bin64"
+elif [ "$TARGET" == "x86_64win" ]
+	then
+	 export ARCHFLAGS="-m64"
+	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN"
+	 export ARCHID="-DWIN_ARCH_X8664"
+	 export CC="x86_64-w64-mingw32-gcc"
+	 export AR="x86_64-w64-mingw32-ar"
+	 export BINDIR="../bin64win"
 elif [ "$TARGET" == "x86_32" ]
 	then
 	 export ARCHFLAGS="-m32"
@@ -76,7 +84,7 @@ else
  	echo "Unsupported platform. Supported platforms: x86, x86_64, ppc, aarch64, aarch64-big"
 	exit -1
 fi
-export LFLAGS="-lc -lm -ldl -rdynamic"
+export LFLAGS="-lc -lm"
 export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a"
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
@@ -89,7 +97,7 @@ do
    $CC $CCFLAGS -c $i -o ${i%.c}.o
    set +x
 done
-$CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS
+$CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS $DYNAMICFLAGS
 # compile programs
 $AS programs/r3x_ex.il 
 $AS programs/math.il 

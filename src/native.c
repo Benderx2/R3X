@@ -27,6 +27,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#ifdef REX_DYNAMIC
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -102,3 +103,4 @@ int native_call(char* name, void* handle)
 	}
 	return (*function)();
 }
+#endif

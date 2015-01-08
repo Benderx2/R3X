@@ -30,7 +30,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef R3X_EXCEPTION_H
 #define R3X_EXCEPTION_H
 #include <stdio.h>
+#ifdef REX_DYNAMIC
 #include <execinfo.h>
+#endif
 #include <signal.h>
 #include <stdlib.h>
 #include <assert.h>

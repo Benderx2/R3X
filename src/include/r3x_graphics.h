@@ -29,34 +29,49 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef R3X_GRAPHICS_H
 #define R3X_GRAPHICS_H
-#define _GRAPHICS_SDL
-#ifdef _GRAPHICS_SDL
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#ifdef REX_GRAPHICS
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <GL/glew.h>
 #include <GL/gl.h>
+#include <X11/Xlib.h>
+#endif
 typedef struct font {
+	#ifdef REX_GRAPHICS
 	GLuint display_list;
 	GLuint mat_list;
+	GLuint texture; 
+	#else 
+	unsigned int display_list;
+	unsigned int mat_list;
+	unsigned int texture;
+	#endif
 	int box_w; int box_h;
 	int w[256];
-	GLuint texture; 
 } font_t;
 typedef struct Graphics {
+	#ifdef REX_GRAPHICS
 	SDL_Surface* Screen;
+	#else
+	void* Screen;
+	#endif
 	char* TextBuf;
 	int TextOffset;
 	int FontSize;
 	float FontScale;
 	int CharMaxW;
 	int CharMaxH;
+	#ifdef REX_GRAPHICS
 	const SDL_VideoInfo* VideoInfo;
+	#else
+	void* VideoInfo;
+	#endif
 	font_t* font;
 	FILE* Console;
 	int Height;
@@ -77,5 +92,4 @@ void vm_putc(char a, Graphics_t* Graphics);
 bool gl_text_update(Graphics_t* Graphics);
 bool freefont(font_t * f);
 extern double DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a;
-#endif
 #endif

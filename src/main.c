@@ -31,7 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <unistd.h>
 #include <r3x_cpu.h>
 #include <r3x_stack.h>
 #include <r3x_format.h>
@@ -44,6 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_dynamic.h>
 #include <big_endian.h>
 #include <assert.h>
+#ifndef _WIN32
+#include <unistd.h>
+#else
+#include <windows.h>
+#endif
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
 #endif
@@ -84,7 +88,9 @@ int main(int argc, char* argv[])
 	// Install signal handlers
 	signal(SIGSEGV, REX_EXCEPTION_HANDLER);
 	signal(SIGINT,  REX_EXCEPTION_HANDLER);
+	#ifndef _WIN32
 	signal(SIGUSR1, SIGUSR1_handler);
+	#endif
 	// Print version
 	printf("%s\n", R3X_SYSTEM_VERSION);
 	// Allocate memory for CPU structure
@@ -156,7 +162,20 @@ void GetApplicationPath(void) {
 			return;
 		}
 	}
-	#else 
+	#elif defined _WIN32
+	char buf[1024];
+	memset(buf, 0, 1024);
+	GetModuleFileName(NULL, buf, 1024);
+	ApplicationPath = strdup(buf);
+	for(size_t i = strlen(ApplicationPath); i != 0; i--){
+		// Backwards babe...
+		/** Remove the executable name from the path **/
+		if(ApplicationPath[i] == '/'){
+			memset((char*)((intptr_t)ApplicationPath + i), 0, strlen(ApplicationPath)-i);
+			return;
+		}
+	}
+	#else
 	#error "GetApplicationPath unimplemented for target, please write your own implementation"
 	#endif
 }

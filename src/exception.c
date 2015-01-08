@@ -170,12 +170,14 @@ void debugger(void) {
 		}
 	}
 }
-void printstatus(void) { 
+void printstatus(void) {
+	#ifdef REX_DYNAMIC 
 	printf("Preparing Debugging Info.\nProgram backtrace:\n");
 	void * buffer[255];
 	const int calls = backtrace(buffer,
 		sizeof(buffer) / sizeof(void *));
 	backtrace_symbols_fd(buffer, calls, 1);
+	#endif
 	assert(r3_cpu);
 	assert(r3_cpu->Stack);
 	assert(r3_cpu->CallStack);

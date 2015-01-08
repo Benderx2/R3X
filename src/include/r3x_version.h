@@ -41,4 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef LINUX_ARCH_PPC 
 	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.3.4a LOLWTF, compiled for: LinuxPPC"
 #endif
+#ifdef WIN_ARCH_X8632
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.3.4a LOLWTF, compiled for: Windows32"
+#endif
+#ifdef WIN_ARCH_X8664
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.3.4a LOLWTF, compiled for: Windows64"
+#endif
 #endif

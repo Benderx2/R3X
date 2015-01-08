@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_graphics.h>
 #include <nt_malloc.h>
+#ifdef REX_GRAPHICS
 char putstring[2];
 font_t* loadfont(char* s)
 {
@@ -267,3 +268,4 @@ bool gl_text_update(Graphics_t* Graphics) {
 	GLUpdate();
 	return true;
 }
+#endif
