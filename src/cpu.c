@@ -220,8 +220,12 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		// Divide the second last value by last.
 		case R3X_DIV:
-			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2) / Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			if(get_item_from_stack_top(1) == 0) {
+				handle_cpu_exception(CPU, CPU_EXCEPTION_ARITHMETIC);
+			} else {
+				Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2) / Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
+				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			}
 			break;
 		// Float equivalents of the above
 		case R3X_FADD:
@@ -237,8 +241,12 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_FDIV:
-			Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2)) / return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1))));
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			if(return_float(get_item_from_stack_top(1)) == 0.0f) {
+				handle_cpu_exception(CPU, CPU_EXCEPTION_ARITHMETIC);
+			} else {
+				Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2)) / return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1))));
+				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			}
 			break;
 		// Compare 2 values on stack and set flags..
 		case R3X_CMP:
@@ -695,12 +703,20 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_MOD:
-			Stack.Push(CPU->Stack, get_item_from_stack_top(2) % get_item_from_stack_top(1));
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			if(get_item_from_stack_top(1) == 0) {
+				handle_cpu_exception(CPU, CPU_EXCEPTION_ARITHMETIC);
+			} else {
+				Stack.Push(CPU->Stack, get_item_from_stack_top(2) % get_item_from_stack_top(1));
+				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			}
 			break;
 		case R3X_FMOD:
-			Stack.Push(CPU->Stack, return_int_from_float(fmod(return_float(get_item_from_stack_top(2)), return_float(get_item_from_stack_top(1)))));
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			if(return_float(get_item_from_stack_top(1)) == 0.0f) {
+				handle_cpu_exception(CPU, CPU_EXCEPTION_ARITHMETIC);
+			} else {
+				Stack.Push(CPU->Stack, return_int_from_float(fmod(return_float(get_item_from_stack_top(2)), return_float(get_item_from_stack_top(1)))));
+				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			}
 			break;
 		// Epic-ass, first class, sexy error handling
 		case R3X_CATCH:
@@ -1077,6 +1093,9 @@ void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
 				break;
 			case CPU_EXCEPTION_INVALIDOPCODE:
 				printf("Attempt to Execute an invalid instruction\n");
+				break;
+			case CPU_EXCEPTION_ARITHMETIC:
+				printf("Arithmetic Exception!\n");
 				break;
 			case CPU_EXCEPTION_EXCEPTION:
 				printf("Unhandled exception thrown by program itself\n");
