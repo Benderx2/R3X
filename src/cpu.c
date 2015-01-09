@@ -243,6 +243,48 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			}
 			break;
+		// sete/setne/setl/setg
+		case R3X_SETE:
+			if(CPU->EqualFlag==true) {
+				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
+					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
+					CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+				} else {
+					printf("Invalid Register Index\n");
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
+				}
+			}
+			break;
+		case R3X_SETNE:
+			if(CPU->EqualFlag!=true) {
+				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
+					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
+					CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+				} else {
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
+				}
+			}
+			break;
+		case R3X_SETL:
+			if(CPU->LesserFlag==true) {
+				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
+					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
+					CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+				} else {
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
+				}
+			}
+			break;
+		case R3X_SETG:
+			if(CPU->GreaterFlag==true) {
+				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
+					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
+					CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+				} else {
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
+				}
+			}
+			break;
 		// Compare 2 values on stack and set flags..
 		case R3X_CMP:
 			compare_and_set_flag_unsigned(CPU, get_item_from_stack_top(2), get_item_from_stack_top(1));
@@ -301,8 +343,11 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		case R3X_LOADSR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS){
 				Stack.Push(CPU->Stack, get_item_from_stack_top(CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]]));
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			} else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
 		// Store a value to stack offset
 		case R3X_STORES:
@@ -317,11 +362,14 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			uint32_t val = 0;
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS){
 				val = CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]];
+				if(Stack.SetItem(CPU->Stack, CPU->Stack->top_of_stack-val, get_item_from_stack_top(1))==-1){
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				}
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			} else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			if(Stack.SetItem(CPU->Stack, CPU->Stack->top_of_stack-val, get_item_from_stack_top(1))==-1){
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-			}
-			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;	
 		// Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		case R3X_LOAD:
@@ -592,34 +640,50 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		case R3X_LOADR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {	
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-				CPU->Regs[(CPU->Memory[CPU->InstructionPointer])] = return_32bit_int_from_ip(CPU);	
+				CPU->Regs[(CPU->Memory[CPU->InstructionPointer])] = return_32bit_int_from_ip(CPU);
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			} else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_PUSHR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				Stack.Push(CPU->Stack, CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])]);
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
+			}
 			break;
 		case R3X_POPR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				int a = Stack.Pop(CPU->Stack);
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] = a;
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			} else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;	
 		case R3X_INCR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] += 1;
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			} else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
 		case R3X_DECR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] -= 1;
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			} else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
 		// Program interruption
 		case R3X_INT:
@@ -638,15 +702,22 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 		case R3X_PUSHAR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				Stack.Push(CPU->CallStack, CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])]);
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			} else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			
 			break;
 		case R3X_POPAR:
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				int a = Stack.Pop(CPU->CallStack);
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] = a;
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			} else {
+				printf("Invalid register index\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			break;
 		// Support for REX object files (*.ro)
 		case R3X_CALLDYNAMIC:	

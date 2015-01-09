@@ -33,14 +33,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_dispatcher.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
+
 extern bool UseServer;
 extern r3x_cpu_t* r3_cpu;
+
 #define MAX_INPUT_LEN 80
+
 char str[MAX_INPUT_LEN+1];
 char str2[ MAX_INPUT_LEN+1];
+
 void printstatus(void);
 void printregstatus(void);
 void debugger(void);
+bool startsWith(const char *pre, const char *str);
+
 void REX_EXCEPTION_HANDLER(int SIGNUM) {
 	(void)SIGNUM;
 	printf("Exception Detected! Debugger ONLINE.\n");
@@ -82,7 +88,11 @@ void debugger(void) {
 		}
 		else if(strncmp(input, "memprobe", 8) == 0){ 
 			memcpy(&str2, (&str[0] + 9),  MAX_INPUT_LEN-10);
-			a1 = atoi(&str2[0]);
+			if(startsWith("0x", &str2[0])==true) {
+				a1 = strtol(&str2[0], NULL, 16);
+			} else {
+				a1 = atoi(&str2[0]);
+			}
 			if(a1 > r3_cpu->MemorySize) { 
 				printf("Cannot probe memory, invalid address\n");
 			}	
@@ -93,7 +103,11 @@ void debugger(void) {
 		} 
 		else if(strncmp(input, "setip", 5) == 0) {
 			memcpy(&str2, (&str[0] + 6), 70);
-			a1 = atoi(&str2[0]);	
+			if(startsWith("0x", &str2[0])==true) {
+				a1 = strtol(&str2[0], NULL, 16);
+			} else {
+				a1 = atoi(&str2[0]);
+			}
 			if(a1 > r3_cpu->MemorySize) { 
 				printf("Invalid Instruction Pointer");			
 			}
@@ -101,7 +115,11 @@ void debugger(void) {
 		}
 		else if(strncmp(input, "push", 4) == 0) {
 			memcpy(&str2, (&str[0] + 5), 70);
-			a1 = atoi(&str2[0]);	
+			if(startsWith("0x", &str2[0])==true) {
+				a1 = strtol(&str2[0], NULL, 16);
+			} else {
+				a1 = atoi(&str2[0]);
+			}
 			Stack.Push(r3_cpu->Stack, a1);
 			printf("Top of Stack: %u\nStack Size: %u", r3_cpu->Stack->top_of_stack, r3_cpu->Stack->stack_count);	
 		}
@@ -152,8 +170,16 @@ void debugger(void) {
 			if(token1 == NULL || token2 == NULL) {
 				printf("Error: expecting arguments");
 			} else {
-				a1 = atoi(token1);
-				a2 = atoi(token2);
+				if(startsWith("0x", token1)==true) {
+					a1 = strtol(token1, NULL, 16);
+				} else {
+					a1 = atoi(token1);
+				}
+				if(startsWith("0x", token2)==true) {
+					a2 = strtol(token2, NULL, 16);
+				} else { 
+					a2 = atoi(token2);
+				}
 				if(a1 + a2 >= r3_cpu->MemorySize) {
 					printf("Invalid size/instruction pointer");
 				} else {
@@ -220,4 +246,10 @@ void SIGUSR1_handler(int signum){
 	printf("Host requesting for status\n");
 	printstatus();
 	printregstatus();
+}
+bool startsWith(const char *pre, const char *str)
+{
+    size_t lenpre = strlen(pre),
+           lenstr = strlen(str);
+    return lenstr < lenpre ? false : strncmp(pre, str, lenpre) == 0;
 }

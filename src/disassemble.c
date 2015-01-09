@@ -314,6 +314,22 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				fprintf(output, "popn %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
+			case R3X_SETE:
+				fprintf(output, "sete R%u\n", (uint8_t)input[i+1]);
+				i += 2;
+				break;
+			case R3X_SETNE:
+				fprintf(output, "setne R%u\n", (uint8_t)input[i+1]);
+				i += 2;
+				break;
+			case R3X_SETG:
+				fprintf(output, "setg R%u\n", (uint8_t)input[i+1]);
+				i += 2;
+				break;
+			case R3X_SETL:
+				fprintf(output, "setl R%u\n", (uint8_t)input[i+1]);
+				i += 2;
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;

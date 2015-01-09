@@ -348,6 +348,30 @@ macro jle addr {
 	jl addr
 	je addr
 }
+macro sete reg {
+	db 0x72
+	db reg
+}
+macro setne reg {
+	db 0x73
+	db reg
+}
+macro setg reg {
+	db 0x74
+	db reg
+}
+macro setl reg {
+	db 0x75
+	db reg
+}
+macro setle reg {
+	sete reg
+	setl reg
+}
+macro setge reg {
+	sete reg
+	setg reg
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1
