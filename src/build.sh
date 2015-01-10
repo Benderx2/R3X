@@ -1,11 +1,45 @@
-echo "REX Compilation Script, version 0.65a"
+echo "REX Compilation Script, version 0.71b"
 set -o verbose
-# Change to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
+if [ "$1" == "arch=x86_64" ]
+then
+	export TARGET="x86_64"
+elif [ "$1" == "arch=x86_32" ]
+then
+	export TARGET="x86_32"
+elif [ "$1" == "arch=aarch64" ]
+then
+	export TARGET="aarch64"
+elif [ "$1" == "arch=aarch64-big" ]
+then
+	export TARGET="aarch64-big"
+elif [ "$1" == "arch=ppc" ]
+then
+	export TARGET="ppc"
+else
+# Default to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
 export TARGET="x86_64"
-# Set to empty if compiling for other arch without dynamic linking support or graphics
-export USEGL="yes"
+fi
+# Check for GL Options
+if [ "$2" == "usegl=yes" ]
+then
+	export USEGL="yes"
+elif [ "$2" == "usegl=no" ]
+then
+	export USEGL=""
+else 
+	export USEGL="yes"
+fi
+# Check of dynamic options
+if [ "$3" == "usedynamic=yes" ]
+then
+	export USEDYNAMIC="yes"
+elif [ "$3" == "usedynamic=no" ]
+then
+	export USEDYNAMIC=""
+else 
 export USEDYNAMIC="yes"
-# Change to -O3 for more optimization or -O0 for no optimization
+fi
+# Change this to your preferred level of optimization
 export OFLAGS="-O3"
 # Change to empty if you don't want debugging information with the binary
 export DFLAGS="-g -DR_DEBUG"
