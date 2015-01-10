@@ -222,6 +222,17 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			case R3X_FMOD:
 			case R3X_ACONV:
 			case R3X_RCONV:
+			case R3X_ASINH:
+			case R3X_ACOSH:
+			case R3X_ATANH:
+			case R3X_FSINH:
+			case R3X_FCOSH:
+			case R3X_FTANH:
+			case R3X_FPOW:
+			case R3X_FLOOR:
+			case R3X_CEIL:
+			case R3X_ICONV:
+			case R3X_FCONV:
 			case R3X_EXIT:
 			case R3X_ROL:
 			case R3X_ROR:

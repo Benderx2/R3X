@@ -39,6 +39,43 @@ include 'libR3X/libR3X.pkg'
 	push 27.6
 	push 4.5
 	fmod
+	syscall SYSCALL_PUTF
+	popn 3
+	Console.NewLine
+	Console.Write "Finding sinh, cosh, tanh, asinh, acosh, atanh of 30 DEG: "
+	push 30.0f
+	rconv
+	fsinh
+	syscall SYSCALL_PUTF
+	pop
+	fcosh 
+	syscall SYSCALL_PUTF
+	pop
+	ftanh
+	syscall SYSCALL_PUTF
+	pop
+	asinh
+	syscall SYSCALL_PUTF
+	pop
+	acosh
+	syscall SYSCALL_PUTF
+	pop
+	atanh
+	syscall SYSCALL_PUTF
+	pop
+	Console.NewLine
+	Console.Write "Doing a floor/ceil operation on 30.5555: "
+	push 30.5555f
+	floor
+	syscall SYSCALL_PUTF
+	pop
+	ceil 
+	syscall SYSCALL_PUTF
+	pop
+	Console.NewLine
+	Console.Write "Converting 30.567 to a 32-bit integer: "
+	push 30.567
+	iconv
 	syscall SYSCALL_PUTI
 	Console.WaitKey
 	; VM clears the stack...

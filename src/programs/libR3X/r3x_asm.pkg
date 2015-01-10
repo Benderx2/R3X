@@ -372,6 +372,41 @@ macro setge reg {
 	sete reg
 	setg reg
 }
+macro fsinh {
+	db 0x76
+}
+macro fcosh {
+	db 0x77
+	
+}
+macro ftanh {
+	db 0x78
+	
+}
+macro fabs {
+	db 0x79
+}
+macro floor {
+	db 0x7A
+}
+macro ceil {
+	db 0x7B
+}
+macro asinh {
+	db 0x7C
+}
+macro acosh {
+	db 0x7D
+}
+macro atanh {
+	db 0x7E
+}
+macro fconv {
+	db 0x7F
+}
+macro iconv {
+	db 0x80
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1

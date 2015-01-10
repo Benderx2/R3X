@@ -114,6 +114,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define R3X_SETNE 0x73
 #define R3X_SETG 0x74
 #define R3X_SETL 0x75
+#define R3X_FSINH 0x76
+#define R3X_FCOSH 0x77
+#define R3X_FTANH 0x78
+#define R3X_FABS 0x79
+#define R3X_FLOOR 0x7A
+#define R3X_CEIL 0x7B
+#define R3X_ASINH 0x7C
+#define R3X_ACOSH 0x7D
+#define R3X_ATANH 0x7E
+#define R3X_FCONV 0x7F
+#define R3X_ICONV 0x80
 // Relocatable instructions
 #define R3X_LODSB_RELOC 0x4E
 #define R3X_LODSW_RELOC 0x66

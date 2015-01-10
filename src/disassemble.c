@@ -330,6 +330,54 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				fprintf(output, "setl R%u\n", (uint8_t)input[i+1]);
 				i += 2;
 				break;
+			case R3X_FPOW:
+				fprintf(output, "fpow\n");
+				i += 1;
+				break;
+			case R3X_FSINH:
+				fprintf(output, "fsinh\n");
+				i++;
+				break;
+			case R3X_FCOSH:
+				fprintf(output, "fcosh\n");
+				i++;
+				break;
+			case R3X_FTANH:
+				fprintf(output, "ftanh\n");
+				i++;
+				break;
+			case R3X_ASINH:
+				fprintf(output, "asinh\n");
+				i++;
+				break;
+			case R3X_ACOSH:
+				fprintf(output, "acosh\n");
+				i++;
+				break;
+			case R3X_ATANH:
+				fprintf(output, "atanh\n");
+				i++;
+				break;
+			case R3X_FLOOR:
+				fprintf(output, "floor\n");
+				i++;
+				break;
+			case R3X_CEIL:
+				fprintf(output, "ceil\n");
+				i++;
+				break;
+			case R3X_ICONV:
+				fprintf(output, "iconv\n");
+				i++;
+				break;
+			case R3X_FCONV:
+				fprintf(output, "fconv\n");
+				i++;
+				break;
+			case R3X_FABS:
+				fprintf(output, "fabs\n");
+				i++;
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;

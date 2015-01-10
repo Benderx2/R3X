@@ -73,6 +73,8 @@ typedef struct r3x_cpu {
 Note: The instructions prefixed with 'M' in this doc are macro instructions which means the CPU doesn't support those instructions but they are implemented
 through existing ones, and using them may slow down performace<br>
 Note2: If the description says nothing about the result, it is assumed that the result is pushed to stack<br>
+Note3: Any functions prefixed with 'f' accept only IEEE754 (32-bit floating point) encoded values. All trignometric operations accept ONLY float<br>
+values in radians<br>
 <b>push</b> <i>imm</i> - Pushes an <i>immediate</i> to stack (use an 'f' suffix for floats). 
 <b>pop</b> - Pops value from stack.
 <b>pushf</b> - Push FLAGS register
@@ -123,8 +125,12 @@ Note2: If the description says nothing about the result, it is assumed that the 
 <b>syscall</b> <i>imm</i> - Call VMs internal functions (NOTE: IMPLEMENTATION DEFINED)
 <b>shr, shl</b> - Shift right/left second last item on stack by bits pushed last and push result.
 <b>calldynamic</b> - Call a dynamic library
-<b>fsin, fcos, ftan, asin, acos, atan</b> - Does the appropriate trig operation on the value pushed to stack and pushes the result
+<b>fabs</b> - Calculates the absolute value
+<b>fsin, fcos, ftan, asin, acos, atan, fsinh, fcosh, ftanh, asinh, acosh, atanh </b> - Does the appropriate trig operation on the value pushed to stack and pushes the result
 <b>rconv, aconv</b> - Converts angle to radian (rconv), or radian to angle (aconv) whose value is pushed to stack. The result is pushed to stack.
+<b>fconv, iconv</b> - Converts integer to IEEE754 float (fconv), or float to integer (rounded off), and pushes result to stack.
+<b>fabs</b> - Pushes Absolute value of float on stack
+<b>floor, ceil</b> - Does a floor/ceil operation on value on stack, and pushes result. (IEEE754)<br>
 <b>mod</b> - Does a modulo operation to integer on stack
 <b>fmod</b> - Same as 'mod' but for floats
 <b>tern</b> - Do a ternary operation on stack, expects 3 arguments to be pushed on stack, with pushed in the following order:

@@ -754,8 +754,52 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, return_int_from_float(atan(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_FSINH:
+			Stack.Push(CPU->Stack, return_int_from_float(sinh(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_FCOSH:
+			Stack.Push(CPU->Stack, return_int_from_float(cosh(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_FTANH:
+			Stack.Push(CPU->Stack, return_int_from_float(tanh(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_ASINH:
+			Stack.Push(CPU->Stack, return_int_from_float(asinh(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_ACOSH:
+			Stack.Push(CPU->Stack, return_int_from_float(acosh(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_ATANH:
+			Stack.Push(CPU->Stack, return_int_from_float(atanh(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_CEIL:
+			Stack.Push(CPU->Stack, return_int_from_float(ceil(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_FLOOR:
+			Stack.Push(CPU->Stack, return_int_from_float(floor(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_ICONV:
+			Stack.Push(CPU->Stack, (uint32_t)(return_float(get_item_from_stack_top(1))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_FCONV:
+			Stack.Push(CPU->Stack, return_int_from_float(return_float(get_item_from_stack_top(1))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		case R3X_FPOW:
 			Stack.Push(CPU->Stack, return_int_from_float(pow(return_float(get_item_from_stack_top(2)), return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_FABS:
+			Stack.Push(CPU->Stack, return_int_from_float(fabs(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Convert to angle 
