@@ -611,6 +611,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			printf("Not compiled with native dynamic library support. Attempt to call LIBEXEC, not supported\n");
 			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		// Call, ret and call stack operations
 		case R3X_CALL:
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);

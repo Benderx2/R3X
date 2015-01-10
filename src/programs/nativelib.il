@@ -1,0 +1,16 @@
+include 'libR3X/libR3X.pkg'
+.text {
+		function main
+		pushstring "./mylib.so"
+		loadlib
+		Console.Write "Loaded mylib.so"
+		Console.NewLine
+		pushstring "./mylib.so"
+		pushstring "myfunc"
+		libexec
+		Console.Write "Function returned: "
+		syscall SYSCALL_PUTI
+		exit
+		endfunction main
+}
+end

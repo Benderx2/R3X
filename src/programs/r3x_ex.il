@@ -29,7 +29,7 @@ import 'libR3X/corelib.pkg'
 	Console.NewLine
 	Console.Write "Wait as long as you want... then press a key"
 	Console.NewLine
-	Console.Input string, 5
+	Console.WaitKey
 	Console.Write "Counted "
 	loadr R0, result
 	lodsd

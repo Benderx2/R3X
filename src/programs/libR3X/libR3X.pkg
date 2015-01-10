@@ -90,7 +90,7 @@ macro endfunction name {
  	name#_end:
 }
 macro pushstring string {
-	local addr, behind
+	local addr
 	push addr
 	.data \{ addr: db string, 0 \}
 } 

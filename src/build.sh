@@ -1,10 +1,10 @@
 echo "REX Compilation Script, version 0.65a"
 set -o verbose
 # Change to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
-export TARGET="ppc"
+export TARGET="x86_64"
 # Set to empty if compiling for other arch without dynamic linking support or graphics
-export USEGL=""
-export USEDYNAMIC=""
+export USEGL="yes"
+export USEDYNAMIC="yes"
 # Change to -O3 for more optimization or -O0 for no optimization
 export OFLAGS="-O3"
 # Change to empty if you don't want debugging information with the binary
@@ -57,7 +57,7 @@ elif [ "$TARGET" == "x86_32" ]
 	 export BINDIR="../bin32"
 elif [ "$TARGET" == "aarch64-big" ]
 	then 
-         # Don't use unless you've got big-endian target libraries..
+     # Don't use unless you've got big-endian target libraries..
 	 export ARCHFLAGS="-mbig-endian"
 	 export ENDIANFLAGS="-D R3X_BIG_ENDIAN"
 	 export ARCHID="-D LINUX_ARCH_ARM64"
@@ -98,6 +98,9 @@ do
    set +x
 done
 $CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS $DYNAMICFLAGS
+$CC -c -Wall -Werror -fpic ./programs/rex/stack.c -o vstack.o
+$CC -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o
+$CC -shared -o mylib.so ./mylib.o vstack.o -lc -lm -Wl,-no-whole-archive
 # compile programs
 $AS programs/r3x_ex.il 
 $AS programs/math.il 
@@ -109,8 +112,10 @@ $AS programs/overflow.il
 $AS programs/perf.il
 $AS programs/stack.il
 $AS programs/symbols.il
+$AS programs/nativelib.il
 # now transfer it 
 mv rxvm $BINDIR/
+mv mylib.so $BINDIR/
 mv programs/r3x_ex.exe $BINDIR/
 mv programs/math.exe $BINDIR/
 mv programs/stream.exe $BINDIR/
@@ -119,6 +124,7 @@ mv programs/overflow.exe $BINDIR/
 mv programs/perf.exe $BINDIR/
 mv programs/stack.exe $BINDIR/
 mv programs/symbols.exe ../disasm/
+mv programs/nativelib.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 # remove all object files
