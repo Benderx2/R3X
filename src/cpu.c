@@ -811,6 +811,10 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, return_int_from_float(fabs(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_FSQRT:
+			Stack.Push(CPU->Stack, return_int_from_float(sqrt(return_float(get_item_from_stack_top(1)))));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		// Convert to angle 
 		case R3X_ACONV:
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(get_item_from_stack_top(1))*(180.0/M_PI)));

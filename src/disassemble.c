@@ -378,6 +378,9 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				fprintf(output, "fabs\n");
 				i++;
 				break;
+			case R3X_FSQRT:
+				fprintf(output, "fsqrt\n");
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;

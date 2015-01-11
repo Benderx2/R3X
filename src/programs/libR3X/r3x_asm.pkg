@@ -407,6 +407,9 @@ macro fconv {
 macro iconv {
 	db 0x80
 }
+macro fsqrt {
+	db 0x81
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1

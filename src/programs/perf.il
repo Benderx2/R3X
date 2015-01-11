@@ -11,12 +11,9 @@ include 'libR3X/libR3X.pkg'
 .do_perf_test:
 	; Push R7
 	pushr R7
-	; Push 0.5
-	push 0.5f
-	; Do R7^1/2 (another way of doing square roots)
-	fpow
+	fsqrt
 	; Pop everything 
-	popn 3
+	popn 2
 	; Increment R7
 	incr R7
 	; Is R7 == 10000000
