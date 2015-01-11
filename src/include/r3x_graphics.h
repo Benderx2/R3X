@@ -56,7 +56,7 @@ typedef struct Graphics {
 	#else
 	void* Screen;
 	#endif
-	char* TextBuf;
+	uint8_t* TextBuf;
 	int TextOffset;
 	int FontSize;
 	float FontScale;

@@ -40,9 +40,10 @@ else
 export USEDYNAMIC="yes"
 fi
 # Change this to your preferred level of optimization
-export OFLAGS="-O3"
+export OFLAGS="-O3 -fomit-frame-pointer -falign-functions -falign-loops -fconserve-stack -funsafe-math-optimizations -funsafe-loop-optimizations"
 # Change to empty if you don't want debugging information with the binary
-export DFLAGS="-g -DR_DEBUG"
+#export DFLAGS="-g -DR_DEBUG"
+export DFLAGS=""
 # DONT MODIFY
 export AS="fasm"
 export GLFLAGS=""
@@ -51,7 +52,7 @@ export DYNAMICFLAGS=""
 export DYANMIC_FILES=""
 export ARFLAGS="-rsc"
 export INCLUDE_DIR="./include/"
-export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-aliasing -Wstrict-prototypes -Wmissing-prototypes -fomit-frame-pointer"
+export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-aliasing -Wstrict-prototypes -Wmissing-prototypes "
 export IFLAGS="-I$INCLUDE_DIR"
 if [ "$USEGL" == "yes" ]
 	then

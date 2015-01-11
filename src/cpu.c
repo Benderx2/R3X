@@ -294,42 +294,6 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			compare_and_set_flag_signed(CPU, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
-		// Jump, Jump If equal, Jump if lesser, jump if greater, jump if zero..
-		case R3X_JMP:
-			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
-			break;
-		case R3X_JE:
-			if (CPU->EqualFlag == true){
-				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
-			}
-			else {
-				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			}
-			break;
-		case R3X_JL:
-			if (CPU->LesserFlag == true){
-				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
-			}
-			else {
-				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			}
-			break;
-		case R3X_JG:
-			if (CPU->GreaterFlag == true){
-				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
-			}
-			else {
-				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			}
-			break;
-		case R3X_JZ:
-			if (CPU->ZeroFlag == true){
-				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
-			}
-			else {
-				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			}
-			break;
 		// Call VM specific function
 		case R3X_SYSCALL:
 			r3x_syscall(CPU);
@@ -371,7 +335,56 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
 			break;	
-		// Load a value and push it to stack, whose address was pushed to stack (32-bit)
+		/**!
+		 * Here starts the region where memory access instructions are used!
+		 * 
+		 * It may change due to addition of virtual memory addressesing
+		 * **/
+		//! Jump, Jump If equal, Jump if lesser, jump if greater, jump if zero, call, ret (That is, all branch instructions)..
+		case R3X_JMP:
+			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
+			break;
+		case R3X_JE:
+			if (CPU->EqualFlag == true){
+				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
+			}
+			else {
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			}
+			break;
+		case R3X_JL:
+			if (CPU->LesserFlag == true){
+				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
+			}
+			else {
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			}
+			break;
+		case R3X_JG:
+			if (CPU->GreaterFlag == true){
+				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
+			}
+			else {
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			}
+			break;
+		case R3X_JZ:
+			if (CPU->ZeroFlag == true){
+				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
+			}
+			else {
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			}
+			break;
+		//! Call, ret and call stack operations
+		case R3X_CALL:
+			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
+			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
+			break;
+		case R3X_RET:
+			CPU->InstructionPointer = Stack.Pop(CPU->CallStack);
+			break;
+		//! Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		case R3X_LOAD:
 			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
@@ -380,7 +393,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, *(uint32_t*)(CPU->Memory + get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
-		// Store a value which was pushed to stack to an address pushed second last.
+		//! Store a value which was pushed to stack to an address pushed second last.
 		case R3X_STORE:
 			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
@@ -389,7 +402,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			*((uint32_t*)&(CPU->Memory[get_item_from_stack_top(2)])) = get_item_from_stack_top(1);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
-		// Memory access for registers...
+		//! Memory access for registers...
 		case R3X_LODSB:
 			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
@@ -462,7 +475,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
-		// Relocatable versions of those..
+		//! Relocatable versions of those..
 		case R3X_STOSB_RELOC:
 			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
@@ -535,6 +548,66 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]+return_32bit_int_from_ip(CPU)]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
+		//! fast memory copy
+		case R3X_MEMCPY:
+			if((unsigned int)get_item_from_stack_top(3)+(unsigned int)get_item_from_stack_top(1) > CPU->MemorySize || (unsigned int)get_item_from_stack_top(2) + (unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
+					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+					break;			
+			}
+			memcpy(CPU->Memory + get_item_from_stack_top(3), CPU->Memory + get_item_from_stack_top(2), get_item_from_stack_top(1));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		// Native library support (calling native procedures from .so files)
+		case R3X_LOADLIB:
+			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);		
+				break;	
+			}
+			#ifdef REX_DYNAMIC
+				load_native_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU);
+			#else
+				printf("Not compiled with native dynamic library support. Attempt to call LOADLIB, not supported\n");
+			#endif
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		case R3X_LIBEXEC:
+			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
+				break;		
+			}
+			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize) { 
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
+				break;		
+			}
+			#ifdef REX_DYNAMIC
+			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + get_item_from_stack_top(1)), returnhandle((char*)(CPU->Memory + get_item_from_stack_top(2)))));
+			#else
+			printf("Not compiled with native dynamic library support. Attempt to call LIBEXEC, not supported\n");
+			#endif
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
+		//! Program interruption
+		case R3X_INT:
+			if(CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]] != 0) {
+				Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_DOUBLE);
+				CPU->InstructionPointer = CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]];
+			} else {	
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
+			}
+			break;
+		//! Support for REX object files (*.ro)
+		case R3X_CALLDYNAMIC:	
+			if(dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1))==0)	{
+				printf("Invalid dynamic call, causing CPU_EXCEPTION_INVALIDACCESS.\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;			
+			}
+			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
+			CPU->InstructionPointer = dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1));
+			break;
+		/**!
+		 * This is the end of memory acessing instructions section
+		 * **/
 		// Bitwise operations
 		case R3X_AND:
 			Stack.Push(CPU->Stack, get_item_from_stack_top(2) & get_item_from_stack_top(1));
@@ -583,58 +656,12 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, ROL_C(get_item_from_stack_top(2), get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
-		// Native library support (calling native procedures from .so files)
-		case R3X_LOADLIB:
-			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);		
-				break;	
-			}
-			#ifdef REX_DYNAMIC
-				load_native_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU);
-			#else
-				printf("Not compiled with native dynamic library support. Attempt to call LOADLIB, not supported\n");
-			#endif
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		case R3X_LIBEXEC:
-			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
-				break;		
-			}
-			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize) { 
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
-				break;		
-			}
-			#ifdef REX_DYNAMIC
-			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + get_item_from_stack_top(1)), returnhandle((char*)(CPU->Memory + get_item_from_stack_top(2)))));
-			#else
-			printf("Not compiled with native dynamic library support. Attempt to call LIBEXEC, not supported\n");
-			#endif
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		// Call, ret and call stack operations
-		case R3X_CALL:
-			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
-			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
-			break;
-		case R3X_RET:
-			CPU->InstructionPointer = Stack.Pop(CPU->CallStack);
-			break;
 		case R3X_PUSHA:
 			Stack.Push(CPU->CallStack, return_32bit_int_from_ip(CPU));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_POPA:
 			Stack.Pop(CPU->CallStack);
-			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		// fast memory copy
-		case R3X_MEMCPY:
-			if((unsigned int)get_item_from_stack_top(3)+(unsigned int)get_item_from_stack_top(1) > CPU->MemorySize || (unsigned int)get_item_from_stack_top(2) + (unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
-					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-					break;			
-			}
-			memcpy(CPU->Memory + get_item_from_stack_top(3), CPU->Memory + get_item_from_stack_top(2), get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		// Register operations
@@ -686,15 +713,6 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
 			break;
-		// Program interruption
-		case R3X_INT:
-			if(CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]] != 0) {
-				Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_DOUBLE);
-				CPU->InstructionPointer = CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]];
-			} else {	
-				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
-			}
-			break;
 		case R3X_LOADI:
 			CPU->InstructionPointer++;
 			set_interrupt(CPU->Memory[CPU->InstructionPointer], CPU);
@@ -719,16 +737,6 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;
-		// Support for REX object files (*.ro)
-		case R3X_CALLDYNAMIC:	
-			if(dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1))==0)	{
-				printf("Invalid dynamic call, causing CPU_EXCEPTION_INVALIDACCESS.\n");
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;			
-			}
-			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
-			CPU->InstructionPointer = dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1));
 			break;
 		// Math Instructions
 		case R3X_FSIN:
@@ -885,11 +893,16 @@ uint32_t return_int_from_float(float fl32)
 }
 uint32_t return_32bit_int_from_ip(r3x_cpu_t* CPU)
 {
-	register uint8_t a = CPU->Memory[CPU->InstructionPointer+1];
+	/*register uint8_t a = CPU->Memory[CPU->InstructionPointer+1];
 	register uint8_t b = CPU->Memory[CPU->InstructionPointer+2];
 	register uint8_t c = CPU->Memory[CPU->InstructionPointer+3];
 	register uint8_t d = CPU->Memory[CPU->InstructionPointer+4];
-	return return_32bit_int(a, b, c, d);
+	return return_32bit_int(a, b, c, d);*/
+	#ifndef R3X_BIG_ENDIAN
+	return *((uint32_t*)(&CPU->Memory[CPU->InstructionPointer+1]));
+	#else
+	return BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->InstructionPointer+1])));
+	#endif
 }
 void compare_and_set_flag_signed(r3x_cpu_t* CPU, signed int op1, signed int op2)
 {

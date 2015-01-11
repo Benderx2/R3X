@@ -46,8 +46,8 @@ void ParseArguments(int argc, char* argv[]);
 void PrintHelp(void);
 void GetApplicationPath(void);
 int max_stack = DEFAULT_MAX_STACK_SIZE;
-int ScreenWidth = 640;
-int ScreenHeight = 480;
+unsigned int ScreenWidth = 640;
+unsigned int ScreenHeight = 480;
 // names for vars
 double ChosenCPUFrequency = 0;
 r3x_cpu_t* r3_cpu = NULL;

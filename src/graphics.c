@@ -28,12 +28,18 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifdef REX_GRAPHICS
+#include <r3x_cpu.h>
 #include <r3x_graphics.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
+#define MAX_SCREEN_WIDTH 1024
+#define MAX_SCREEN_HEIGHT 768
+#define MIN_SCREEN_WIDTH 320
+#define MIN_SCREEN_HEIGHT 200
+extern r3x_cpu_t* r3_cpu;
 extern bool UseServer;
-extern int ScreenWidth;
-extern int ScreenHeight;
+extern unsigned int ScreenWidth;
+extern unsigned int ScreenHeight;
 double DefaultRGBA_r = 0.656875f;
 double DefaultRGBA_g = 0.1f;
 double DefaultRGBA_b = 0.40625f;
@@ -42,6 +48,10 @@ void Update(SDL_Surface*);
 Graphics_t* InitGraphics(void)
 {
 	XInitThreads();
+	if(ScreenWidth > MAX_SCREEN_WIDTH || ScreenHeight > MAX_SCREEN_HEIGHT || ScreenHeight < MIN_SCREEN_HEIGHT || ScreenWidth < MIN_SCREEN_WIDTH) {
+		printf("Error: Screen size is either too high or too low. Max: 1024*768, Min: 320*200\n");
+		exit(EXIT_FAILURE);
+	}
 	// F**k SDL, we gotta use stdio output redirection...
 	Graphics_t* graphics = nt_malloc(sizeof(Graphics_t));
 	graphics->Width = 0;
@@ -89,7 +99,7 @@ Graphics_t* InitGraphics(void)
 	graphics->CharMaxW = graphics->Width / graphics->FontSize;
 	graphics->CharMaxH = graphics->Height / graphics->FontSize;
 	graphics->FontScale = 1.0f;
-	graphics->TextBuf = nt_malloc(graphics->CharMaxH * graphics->CharMaxW);
+	graphics->TextBuf = &(r3_cpu->Memory[512]);
 	graphics->TextOffset = 0;
 	glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
