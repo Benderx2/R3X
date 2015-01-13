@@ -34,6 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_stack.h>
 #include <r3x_graphics.h>
 #include <r3x_object.h>
+#include <r3x_memory.h>
 #define EFLAG_BIT 0
 #define GFLAG_BIT 1
 #define LFLAG_BIT 2
@@ -95,6 +96,7 @@ typedef struct r3x_cpu {
 	uint32_t Regs[21];
 	uint32_t ExceptionHandlers[4];
 	// Global -- Thread Independent.
+	r3x_memory_blocks CPUMemoryBlocks;
 	double CPUClock;
 	uint8_t* Memory;
 	uint32_t ISR_handlers[256];

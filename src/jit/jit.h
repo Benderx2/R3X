@@ -75,5 +75,8 @@ typedef struct {
 	void (*SyscallFileOpen)(unsigned int);
 	void (*SyscallFileClose)(unsigned int);
 	void (*SyscallFileRead)(unsigned int, unsigned int, unsigned int);
+	void (*SyscallFileSeek)(unsigned int, unsigned int);
+	void (*SyscallFileWrite)(unsigned int, unsigned int, unsigned int);
+	void (*SyscallDispatchJob)(unsigned int);
 } RX_TARGET_OS;
 #endif
