@@ -77,7 +77,7 @@ typedef struct {
 	uint32_t EndAddress; 
 } r3x_mem_block;
 typedef struct {
-	r3x_mem_block MemoryBlocks[4096];
+	r3x_mem_block** MemoryBlocks;
 } r3x_memory_blocks;
 typedef struct r3x_cpu {
 	// Not global -- Thread dependent
