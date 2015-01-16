@@ -376,6 +376,42 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
 			break;
+		//! Relative jumps
+		case R3X_JMPL:
+			CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU);
+			break;
+		case R3X_JEL:
+			if(CPU->EqualFlag == true){
+				CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+			} else {
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			}
+			break;
+		case R3X_JGL:
+			if(CPU->GreaterFlag == true){
+				CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+			} else {
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			}
+			break;
+		case R3X_JLL:
+			if(CPU->LesserFlag == true){
+				CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+			} else {
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			}
+			break;
+		case R3X_JZL:
+			if(CPU->ZeroFlag == true){
+				CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+			} else {
+				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+			}
+			break;
+		case R3X_PUSHIP:
+			Stack.Push(CPU->Stack, CPU->InstructionPointer);
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		//! Call, ret and call stack operations
 		case R3X_CALL:
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);

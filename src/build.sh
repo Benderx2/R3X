@@ -148,6 +148,7 @@ $AS programs/perf.il
 $AS programs/stack.il
 $AS programs/symbols.il
 $AS programs/nativelib.il
+$AS programs/jmp.il
 # now transfer it 
 mv rxvm $BINDIR/
 mv mylib.so $BINDIR/
@@ -160,6 +161,7 @@ mv programs/perf.exe $BINDIR/
 mv programs/stack.exe $BINDIR/
 mv programs/symbols.exe ../disasm/
 mv programs/nativelib.exe $BINDIR/
+mv programs/jmp.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 # remove all object files

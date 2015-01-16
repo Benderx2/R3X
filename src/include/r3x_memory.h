@@ -1,17 +1,27 @@
 #ifndef REX_MEMORY_H
 #define REX_MEMORY_H
 #include <system.h>
-//! Define bits
-#define RX_MEM_NOEX_BIT 0
-#define RX_MEM_NOW_BIT 1
-#define RX_MEM_RONLY_BIT 2
-#define RX_MEM_RW_BIT 3
+#define SEGMENT_SIZE 400*1024
+typedef enum {
+	//! Execute?
+	RX_NOEXEC,
+	//! Read Only?
+	RX_RONLY,
+	//! Readable/Writeable
+	RX_RW,
+	//! Doesn't exist.
+	RX_NOEXIST
+} RX_MM_TYPE;
 typedef struct {
-	uint8_t Flags;
-	uint32_t StartAddress;
-	uint32_t EndAddress; 
+	RX_MM_TYPE Type;
+	uint32_t MemorySegment;
 } r3x_mem_block;
 typedef struct {
-	r3x_mem_block** MemoryBlocks;
+	r3x_mem_block* MemoryBlocks;
+	uint32_t NumberOfBlocks;
 } r3x_memory_blocks;
+r3x_memory_blocks* BuildMemoryBlock(unsigned int);
+int MemoryMap(r3x_memory_blocks*, RX_MM_TYPE, unsigned int, unsigned int);
+int MemoryUnmap(r3x_memory_blocks*, unsigned int, unsigned int);
+unsigned int ReturnMemorySegment(unsigned int);
 #endif

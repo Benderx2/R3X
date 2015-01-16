@@ -126,6 +126,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define R3X_FCONV 0x7F
 #define R3X_ICONV 0x80
 #define R3X_FSQRT 0x81
+#define R3X_JMPL 0x82
+#define R3X_JEL 0x83
+#define R3X_JGL 0x84
+#define R3X_JLL 0x85
+#define R3X_JZL 0x87
+#define R3X_PUSHIP 0x86
 // Relocatable instructions
 #define R3X_LODSB_RELOC 0x4E
 #define R3X_LODSW_RELOC 0x66

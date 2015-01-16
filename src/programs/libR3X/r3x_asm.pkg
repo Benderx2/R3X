@@ -410,6 +410,29 @@ macro iconv {
 macro fsqrt {
 	db 0x81
 }
+macro jmpl addr {
+	db 0x82
+	dd addr
+}
+macro jel addr {
+	db 0x83
+	dd addr
+}
+macro jgl addr {
+	db 0x84
+	dd addr
+}
+macro jll addr {
+	db 0x85
+	dd addr
+}
+macro jzl addr {
+	db 0x86
+	dd addr
+}
+macro puship {
+	db 0x86
+}
 macro loadrm size, reg1, memaddr {
 	pushr R0
 	pushr R1

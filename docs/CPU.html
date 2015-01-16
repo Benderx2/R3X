@@ -90,8 +90,9 @@ values in radians<br>
 <b>fadd, fsub, fdiv, fmul</b> - Floating point variants of the instructions above.
 <b>slp</b> - Sleep instruction, delay by 1 cycle.
 <b>cmp, cmps</b> - Do a unsigned/signed compare on the last 2 values on stack, and set flags accordingly. NOTE: EF and GF flags will be set if the second last value is greater or lesser than the first if both are 0 then ZF is set.
-<b>jmp, je, jg, jl, jz</b> <i>imm</i> - Jump, Jump If Equal, Jump if Greater, Jump if Lesser, Jump if Zero
-<i>M </i><b><i>jne, jge, jle</i></b> - Jump if not equal, Jump if greater or equal, Jump if lesser or equal
+<b>jmp, je, jg, jl, jz</b> <i>imm</i> - Jump, Jump If Equal, Jump if Greater, Jump if Lesser, Jump if Zero (ABSOLUTE)
+<b>jmpl, jel, jgl, jll, jzl</b> <i>imm</i> - Jump if Equal, Jump if Greater, Jump if Lesser, Jump if Zero (RELATIVE)
+<i>M </i><b><i>jne, jge, jle</i></b> - Jump if not equal, Jump if greater or equal, Jump if lesser or equal (ABSOLUTE)
 <b>dup</b> - Duplicate value last pushed.
 <b>load</b> - Load from address pushed to stack, and push the value (32-bit)
 <b>loads</b> <i>imm</i> - Load from CPU->Stack[top of stack - imm], and push value (32-bit)
@@ -102,8 +103,9 @@ values in radians<br>
 <b>or, xor, and</b> - Does the apporpriate bitwise operation on the last 2 values pushed to stack and pushes the result.
 <b>neg, not</b> - Does the appropriate bitwise operation on the last value pushed to stack and pushes the result.
 <b>ror, rol</b> - Rotates the integer pushed second last by number of bits pushed last, and pushes result.
-<b>call</b> <i>imm</i> - Push return value to stack and jump to imm.
-<b>ret</b> - Returns to address popped from Call Stack.
+<b>call</b> <i>imm</i> - Push return value to stack and jump to imm. (ABSOLUTE)
+<b>ret</b> - Returns to address popped from Call Stack. (ABSOLUTE)
+<b>puship</b> - Push the instruction pointer on Stack.
 <b>loadr</b> <i>register index</i>, <i>imm</i> - Load register with immediate
 <i>M </i><b>loadrr</b> register index 1, register index 2 - Load register with register
 <i>M </i><b>loadrm</b> size, register index, address - Dereference address 'address', and load value with size (byte=8-bit, word=16-bit,dword=32-bit) into register
