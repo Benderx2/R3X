@@ -109,7 +109,7 @@ macro jz op {
 	db 0x11
 	dd op
 }
-macro slp {
+macro nop {
 	db 0x0
 }
 macro exit {

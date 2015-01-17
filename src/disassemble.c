@@ -70,7 +70,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				i++;
 				break;
 			case R3X_SLEEP:
-				fprintf(output, "slp\n");
+				fprintf(output, "nop\n");
 				i++;
 				break;
 			case R3X_POP:

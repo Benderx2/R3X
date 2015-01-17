@@ -211,7 +211,7 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				i++;
 				break;
 			case R3X_SLEEP:
-				fprintf(output, "slp\n");
+				fprintf(output, "nop\n");
 				i++;
 				break;
 			case R3X_POP:
@@ -517,6 +517,30 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				break;
 			case R3X_FSQRT:
 				fprintf(output, "fsqrt\n");
+				i++;
+				break;
+			case R3X_JMPL:
+				fprintf(output, "jmpl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_JLL:
+				fprintf(output, "jll %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_JGL:
+				fprintf(output, "jgl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_JZL:
+				fprintf(output, "jzl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_JEL:
+				fprintf(output, "jel %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_PUSHIP:
+				fprintf(output, "puship\n");
 				i++;
 				break;
 			default:
