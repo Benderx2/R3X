@@ -65,7 +65,7 @@ const int SLEEP_MILLISECONDS = 1000;
 bool exitcalled = false;
 bool is_read = true;
 char keycode = 0;
-int code = 0;
+
 #ifdef REX_GRAPHICS
 SDL_Event key_event = {SDL_USEREVENT};
 #endif
@@ -128,21 +128,22 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 	SDL_Thread *kthread = NULL;
 	kthread = SDL_CreateThread(keyboard_thread, NULL );
 	#endif
-	code = 0;
 	double milliseconds = 0;
 	if(CPU->use_frequency == true){
 		milliseconds = (1 / CPU->CPUFrequency);
 		printf("CPU Frequency %f\n", milliseconds);
 	}
 	while (CPU->InstructionPointer < CPU->MemorySize){
+			#ifdef R_DEBUG
 			if(milliseconds != 0) {
 				cpu_sleep(milliseconds, SLEEP_MILLISECONDS);
 			}
+			#endif
 			if(exitcalled == true) { 
 				break;
 			}
 			if(r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID) != -1) {
-				code = r3x_emulate_instruction(CPU);
+				r3x_emulate_instruction(CPU);
 				r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			}
 			if(CPU->RootDomain->CurrentJobID >= CPU->RootDomain->TotalNumberOfJobs) { 
