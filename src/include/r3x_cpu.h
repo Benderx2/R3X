@@ -93,7 +93,7 @@ typedef struct r3x_cpu {
 	bool ZeroFlag;
 	bool ExceptionFlag;
 	uint32_t FLAGS;
-	uint32_t Regs[21];
+	uint64_t Regs[21];
 	uint32_t ExceptionHandlers[4];
 	// Global -- Thread Independent.
 	r3x_memory_blocks CPUMemoryBlocks;

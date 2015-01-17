@@ -242,6 +242,7 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			case R3X_HANDLE:
 			case R3X_PUSHF:
 			case R3X_POPF:
+			case R3X_PUSHIP:
 				i++;
 				break;
 			case R3X_PUSH:
@@ -249,6 +250,11 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			case R3X_STORES:
 			case R3X_PUSHA:
 			case R3X_POPN:
+			case R3X_JMPL:
+			case R3X_JEL:
+			case R3X_JLL:
+			case R3X_JZL:
+			case R3X_JGL:
 				i += 5;
 				break;
 			case R3X_LOADI:

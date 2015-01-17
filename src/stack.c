@@ -30,12 +30,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_stack.h>
 #include <nt_malloc.h>
 stack_construct Stack;
-int PushtoStack(vstack_t* stack, int32_t object);
-int32_t PopFromStack(vstack_t* stack);
-int32_t GetItemS(vstack_t* stack, unsigned int idx);
+int PushtoStack(vstack_t* stack, int64_t object);
+int64_t PopFromStack(vstack_t* stack);
+int64_t GetItemS(vstack_t* stack, unsigned int idx);
 vstack_t* CreateStack(void);
 int Duplicate(vstack_t* stack);
-int SetItemS(vstack_t* stack, unsigned int idx, int32_t i);
+int SetItemS(vstack_t* stack, unsigned int idx, int64_t i);
 void DestroyStack(vstack_t* Stack);
 void init_stack_construct(void)
 {
@@ -52,14 +52,14 @@ int Duplicate(vstack_t* stack)
 	PushtoStack(stack, stack->content[stack->stack_count]);
 	return 0;
 }
-int32_t GetItemS(vstack_t* stack, unsigned int idx)
+int64_t GetItemS(vstack_t* stack, unsigned int idx)
 {
 	if(stack == NULL) { return -1; }
 	if(stack->top_of_stack==0 || stack->stack_count == 0){ return -1; }
 	if (idx > stack->stack_count){ return -1; }
 	else { return (stack->content[idx]); }
 }
-int SetItemS(vstack_t* stack, unsigned int idx, int32_t i)
+int SetItemS(vstack_t* stack, unsigned int idx, int64_t i)
 {
 	if(stack == NULL) { return -1; }
 	if(stack->top_of_stack==0 || stack->stack_count == 0){ return -1; }
@@ -77,7 +77,7 @@ vstack_t* CreateStack(void)
 	new_stack->max_stack = DEFAULT_MAX_STACK_SIZE;
 	return new_stack;
 }
-int PushtoStack(vstack_t* stack, int32_t object)
+int PushtoStack(vstack_t* stack, int64_t object)
 {
 	// Check if we have reached the maximum value..
 	if(stack->top_of_stack >= stack->max_stack){
@@ -91,16 +91,16 @@ int PushtoStack(vstack_t* stack, int32_t object)
 		// Check if there exists a buffer
 		if (stack->stack_count == 0){
 			// Allocate, null out and set.
-			int32_t* new_buf = NULL;
+			int64_t* new_buf = NULL;
 			new_buf = nt_malloc(DEFAULT_STACK_SIZE);
 			stack->stack_count = 16;
 			stack->content = new_buf;
 		}
 		else {
 			// Allocate it double the size to make sure we don't run out too soon
-			int32_t* new_buf = nt_malloc(stack->stack_count * 2 * sizeof(int32_t));
+			int64_t* new_buf = nt_malloc(stack->stack_count * 2 * sizeof(int64_t));
 			// Copy the old buffer
-			memcpy(new_buf, stack->content, stack->stack_count * sizeof(int32_t));
+			memcpy(new_buf, stack->content, stack->stack_count * sizeof(int64_t));
 			// Free it, set the new buffer, and the new size
 			nt_free(stack->content);
 			stack->content = new_buf;
@@ -112,7 +112,7 @@ int PushtoStack(vstack_t* stack, int32_t object)
 	stack->top_of_stack++;
 	return 0;
 }
-int32_t PopFromStack(vstack_t* stack)
+int64_t PopFromStack(vstack_t* stack)
 {
 	// if top of stack is 0, return an underflow error else decrement top of stack
 	if (stack->top_of_stack == 0){

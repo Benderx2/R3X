@@ -124,7 +124,7 @@ void debugger(void) {
 			printf("Top of Stack: %u\nStack Size: %u", r3_cpu->Stack->top_of_stack, r3_cpu->Stack->stack_count);	
 		}
 		else if(strncmp(input, "pop", 3) == 0) { 
-			printf("Popped from Stack : %u", Stack.Pop(r3_cpu->Stack));		
+			printf("Popped from Stack : %lu", (uint64_t)Stack.Pop(r3_cpu->Stack));		
 		}
 		else if(strncmp(str, "setreg", 6) == 0) { 
 			char* token = strtok(input, " ");

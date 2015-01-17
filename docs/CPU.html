@@ -32,7 +32,7 @@ typedef struct r3x_cpu {
 	bool ZeroFlag;
 	bool ExceptionFlag;
 	uint32_t FLAGS;
-	uint32_t Regs[21];
+	uint64_t Regs[21];
 	uint32_t ExceptionHandlers[4];
 	// Global -- Thread Independent.
 	uint8_t* Memory;
@@ -59,7 +59,7 @@ typedef struct r3x_cpu {
 <b><i>bool ExceptionFlag;</i></b>: CPU's EXF (Exception Flag).<br>
 <b><i>uint32_t FLAGS</i></b> - CPU FLAGS register constructed from the above. The layout (in bits) is as follows:<br>
 <pre>|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|R|EXF|Z|L|G|E|</pre><br>
-<b><i>uint32_t Regs[21]</i></b>: Array of integers containing CPU's registers<br>
+<b><i>uint64_t Regs[21]</i></b>: Array of integers containing CPU's registers<br>
 <b><i>unsigned int CurrentInstruction</i></b>: Stores the current instruction executed by CPU (for debugging purposes).<br>
 <b><i>unsigned int MemorySize</i></b>: Total memory size of CPU<br>
 <b><i>ObjectList_t* ObjectList</i></b>: List of objects maintained by the CPU<br>
@@ -73,10 +73,11 @@ typedef struct r3x_cpu {
 Note: The instructions prefixed with 'M' in this doc are macro instructions which means the CPU doesn't support those instructions but they are implemented
 through existing ones, and using them may slow down performace<br>
 Note2: If the description says nothing about the result, it is assumed that the result is pushed to stack<br>
-Note3: Any functions prefixed with 'f' accept only IEEE754 (32-bit floating point) encoded values. All trignometric operations accept ONLY float<br>
+Note3: Any functions prefixed with 'f' accept only IEEE754 (32-bit floating point, 64-bit if REX64) encoded values. All trignometric operations accept ONLY float<br>
 values in radians<br>
 <b>push</b> <i>imm</i> - Pushes an <i>immediate</i> to stack (use an 'f' suffix for floats). 
 <b>pop</b> - Pops value from stack.
+<b>push64 (REX64 Only)</b> <i>imm</i> - Pushes a 64-bit immediate to stack.
 <b>pushf</b> - Push FLAGS register
 <b>popf</b> - Pop FLAGS register
 <b>popn</b> <i>imm</i> - Pops 'imm' number of values from stack.
@@ -107,6 +108,7 @@ values in radians<br>
 <b>ret</b> - Returns to address popped from Call Stack. (ABSOLUTE)
 <b>puship</b> - Push the instruction pointer on Stack.
 <b>loadr</b> <i>register index</i>, <i>imm</i> - Load register with immediate
+<b>loadr64 (REX64 Only)</b> <i>register index</i> <i>imm64</i> - Load a register with 64-bit immediate
 <i>M </i><b>loadrr</b> register index 1, register index 2 - Load register with register
 <i>M </i><b>loadrm</b> size, register index, address - Dereference address 'address', and load value with size (byte=8-bit, word=16-bit,dword=32-bit) into register
 <b>pushr</b> <i>register index</i> - Push a register on stack
@@ -116,7 +118,8 @@ values in radians<br>
 <b>lodsb</b> - Loads a byte from address R0 to R1 (8-bit)
 <b>stosb</b> - Stores register R1 to address R0 (8-bit)
 <b>lodsw/lodsd, stosw/stosd</b> - 16/32-bit equivalents of the above
-<b>cmpsb, cmpsw, cmpsd</b> - Compare 8-bit/16-bit/32-bit value at address of R3 by R1 and set flags.
+<b>stosq</b> - 64-bit equivalent of the above (REX64 Only)
+<b>cmpsb, cmpsw, cmpsd, [cmpsq (REX64 Only)]</b> - Compare 8-bit/16-bit/32-bit/[64-bit (REX64 Only)] value at address of R3 by R1 and set flags.
 <i>M </i><b>cmpr</b> <i>register index 1</i> <i>register index 2</i> - Compares 2 registers
 <b>incr, decr</b> <i>register index</i> - Increments/Decrements a register
 <b>int</b> <i>isr</i> - Interrupts program execution, and calls the address assigned to interrupt number "isr"
@@ -128,12 +131,12 @@ values in radians<br>
 <b>shr, shl</b> - Shift right/left second last item on stack by bits pushed last and push result.
 <b>calldynamic</b> - Call a dynamic library
 <b>fabs</b> - Calculates the absolute value
-<b>fsqrt</b> - Calculates square root of float pushed to stack, and pushes the result.<br>
+<b>fsqrt</b> - Calculates square root of float pushed to stack, and pushes the result.
 <b>fsin, fcos, ftan, asin, acos, atan, fsinh, fcosh, ftanh, asinh, acosh, atanh </b> - Does the appropriate trig operation on the value pushed to stack and pushes the result
 <b>rconv, aconv</b> - Converts angle to radian (rconv), or radian to angle (aconv) whose value is pushed to stack. The result is pushed to stack.
 <b>fconv, iconv</b> - Converts integer to IEEE754 float (fconv), or float to integer (rounded off), and pushes result to stack.
 <b>fabs</b> - Pushes Absolute value of float on stack
-<b>floor, ceil</b> - Does a floor/ceil operation on value on stack, and pushes result. (IEEE754)<br>
+<b>floor, ceil</b> - Does a floor/ceil operation on value on stack, and pushes result. (IEEE754)
 <b>mod</b> - Does a modulo operation to integer on stack
 <b>fmod</b> - Same as 'mod' but for floats
 <b>tern</b> - Do a ternary operation on stack, expects 3 arguments to be pushed on stack, with pushed in the following order:
@@ -144,8 +147,8 @@ If BOOLEAN is true (any non-zero number), then VALUE 1 will be popped out, if BO
 <b>throw</b> - Throw an exception and set EXF to true, exception id must be pushed to stack (INVALID_ACCESS, INVALID_OPCODE, R_EXCEP)
 <b>catch</b> - Set exception handler, push the exception handler's address first, then the exception ID.
 <b>handle</b> - Set EXF to false.
-<b>sete, setne, setg, setl</b> <i>register index</i>: Set a register to 0x0 if E/Or E is not/G/L is set<br>
-<i>M </i><b>setge, setle</b>: <i>register index</i> Set if Equal or Greater/Lesser<br>
+<b>sete, setne, setg, setl</b> <i>register index</i>: Set a register to 0x0 if E/Or E is not/G/L is set
+<i>M </i><b>setge, setle</b>: <i>register index</i> Set if Equal or Greater/Lesser
 <b>exit</b> - Returns a CPU_EXIT_SIGNAL, and quits the program..
 </font>
 </html>

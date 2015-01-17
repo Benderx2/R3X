@@ -893,7 +893,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		case R3X_EXIT:
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {
 				// Show exit status
-				printf("Program exitted with status: %u\n", get_item_from_stack_top(1));		
+				printf("Program exitted with status: %lu\n", (uint64_t)get_item_from_stack_top(1));		
 				r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 				exitcalled = true;
 			}

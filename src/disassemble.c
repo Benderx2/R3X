@@ -381,6 +381,30 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 			case R3X_FSQRT:
 				fprintf(output, "fsqrt\n");
 				break;
+			case R3X_JMPL:
+				fprintf(output, "jmpl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_JLL:
+				fprintf(output, "jll %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_JGL:
+				fprintf(output, "jgl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_JZL:
+				fprintf(output, "jzl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_JEL:
+				fprintf(output, "jel %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
+			case R3X_PUSHIP:
+				fprintf(output, "puship\n");
+				i++;
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;

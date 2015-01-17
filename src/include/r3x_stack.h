@@ -31,21 +31,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define R3X_VSTACK_H
 #include <system.h>
 #define STACK_UFLOW_ERR -1
-#define DEFAULT_STACK_SIZE 16 * sizeof(int32_t)
+#define DEFAULT_STACK_SIZE 16 * sizeof(int64_t)
 #define DEFAULT_MAX_STACK_SIZE 262144
 typedef struct __stack {
-	int32_t* content;
+	int64_t* content;
 	unsigned int top_of_stack;
 	unsigned int stack_count;
 	unsigned int max_stack; 
 } vstack_t;
 typedef struct __stack_construct {
 	vstack_t* (*Create)(void);
-	int32_t(*Push)(vstack_t*, int32_t);
-	int32_t(*Pop)(vstack_t*);
-	int32_t(*Duplicate)(vstack_t*);
-	int32_t(*GetItem)(vstack_t*, unsigned int);
-	int(*SetItem)(vstack_t*, unsigned int, int32_t);
+	int(*Push)(vstack_t*, int64_t);
+	int64_t(*Pop)(vstack_t*);
+	int(*Duplicate)(vstack_t*);
+	int64_t(*GetItem)(vstack_t*, unsigned int);
+	int(*SetItem)(vstack_t*, unsigned int, int64_t);
 	void(*DestroyStack)(vstack_t*);
 } stack_construct;
 extern stack_construct Stack;
