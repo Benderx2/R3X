@@ -1,6 +1,7 @@
 include 'r3x_asm.pkg'
 format binary as 'ro'
 org 0
+_header:
 dd 0xDEADBEEF
 dd 0
 dd 0
@@ -16,6 +17,8 @@ dd _name_addr
 dd _pub_addr
 _name_addr: db 'Default Shared Library', 0
 _pub_addr: db 'No publisher', 0
+_end_header:
+times 4096-(_end_header - _header) db 0
 macro pushad val {
 	db 0x52
 	dd val
@@ -37,10 +40,15 @@ DECLARE_SECTION data
 DECLARE_SECTION bss
 DECLARE_SECTION export
 macro end {
+	align 4096
 	_text:
+	align 1
 	STORE_SECTION_text
+	align 4096
 	_end_text:
+	align 4096
 	_export:
+	align 1
 	STORE_SECTION_export
 	_end_export:
 	_data:
@@ -48,6 +56,7 @@ macro end {
 	_end_data:
 	_bss:
 	STORE_SECTION_bss
+	align 4096
 	_end_bss:
 }
 macro pushstring string {

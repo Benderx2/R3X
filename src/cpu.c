@@ -1076,7 +1076,9 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 				}
 				#else 
 					//int c = getchar();	
-					Stack.Push(CPU->Stack, getchar());
+					char a;
+					read(0, &a, 1);
+					Stack.Push(CPU->Stack, a);
 				#endif
 				
 			}

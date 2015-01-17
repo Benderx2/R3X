@@ -18,9 +18,11 @@ dd 0x0
 dd _end_bss - _begin
 dd REX_EXENAME
 dd REX_PUBNAME
-; End of header.
 REX_EXENAME: db 'Default REX Executable', 0
 REX_PUBNAME: db '<No publisher>', 0
+_end_begin:
+times 4096-(_end_begin - _begin) db 0
+; End of header.
 define R3_ERROR_CODE 0xFFFFFFFF
 ; File functions
 define SEEK_SET 0
@@ -56,23 +58,30 @@ DECLARE_SECTION data
 DECLARE_SECTION bss
 DECLARE_SECTION symbols
 macro end {
-	db '.##$text', 0
-	_init:
+	db 'TEXT'
+align 4096
+_init:
+	align 1
+	call __libR3X_init
 	jmp main
+; Code goes here.
 	STORE_SECTION_text
-	_end_text:
-	db '.##$data', 0
-	_data:
+align 4096
+_end_text:
+	align 1
+	db 'DATA'
+_data:
 	STORE_SECTION_data
-	_end_data:
-	db '.##$symbol', 0
-	_symbol_table:
+_end_data:
+	db 'SYMB'
+_symbol_table:
 	STORE_SECTION_symbols
-	_symbol_table_end:
-	db '.##$bss', 0
-	_bss:
+_symbol_table_end:
+	db '$BSS'
+_bss:
 	STORE_SECTION_bss
-	_end_bss:
+align 4096
+_end_bss:
 }
 macro function name {
 	local symnameaddr
@@ -291,4 +300,62 @@ __WaitKey:
 		ret
 macro import file {
 	include #file
+}
+.text {
+__libR3X_init:
+	; Do program initialization
+	pushr R0
+	pushr R1
+	; Clear BSS
+	loadr R0, _bss
+	loadr R1, 0
+	.cls_loop:
+	pushr R0
+	push _end_bss - _bss
+	cmp
+	popn 2
+	jge .done
+	stosb
+	jmp .cls_loop
+.done:
+	popr R1
+	popr R0
+	; Install handlers
+	push __invalid_access_handler
+	push INVALID_ACCESS
+	catch
+	push __invalid_opcode_handler
+	push INVALID_OPCODE
+	catch
+	push __invalid_mathop_handler
+	push INVALID_ARITH
+	catch
+	push __user_exception_handler
+	push R_EXCEP
+	catch
+	popn 8
+	ret
+	
+
+__invalid_access_handler:
+	pushstring "Program attempted an invalid memory access. (Segmentation Fault)"
+	jmp __handler_prologue
+
+__invalid_opcode_handler:
+	pushstring "Program tried to execute an invalid instruction. (Instruction Fetch Fault)"
+	jmp __handler_prologue
+	
+__invalid_mathop_handler:
+	pushstring "Program tried to do an invalid mathmatical computation. (Floating Point Fault)"
+	jmp __handler_prologue
+	
+__user_exception_handler:
+	pushstring "Program threw an exception, without assigning handler. (User Exception)"
+	
+__handler_prologue:
+	syscall SYSCALL_PUTS
+	pop
+	Console.WaitKey
+	push 1
+	exit
 }

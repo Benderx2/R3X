@@ -120,7 +120,7 @@ else
 	exit -1
 fi
 export LFLAGS="-lc -lm"
-export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a"
+export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o"
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
@@ -149,6 +149,7 @@ $AS programs/stack.il
 $AS programs/symbols.il
 $AS programs/nativelib.il
 $AS programs/jmp.il
+$AS programs/hello.il
 # now transfer it 
 mv rxvm $BINDIR/
 mv mylib.so $BINDIR/
@@ -162,6 +163,7 @@ mv programs/stack.exe $BINDIR/
 mv programs/symbols.exe ../disasm/
 mv programs/nativelib.exe $BINDIR/
 mv programs/jmp.exe $BINDIR/
+mv programs/hello.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 # remove all object files
