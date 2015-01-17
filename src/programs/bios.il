@@ -29,7 +29,7 @@ init:
 	loadr R20, 0
 	pushr R0
 	; Clear memory range 512-0x100000
-	loadr R0, 512
+	loadr R0, _MEM_AFTR
 	loadr R1, 0
 _clear_loop:
 	stosb
