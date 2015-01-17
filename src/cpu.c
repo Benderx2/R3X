@@ -115,7 +115,7 @@ int r3x_emulate_instruction(r3x_cpu_t*);
 // Keyboard Thread
 int keyboard_thread(void* data);
 
-int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
+int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 {
 	CPU->CPUClock = clock();
 	r3x_dispatch_job(BIOS_START, 1, CPU->RootDomain, true);
@@ -134,15 +134,14 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 		milliseconds = (1 / CPU->CPUFrequency);
 		printf("CPU Frequency %f\n", milliseconds);
 	}
-	while (CPU->InstructionPointer < CPU->MemorySize && code != CPU_EXIT_SIGNAL && code != CPU_INVALID_OPCODE_SIGNAL){
+	while (CPU->InstructionPointer < CPU->MemorySize){
 			if(milliseconds != 0) {
 				cpu_sleep(milliseconds, SLEEP_MILLISECONDS);
 			}
 			if(exitcalled == true) { 
 				break;
 			}
-			int i = r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
-			if(i != -1) {
+			if(r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID) != -1) {
 				code = r3x_emulate_instruction(CPU);
 				r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			}
@@ -157,9 +156,9 @@ int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header)
 	#endif
 	return 0;
 }
-int r3x_emulate_instruction(r3x_cpu_t* CPU)
+int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 {
-	CPU->CurrentInstruction = CPU->Memory[CPU->InstructionPointer];
+	//!CPU->CurrentInstruction = CPU->Memory[CPU->InstructionPointer];
 	switch (CPU->Memory[CPU->InstructionPointer])
 	{
 		// Sleep: Delays the CPU by a cycle. Also used by CPU to skip empty memory, as the opcode is 0x0
@@ -378,32 +377,32 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 			break;
 		//! Relative jumps
 		case R3X_JMPL:
-			CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU);
+			CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_JEL:
 			if(CPU->EqualFlag == true){
-				CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
 			break;
 		case R3X_JGL:
 			if(CPU->GreaterFlag == true){
-				CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
 			break;
 		case R3X_JLL:
 			if(CPU->LesserFlag == true){
-				CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
 			break;
 		case R3X_JZL:
 			if(CPU->ZeroFlag == true){
-				CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
@@ -895,7 +894,7 @@ int r3x_emulate_instruction(r3x_cpu_t* CPU)
 				// Show exit status
 				printf("Program exitted with status: %u\n", get_item_from_stack_top(1));		
 				r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
-				return CPU_EXIT_SIGNAL; // Main... exitted close everything and return...
+				exitcalled = true;
 			}
 			r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			return 0;

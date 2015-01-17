@@ -18,7 +18,7 @@ include 'libR3X/libR3X.pkg'
 	incr R7
 	; Is R7 == 10000000
 	pushr R7
-	push 100000000
+	push 10000000
 	cmps
 	popn 2
 	je .done
