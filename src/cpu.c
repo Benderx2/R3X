@@ -1239,10 +1239,14 @@ void pop_flags(r3x_cpu_t* CPU){
 }
 void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t ExceptionHandler){
 	if(ExceptionID > TOTAL_EXCEPTIONS){
+			#ifdef R_DEBUG
 			printf("Process %u tried to set an invalid exception handler\n", CPU->RootDomain->CurrentJobID);
+			#endif
 			return;
 	} else {
+			#ifdef R_DEBUG
 			printf("Process is setting exception handler %u to IP %u\n", ExceptionID, ExceptionHandler);
+			#endif
 			CPU->ExceptionHandlers[ExceptionID] = ExceptionHandler;
 	}
 }
