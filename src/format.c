@@ -27,6 +27,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include <r3x_cpu.h>
 #include <r3x_format.h>
 #include <nt_malloc.h>
 #include <big_endian.h>
@@ -71,6 +72,18 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 		nt_free(mem1);
 		return NULL;
 	}
+	//! Check for page alignment for text and data sections
+	#ifdef R3X_BIG_ENDIAN
+	if(BIG_ENDIAN_INT(header->r3x_init) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_text_size) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_data) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_data_size) % SEGMENT_SIZE != 0){
+		printf("Executable Sections not page aligned / contiguous. Corrupt or malicious executable.\n");
+		exit(EXIT_FAILURE);
+	}
+	#else
+	if((header->r3x_init) % SEGMENT_SIZE != 0 || (header->r3x_text_size) % SEGMENT_SIZE != 0 || (header->r3x_data) % SEGMENT_SIZE != 0 || (header->r3x_data - (header->r3x_bss + header->r3x_bss_size)) % SEGMENT_SIZE != 0){
+		printf("Executable sections not page aligned / contiguous. Corrupt or malicious executable.\n");
+		exit(EXIT_FAILURE);
+	}
+	#endif
 	// now get its' ACTUAL size and malloc (inclusive of bss and stack which are not included in the file)
 	#ifdef R3X_BIG_ENDIAN
 	uint8_t* mem2 = nt_malloc(PROG_EXEC_POINT + BIG_ENDIAN_INT(header->total_size));

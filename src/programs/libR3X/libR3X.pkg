@@ -70,6 +70,7 @@ align 4096
 _end_text:
 	align 1
 	db 'DATA'
+align 4096
 _data:
 	STORE_SECTION_data
 _end_data:
