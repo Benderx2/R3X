@@ -42,8 +42,8 @@ fi
 # Change this to your preferred level of optimization
 export OFLAGS="-O3 -fomit-frame-pointer -falign-functions -falign-loops -fconserve-stack -funsafe-math-optimizations -funsafe-loop-optimizations"
 # Change to empty if you don't want debugging information with the binary
-#export DFLAGS="-g -DR_DEBUG"
-export DFLAGS=""
+export DFLAGS="-g -DR_DEBUG"
+#export DFLAGS=""
 # DONT MODIFY
 export AS="fasm"
 export GLFLAGS=""

@@ -312,7 +312,8 @@ uint32_t dynamic_call(unsigned int libhandle, unsigned int functionhandle) {
 			 if(functionhandle <= lbstructs[libhandle]->function_count) {
 			 	#ifdef R3X_BIG_ENDIAN
 			 	return lbstructs[libhandle]->loadaddr + BIG_ENDIAN_INT(lbstructs[libhandle]->functions[functionhandle].instruction_pointer);
-			 	#else 
+			 	#else
+			 	printf("IP: %u\n", lbstructs[libhandle]->loadaddr + lbstructs[libhandle]->functions[functionhandle].instruction_pointer);
 				return lbstructs[libhandle]->loadaddr + lbstructs[libhandle]->functions[functionhandle].instruction_pointer;
 				#endif
 			 }

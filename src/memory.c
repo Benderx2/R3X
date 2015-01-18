@@ -10,8 +10,31 @@ r3x_memory_blocks* BuildMemoryBlock(unsigned int MemSize){
 	for(unsigned int i = 0; i < memroot->NumberOfBlocks; i++){
 		//! Mark all pages as NOEXIST
 		memroot->MemoryBlocks[i].Type = RX_NOEXIST;
+		memroot->MemoryBlocks[i].MemorySegment = i * SEGMENT_SIZE;
 	}
 	return memroot;
+}
+r3x_memory_blocks* RebuildMemoryBlock(r3x_memory_blocks* OldMemBlock, unsigned int MemSize){
+	r3x_memory_blocks* new_memroot = nt_malloc(sizeof(r3x_memory_blocks));
+	//! Allocate number of pages
+	unsigned int NumberOfPages = ((((MemSize & 0xFFFFF000) + SEGMENT_SIZE) / SEGMENT_SIZE));
+	new_memroot->NumberOfBlocks = NumberOfPages;
+	new_memroot->MemoryBlocks = nt_malloc(NumberOfPages * sizeof(r3x_mem_block));
+	for(unsigned int i = 0; i < OldMemBlock->NumberOfBlocks; i++){
+		new_memroot->MemoryBlocks[i].Type = RX_NOEXIST;
+		new_memroot->MemoryBlocks[i].MemorySegment = i * SEGMENT_SIZE;
+	}
+	for(unsigned int i = 0; i < OldMemBlock->NumberOfBlocks; i++){
+		if(i >= NumberOfPages){
+			break;
+		} else {
+			new_memroot->MemoryBlocks[i].Type = OldMemBlock->MemoryBlocks[i].Type;
+			new_memroot->MemoryBlocks[i].MemorySegment = OldMemBlock->MemoryBlocks[i].MemorySegment;
+		}
+	}
+	nt_free(OldMemBlock->MemoryBlocks);
+	nt_free(OldMemBlock);
+	return new_memroot;
 }
 int MemoryMap(r3x_memory_blocks* MemBlock, RX_MM_TYPE Type, unsigned int Start, unsigned int End){
 	if((Start - End % SEGMENT_SIZE) != 0){

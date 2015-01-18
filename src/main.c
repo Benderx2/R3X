@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
 	#else
 	r3_cpu->MemorySize = r3_header->total_size + PROG_EXEC_POINT;
 	#endif
+	r3_cpu->CPUMemoryBlocks = BuildMemoryBlock(r3_cpu->MemorySize);
 	r3_cpu->HeapAddr = r3_cpu->MemorySize;
-	printf("init: %u\n", r3_header->r3x_init);
 	r3_cpu->use_frequency = true;
 	r3_cpu->CPUFrequency = ChosenCPUFrequency;
 	if(ChosenCPUFrequency==0.0f){

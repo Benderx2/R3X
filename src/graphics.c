@@ -99,7 +99,7 @@ Graphics_t* InitGraphics(void)
 	graphics->CharMaxW = graphics->Width / graphics->FontSize;
 	graphics->CharMaxH = graphics->Height / graphics->FontSize;
 	graphics->FontScale = 1.0f;
-	graphics->TextBuf = &(r3_cpu->Memory[512]);
+	graphics->TextBuf = nt_malloc(graphics->Width*graphics->Height*sizeof(uint8_t));
 	graphics->TextOffset = 0;
 	glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

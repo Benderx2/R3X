@@ -96,7 +96,7 @@ typedef struct r3x_cpu {
 	uint64_t Regs[21];
 	uint32_t ExceptionHandlers[4];
 	// Global -- Thread Independent.
-	r3x_memory_blocks CPUMemoryBlocks;
+	r3x_memory_blocks* CPUMemoryBlocks;
 	double CPUClock;
 	uint8_t* Memory;
 	uint32_t ISR_handlers[256];
