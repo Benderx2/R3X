@@ -1113,7 +1113,7 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 					return;
 				}	
 				Stack.Push(CPU->Stack, CPU->MemorySize);
-				CPU->MemorySize += get_item_from_stack_top(1);
+				CPU->MemorySize += SEGMENT_SIZE;
 				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
 			}
 			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_DISPATCH) {

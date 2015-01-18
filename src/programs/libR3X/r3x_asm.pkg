@@ -18,13 +18,14 @@ define SYSCALL_WRITESTREAM 0xE
 define SYSCALL_TELLSTREAM 0xF
 define SYSCALL_GETCLOCK 0x10
 define SYSCALL_GETCLOCKSPERSEC 0x11
+define R3_PAGE_SIZE 4096
 define INVALID_ACCESS 0
 define INVALID_OPCODE 1
 define INVALID_ARITH 3
 define R_EXCEP 2
 define __REX_WORD 4
 define __REX_8 1
-define __REX_8 2
+define __REX_16 2
 define __REX_32 4
 define byte __REX_8
 define word __REX_16

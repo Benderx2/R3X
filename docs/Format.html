@@ -99,6 +99,7 @@ uint32_t nameaddr
 uint32_t startIP
 uint32_t endIP
 </pre>
+The sections must be contiguous and page-aligned (4096 = per page) aligned. libR3X does this through filling up zeroes and making addresses page aligned..<br>
 Note that the symbol table is only <b>specific</b> to R3X executables, the R3X Dynamic linking system uses export tables, which are<br>
 a more efficient and less space consuming way, albeit less descriptive.<br>
 The R3X debugger command, "readsym" can be used to parse symbols, also the "readrex" utility can also be used to parse symbols<br>

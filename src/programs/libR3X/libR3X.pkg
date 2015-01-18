@@ -182,10 +182,8 @@ macro System.LibraryCall functioname, libname {
 	pop 
 	pop 
 }
-macro System.AllocateMemory size {
-	push size
+macro System.AllocatePage {
 	syscall SYSCALL_ALLOC
-	pop
 }
 macro System.DispatchJob ip { 
 	push ip

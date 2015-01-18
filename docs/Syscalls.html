@@ -20,7 +20,7 @@ The following system calls are to be defined in every implementation which confo
 <b><i>SYSCALL_PUTI/SYSCALL_PUTF</i></b> - Print an integer/float pushed to stack to stdout or any other graphics device assumed to be stdout<br>
 <b><i>SYSCALL_GETC</i></b> - Get a character from stdin or an input device assumed to be stdin.<br>
 <b><i>SYSCALL_ATOI</i></b> - Convert string which is pointed by the last value pushed to stack, and push the converted value to stack. <br>
-<b><i>SYSCALL_ALLOC</b></i> - Allocate memory and push address to stack, size should be pushed on stack. No longer than 4096 bytes must be allocated at once, This ensures that allocations are not erroneous.<br>
+<b><i>SYSCALL_ALLOC</b></i> - Allocate one page. The size of one segment is implementation defined. All implementations are required to define a constant "R3_SEGMENT_SIZE"<br>
 <b><i>SYSCALL_DISPATCH</i></b> - Dispatch a background job, whose instruction pointer is pushed to stack.<br>
 <b><i>SYSCALL_LOADDYANMIC</i></b> - Load a dynamic library and push it's handle.<br>
 <b><i>SYSCALL_OPENSTREAM</i></b> - Opens a stream, whose name is pushed to stack, and then pushes the file handle to stack.<br>

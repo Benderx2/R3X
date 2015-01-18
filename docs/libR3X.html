@@ -24,7 +24,7 @@ The current implementation provides the following functions:<br>
 <b>Console.GetInput size, addr</b> - Get input from console into string pointed by "addr", with size "size".
 <b>Memcpy dest, src, len</b> - Copies a chunk of memory.
 <b>MemcpyR</b> - Copies a chunck of memory but uses registers. R0 = dest, R1 = src, R2 = len
-<b>System.AllocateMemory size</b> - Allocate system memory, no more than 4096 bytes at once.
+<b>System.AllocatePage</b> - Allocate 1 segment of memory.
 <b>System.Quit status</b> - Quit with Status.
 <b>Stack.Push, Stack,Pop, Stack.PushRegister, Stack.PopRegister</b> - Class based push, pop, pushr and popr functions.
 <b>StoreInt addr, int | StoreByte addr, byte</b> Stores an 8/32-bit value in "int" to address pointed by "addr"

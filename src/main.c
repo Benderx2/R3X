@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 	r3_cpu->MemorySize = BIG_ENDIAN_INT(r3_header->total_size) + PROG_EXEC_POINT;
 	r3_header->r3x_init = BIG_ENDIAN_INT(r3_header->r3x_init);
 	#else
-	r3_cpu->MemorySize = r3_header->total_size + PROG_EXEC_POINT;
+	r3_cpu->MemorySize = ((r3_header->total_size + PROG_EXEC_POINT)&0xFFFFF000)+SEGMENT_SIZE;
 	#endif
 	r3_cpu->CPUMemoryBlocks = BuildMemoryBlock(r3_cpu->MemorySize);
 	r3_cpu->HeapAddr = r3_cpu->MemorySize;
