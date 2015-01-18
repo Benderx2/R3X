@@ -74,8 +74,8 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	}
 	//! Check for page alignment for text and data sections
 	#ifdef R3X_BIG_ENDIAN
-	if(BIG_ENDIAN_INT(header->r3x_init) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_text_size) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_data) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_data_size) % SEGMENT_SIZE != 0){
-		printf("Executable Sections not page aligned / contiguous. Corrupt or malicious executable.\n");
+	if(BIG_ENDIAN_INT(header->r3x_init) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_text_size) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_data) % SEGMENT_SIZE != 0 || ((BIG_ENDIAN_INT(header->r3x_data) - (BIG_ENDIAN_INT(header->r3x_bss) + BIG_ENDIAN_INT(header->r3x_bss_size)))) % SEGMENT_SIZE != 0){
+		printf("Executable Sections not page aligned / contiguous. Corrupt or malicious executable. [BE]\n");
 		exit(EXIT_FAILURE);
 	}
 	#else

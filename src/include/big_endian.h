@@ -42,5 +42,15 @@ static inline uint32_t BIG_ENDIAN_INT (uint32_t i) {
    return convswap;
    #endif 
 }
+static inline uint16_t BIG_ENDIAN_INT16 (uint16_t i){
+	#ifdef __GNUC__
+	return (uint16_t)__builtin_bswap16(i);
+	#else
+	return (uint16_t)((i>>8) | (i<<8));
+	#endif
+}
+#else
+#define BIG_ENDIAN_INT(x) (x)
+#define BIG_ENDIAN_INT16(x) (x)
 #endif
 #endif

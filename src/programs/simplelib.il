@@ -22,7 +22,7 @@ myfunc1:
 }
 .data {
 	str01: db 'Hello from dynamic library! I can read stuff from addresses! word_data=',  0
-	word_data: dw 65532
+	word_data: dw 212
 	dd 0xFFF3FFFF
 }
 end

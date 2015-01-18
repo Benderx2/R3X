@@ -3,17 +3,10 @@ import 'simplelib.pkg'
 import 'libR3X/corelib.pkg'
 .text {
 	function main
-	pushf
-	push 37
-	push 37
-	cmps
-	loadr R0, 27
-	sete R0
-	pushr R0
-	syscall SYSCALL_PUTI
-	popn 3 
-	popf
-	syscall SYSCALL_PUTI
+	Console.Write "Allocating Page, page address: "
+	System.AllocatePage
+	Console.WriteInt
+	Console.NewLine
 	Console.Write "Calling Dynamic Library (simplelib.ro)"
 	Console.NewLine
 	loadsimplelib

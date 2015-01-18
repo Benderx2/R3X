@@ -46,13 +46,13 @@ macro end {
 	STORE_SECTION_text
 	align 4096
 	_end_text:
-	_export:
-	align 1
-	STORE_SECTION_export
-	_end_export:
+	align 4096
 	_data:
 	STORE_SECTION_data
 	_end_data:
+	_export:
+	STORE_SECTION_export
+	_end_export:
 	_bss:
 	STORE_SECTION_bss
 	align 4096

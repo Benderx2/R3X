@@ -62,8 +62,19 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 	#endif
 	{
 		printf("Invalid dynamic object file. ABORTING..\n");
-		exit(0);
+		exit(EXIT_FAILURE);
 	}
+	#ifdef R3X_BIG_ENDIAN
+	if(BIG_ENDIAN_INT(dyn_header->text_section) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(dyn_header->text_size) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(dyn_header->data_section) % SEGMENT_SIZE != 0 || (BIG_ENDIAN_INT(dyn_header->data_section) - BIG_ENDIAN_INT((BIG_ENDIAN_INT(dyn_header->bss_section) + BIG_ENDIAN_INT(dyn_header->data_section)))) % SEGMENT_SIZE != 0){
+		printf("Executable Sections not page aligned / contiguous. Corrupt or malicious executable.\n");
+		exit(EXIT_FAILURE);
+	}
+	#else
+	if((dyn_header->text_section) % SEGMENT_SIZE != 0 || (dyn_header->text_size) % SEGMENT_SIZE != 0 || (dyn_header->data_section) % SEGMENT_SIZE != 0 || (dyn_header->data_section - (dyn_header->bss_section + dyn_header->bss_size)) % SEGMENT_SIZE != 0){
+		printf("Executable sections not page aligned / contiguous. Corrupt or malicious executable.\n");
+		exit(EXIT_FAILURE);
+	}
+	#endif
 	// Now modify the library since it assumes no loadpoint...
 	#ifdef R3X_BIG_ENDIAN
 	uint32_t i = BIG_ENDIAN_INT(dyn_header->text_section);

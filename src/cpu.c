@@ -452,7 +452,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;			
 			}
-			CPU->Regs[1] = *((uint16_t*)(&CPU->Memory[CPU->Regs[0]]));
+			CPU->Regs[1] = BIG_ENDIAN_INT16(*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LODSD:
@@ -460,7 +460,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;		
 			}
-			CPU->Regs[1] = *((uint32_t*)(&CPU->Memory[CPU->Regs[0]]));
+			CPU->Regs[1] = BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_STOSB:
@@ -476,7 +476,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
-			*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])) = CPU->Regs[1];
+			*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT16(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_STOSD:
@@ -484,7 +484,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
-			*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])) = CPU->Regs[1];
+			*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSB:
@@ -525,7 +525,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
-			*((uint16_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = CPU->Regs[1];
+			*((uint16_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = BIG_ENDIAN_INT16(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_STOSD_RELOC:
@@ -533,7 +533,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
-			*((uint32_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = CPU->Regs[1];
+			*((uint32_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = BIG_ENDIAN_INT(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSD_RELOC:
@@ -541,7 +541,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;			
 			}
-			CPU->Regs[1] = *((uint32_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)]));
+			CPU->Regs[1] = BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)])));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSW_RELOC:
@@ -549,7 +549,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;		
 			}
-			CPU->Regs[1] = *((uint16_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)]));
+			CPU->Regs[1] = BIG_ENDIAN_INT16(*((uint16_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)])));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSB_RELOC:
