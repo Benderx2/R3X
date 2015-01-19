@@ -40,6 +40,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
 #endif
+#ifdef REX_OPTIMIZE
+#include <pthread.h>
+#endif
 // Unions to make life easier
 typedef union __32bit_typecast {
 	uint32_t __num32;
@@ -111,13 +114,13 @@ bool     test_bit32(uint32_t, int);
 
 // CPU Emulation Funciton
 int r3x_emulate_instruction(r3x_cpu_t*);
+void* CPUDispatchThread(void*);
 
 // Keyboard Thread
 int keyboard_thread(void* data);
 
 int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 {
-	CPU->CPUClock = clock();
 	r3x_dispatch_job(BIOS_START, 1, CPU->RootDomain, true);
 	CPU->RootDomain->CurrentJobID = 0;
 	r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
@@ -128,20 +131,27 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 	SDL_Thread *kthread = NULL;
 	kthread = SDL_CreateThread(keyboard_thread, NULL );
 	#endif
+	#ifdef REX_OPTIMIZE
+	pthread_t CPUDispatchThread_handle;
+	if(pthread_create(&CPUDispatchThread_handle, NULL, &CPUDispatchThread, (void*)CPU) == -1){
+		printf("Unable to create tertiary CPU thread!\n");
+		exit(EXIT_FAILURE);
+	}
+	#endif
 	double milliseconds = 0;
 	if(CPU->use_frequency == true){
 		milliseconds = (1 / CPU->CPUFrequency);
 		printf("CPU Frequency %f\n", milliseconds);
 	}
-	while (CPU->InstructionPointer < CPU->MemorySize){
+	struct timespec tp;
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp);
+	CPU->CPUClock = tp.tv_sec * CLOCKS_PER_SEC;
+	while (exitcalled == false){
 			#ifdef R_DEBUG
 			if(milliseconds != 0) {
 				cpu_sleep(milliseconds, SLEEP_MILLISECONDS);
 			}
 			#endif
-			if(exitcalled == true) { 
-				break;
-			}
 			if(r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID) != -1) {
 				r3x_emulate_instruction(CPU);
 				r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
@@ -154,6 +164,9 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 	// Kill it, We're done.
 	#ifdef REX_GRAPHICS
 	SDL_KillThread(kthread);
+	#endif
+	#ifdef REX_OPTIMIZE
+	pthread_kill(CPUDispatchThread_handle, SIGKILL);
 	#endif
 	return 0;
 }
@@ -898,7 +911,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				exitcalled = true;
 			}
 			r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
-			return 0;
+			return CPU_EXIT_SIGNAL;
 		default:
 			printf("Unknown Opcode: %x, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);
 			handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
@@ -1027,22 +1040,23 @@ int keyboard_thread(void* data) {
 	#endif
 	return 0;
 }
-void r3x_syscall(r3x_cpu_t* CPU) { 
-		if (CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTS){
+void r3x_syscall(r3x_cpu_t* CPU) {
+		char buffer[33];
+		switch (CPU->Memory[CPU->InstructionPointer+1]){
+			case SYSCALL_PUTS:
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
-					return;
+					break;
 				}
 				#ifdef REX_GRAPHICS
 				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + get_item_from_stack_top(1)), CPU->Graphics);	
 				#else
 				printf("%s", (char*)(CPU->Memory + get_item_from_stack_top(1)));
 				#endif
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTI){
-				 char buffer[33];
+				break;
+			case SYSCALL_PUTI:
 				 memset(buffer, 0, 33);
 				 printfstring(buffer, "%u ", (unsigned int)get_item_from_stack_top(1));
 				 #ifdef REX_GRAPHICS
@@ -1050,19 +1064,17 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 				 #else
 				 printf("%s", buffer);
 				 #endif
-
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTF){
-				char buffer[33];
+				 break;
+			case SYSCALL_PUTF:
 				memset(buffer, 0, 33);
 				printfstring(buffer, "%f ", (float)return_float(get_item_from_stack_top(1)));
-				 #ifdef REX_GRAPHICS
-				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
-				 #else
-				 printf("%s", buffer);
-				 #endif
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETC){
+				#ifdef REX_GRAPHICS
+				vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
+				#else
+				printf("%s", buffer);
+				#endif
+				break;
+			case SYSCALL_GETC:
 				#ifdef REX_GRAPHICS
 				// Ensure the there !IS! a keyboard interrupt, our thread will set the is_read value to false if there is.
 				if(is_read == false) {
@@ -1080,105 +1092,107 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 					read(0, &a, 1);
 					Stack.Push(CPU->Stack, a);
 				#endif
-				
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GLUPDATE){
+				break;
+			case SYSCALL_GLUPDATE:
 				#ifdef REX_GRAPHICS
 				gl_text_update(CPU->Graphics);
 				#endif		
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_PUTCH){
+				break;
+			case SYSCALL_PUTCH:
 				#ifdef REX_GRAPHICS
 				vm_putc((char)get_item_from_stack_top(1), CPU->Graphics);
 				gl_text_update(CPU->Graphics);			
 				#else
 				printf("%c", (char)get_item_from_stack_top(1));
 				#endif
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ATOI) {
+				break;
+			case SYSCALL_ATOI:
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
 					return;
 				}
-				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[get_item_from_stack_top(1)]));			
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_ALLOC) { 
+				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[get_item_from_stack_top(1)]));
+				break;
+			case SYSCALL_ALLOC: 
 				if((unsigned int)get_item_from_stack_top(1) > 4096) { 
 					printf("Attempt to allocate memory more than 4096 bytes at once\n");
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
-					return;
-				}	
+					break;
+				}
 				Stack.Push(CPU->Stack, CPU->MemorySize);
 				CPU->MemorySize += SEGMENT_SIZE;
 				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_DISPATCH) {
+				break;
+			case SYSCALL_DISPATCH:
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
-					return;
+					break;
 				}
 				r3x_dispatch_job(get_item_from_stack_top(1), 1, CPU->RootDomain, true);
-							
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_LOADDYNAMIC) { 
+				break;
+			case SYSCALL_LOADDYNAMIC:
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
-					return;
+					break;
 				}
 				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU));			
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_OPENSTREAM) { 
+				break;
+			case SYSCALL_OPENSTREAM:
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
-					return;
+					break;
 				}
 				Stack.Push(CPU->Stack, stream_open((char*)(&CPU->Memory[get_item_from_stack_top(1)])));
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_CLOSESTREAM) { 
+				break;
+			case SYSCALL_CLOSESTREAM:
 				stream_close((unsigned int)get_item_from_stack_top(1));
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_SEEKSTREAM) {
+				break;
+			case SYSCALL_SEEKSTREAM:
 				stream_seek((unsigned int)get_item_from_stack_top(3), (long int)get_item_from_stack_top(2), get_item_from_stack_top(1));
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_READSTREAM) {
+				break;
+			case SYSCALL_READSTREAM:
 				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) { 
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
-					return;
+					break;
 				}
 				Stack.Push(CPU->Stack, stream_read((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_WRITESTREAM) {
+				break;
+			case SYSCALL_WRITESTREAM:
 				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) { 
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
-					return;
+					break;
 				}
 				Stack.Push(CPU->Stack, stream_write((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETCPUCLOCK){
-				CPU->CPUClock = (clock() - CPU->CPUClock);
+				break;
+			case SYSCALL_GETCPUCLOCK:
+				(void)NULL;
+				struct timespec tp;
+				clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp);
+				CPU->CPUClock = (tp.tv_sec * CLOCKS_PER_SEC - CPU->CPUClock);
 				Stack.Push(CPU->Stack, return_int_from_float((float)CPU->CPUClock));
-			}
-			else if(CPU->Memory[CPU->InstructionPointer+1] == SYSCALL_GETCLOCKSPERSEC){
-				CPU->CPUClock = (clock() - CPU->CPUClock);
+				break;
+			case SYSCALL_GETCLOCKSPERSEC:
 				Stack.Push(CPU->Stack, return_int_from_float((float)CLOCKS_PER_SEC));
-			}
-			else {
+				break;
+			default:
 				printf("Invalid Argument passed to syscall\n");
-			}
+				break;
+	}
+	return;
 }
 uint32_t set_bit32(uint32_t num, int bit){
 	num |= 1 << bit;
@@ -1281,3 +1295,13 @@ void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
 		return;
 	}
 }
+#ifdef REX_OPTIMIZE
+void* CPUDispatchThread(void* ptr){
+	r3x_cpu_t* CPU = (r3x_cpu_t*)ptr;
+	while(true){
+		if(CPU->InstructionPointer > CPU->MemorySize){
+			exitcalled = true;
+		}
+	}
+}
+#endif

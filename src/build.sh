@@ -39,6 +39,16 @@ then
 else 
 export USEDYNAMIC="yes"
 fi
+# Check for optimize options
+if [ "$4" == "useoptimize=yes" ]
+then
+	export USEOPTIMIZE="yes"
+elif [ "$4" == "useoptimize=no" ] 
+then
+	export USEOPTIMIZE=""
+else 
+	export USEOPTIMIZE="yes"
+fi
 # Change this to your preferred level of optimization
 export OFLAGS="-O3 -fomit-frame-pointer -falign-functions -falign-loops -fconserve-stack -funsafe-math-optimizations -funsafe-loop-optimizations"
 # Change to empty if you don't want debugging information with the binary
@@ -65,6 +75,11 @@ if [ "$USEDYNAMIC" == "yes" ]
 	 export USEDYNAMIC="-D REX_DYNAMIC"
 	 export DYNAMICFLAGS="-ldl -rdynamic"
 	 export DYNAMIC_FILES="native.o"
+fi
+if [ "$USEOPTIMIZE" == "yes" ]
+	then
+	 export USEOPTIMIZE="-D REX_OPTIMIZE"
+	 export OPTIMIZEFLAGS="-lpthread"
 fi
 if [ "$TARGET" == "x86_64" ]
 	then
@@ -124,7 +139,7 @@ export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
-export CCFLAGS="$ARCHID $USEDYNAMIC $USEGL $ENDIANFLAGS $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS"
+export CCFLAGS="$ARCHID $USEDYNAMIC $USEGL $USEOPTIMIZE $ENDIANFLAGS $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS"
 # compile VM
 for i in *.c
 do
@@ -132,7 +147,7 @@ do
    $CC $CCFLAGS -c $i -o ${i%.c}.o
    set +x
 done
-$CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS $DYNAMICFLAGS
+$CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS $DYNAMICFLAGS $OPTIMIZEFLAGS
 $CC -c -Wall -Werror -fpic ./programs/rex/stack.c -o vstack.o
 $CC -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o
 $CC -shared -o mylib.so ./mylib.o vstack.o -lc -lm -Wl,-no-whole-archive

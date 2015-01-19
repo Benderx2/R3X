@@ -18,7 +18,7 @@ In order to build it properly on your system, follow the instructions below: <br
 3. Next install the required libraries: libSDL, libSDL_ttf, and OpenGL for the target<br>
 4. With the 0.71b build script, you can simply build using<br>
 <pre>
-./build.sh arch=&lt;archname&gt; usegl=yes/no usedynamic=yes/no
+./build.sh arch=&lt;archname&gt; usegl=yes/no usedynamic=yes/no useoptimize=yes/no
 </pre>
 Here is the description of what you may need to modify in the build script for non-developmental purposes<br>
 <pre>export TARGET="ARCHNAME"</pre><br>
@@ -33,6 +33,8 @@ ppc - 32/64-bit PPC Linux (Depending upon toolchain)<br>
 Set to empty ("") if you don't want to use graphical features of REX (note: This currently has bugs, especially with multithreading, which need to be fixed)<br>
 <pre>export USEDYNAMIC="yes"</pre>
 Set to empty ("") if you don't want to use dynamic linking with native libraries for REX.<br>
+<pre>export USEOPTIMIZE="yes"</pre>
+Set to empty ("") if you don't want to use internal untested optimizations. (Required pthread support)<br>
 <pre>export OFLAGS="-O2"</pre>
 Optimization flags, set to -O0 for no optimization, -O3 for better optimization<br>
 <pre>export DFLAGS="-g"</pre>
