@@ -74,7 +74,7 @@ SDL_Event key_event = {SDL_USEREVENT};
 #endif
 
 // Helpful macros
-#define get_item_from_stack_top(x) Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-x)
+#define get_item_from_stack_top(x) (uint64_t)Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack-x)
 #define cpu_sleep(time, unit) usleep(time*unit)
 
 

@@ -1,0 +1,66 @@
+this is probably going to contain a few notes, that i wrote while building this compiler.
+
+firstly there is the source file, which may contain expressions like this, for example:
+
+int i = (2 * 5 + 7/(8 + (32*64)));
+
+statements like these are separated by a semicolon ";", which indicates the end of a statement.
+
+when the program receives input, it first passes it to the preprocessor, which does trivial operators like replacing
+text, including different files as per required by the program etc. the output of the preprocessor is then passed to
+the tokenizer.
+
+The tokenizer will then format input like this:
+int
+i
+=
+(
+2
+*
+5
++
+7
+/
+(
+8
++
+(
+32
+*
+64
+)
+)
+)
+
+also the tokenizer has the ability to eat comments (starting from "/*" to ending at "*/"), and also pickup strings, like:
+char* a = "hello, world"
+which is then tokenized like:
+
+char
+*
+a
+=
+"hello, world"
+
+next is the scanner, this will generate a table like this:
+
+i -> Identifier
+= -> Assignment
+( -> Block Indicator
+2 -> Literal
+* -> Operator
+5 -> Literal 
++ -> Operator
+7 -> Literal
+/ -> Operator
+( -> Block Indicator
+8 -> Literal
++ -> Operator
+( -> Block Indicator
+32 -> Block Indicator
+* ->  Operator
+64 -> Literal
+) -> Block Indicator
+) -> Block Indicator
+) -> Block Indicator
+; -> End Statement
