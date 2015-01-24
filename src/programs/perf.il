@@ -12,15 +12,13 @@ include 'libR3X/libR3X.pkg'
 	; Push R7
 	pushr R7
 	fsqrt
-	; Pop everything 
-	popn 2
 	; Increment R7
 	incr R7
 	; Is R7 == 10000000
 	pushr R7
 	push 10000000
-	cmps
-	popn 2
+	cmp
+	popn 4
 	je .done
 	jmp .do_perf_test
 .done:

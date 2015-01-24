@@ -294,6 +294,7 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 		lbstructs = nt_realloc(lbstructs, sizeof(libimport_struct*)*(total_number_of_structs+16));
 		total_number_of_structs += 16;
 	}
+	totalsize =  (totalsize & 0xFFFFF000)+SEGMENT_SIZE;
 	CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize+totalsize);
 	memcpy(&CPU->Memory[CPU->MemorySize], temp, totalsize);
 	nt_free(temp);
