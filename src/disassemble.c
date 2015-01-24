@@ -1,32 +1,35 @@
 #include <r3x_disassemble.h>
-void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionheader){
+void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionheader, uint32_t memaddr){
 	unsigned int i = 0;
+	unsigned int j = memaddr;
 	unsigned int domain_num = 0;
 	fprintf(output, "%s\n", sectionheader);
 	while(i < size){
+	printf("0x%X: ", j);
+	j++;
 	switch(input[i]) {
 			case R3X_CALL:
-				fprintf(output, "call %u ; Call a subroutine\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "call 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JMP:
-				fprintf(output, "jmp %u ; Load PC with immediate\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jmp 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JE:
-				fprintf(output, "je %u\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "je 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JL:
-				fprintf(output, "jl %u\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jl 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JG:
-				fprintf(output, "jg %u\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jg 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;	
 			case R3X_JZ:
-				fprintf(output, "jz %u\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jz 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_PUSH:
@@ -215,7 +218,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				i++;
 				break;
 			case R3X_PUSHA:
-				fprintf(output, "pusha %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "pusha 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_LOADI:

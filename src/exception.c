@@ -183,7 +183,7 @@ void debugger(void) {
 				if(a1 + a2 >= r3_cpu->MemorySize) {
 					printf("Invalid size/instruction pointer");
 				} else {
-					disassemble(&(r3_cpu->Memory[a1]), a2, stdout, "Disassembler Output: ");
+					disassemble(&(r3_cpu->Memory[a1]), a2, stdout, "Disassembler Output: ", a1);
 				}
 			}
 		} else if(strncmp(input, "readsym", 7)==0){

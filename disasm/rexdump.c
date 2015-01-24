@@ -147,27 +147,27 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 	while(i < size){
 	switch(input[i]) {
 			case R3X_CALL:
-				fprintf(output, "call %u ; Call a subroutine\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "call 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JMP:
-				fprintf(output, "jmp %u ; Load PC with immediate\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jmp 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JE:
-				fprintf(output, "je %u\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "je 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JL:
-				fprintf(output, "jl %u\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jl 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JG:
-				fprintf(output, "jg %u\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jg 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;	
 			case R3X_JZ:
-				fprintf(output, "jz %u\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jz 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_PUSH:
@@ -356,7 +356,7 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				i++;
 				break;
 			case R3X_PUSHA:
-				fprintf(output, "pusha %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "pusha 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_LOADI:
@@ -471,6 +471,10 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				fprintf(output, "setl R%u\n", (uint8_t)input[i+1]);
 				i += 2;
 				break;
+			case R3X_FPOW:
+				fprintf(output, "fpow\n");
+				i += 1;
+				break;
 			case R3X_FSINH:
 				fprintf(output, "fsinh\n");
 				i++;
@@ -517,7 +521,6 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				break;
 			case R3X_FSQRT:
 				fprintf(output, "fsqrt\n");
-				i++;
 				break;
 			case R3X_JMPL:
 				fprintf(output, "jmpl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));

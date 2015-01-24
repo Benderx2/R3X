@@ -8,5 +8,5 @@
 #else
 #define BYTE_SWAP(x) (x)
 #endif
-void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionheader);
+void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionheader, uint32_t memaddr);
 #endif

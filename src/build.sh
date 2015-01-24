@@ -175,7 +175,7 @@ mv programs/exception.exe $BINDIR/
 mv programs/overflow.exe $BINDIR/
 mv programs/perf.exe $BINDIR/
 mv programs/stack.exe $BINDIR/
-mv programs/symbols.exe ../disasm/
+#mv programs/symbols.exe ../disasm/
 mv programs/nativelib.exe $BINDIR/
 mv programs/jmp.exe $BINDIR/
 mv programs/hello.exe $BINDIR/
