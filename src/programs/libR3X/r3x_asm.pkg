@@ -428,11 +428,14 @@ macro jll addr {
 	dd addr
 }
 macro jzl addr {
-	db 0x86
+	db 0x87
 	dd addr
 }
 macro puship {
 	db 0x86
+}
+macro ars {
+	db 0x89
 }
 macro loadrm size, reg1, memaddr {
 	pushr R0

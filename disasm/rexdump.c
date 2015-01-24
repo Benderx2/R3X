@@ -546,6 +546,10 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				fprintf(output, "puship\n");
 				i++;
 				break;
+			case R3X_ARS:
+				fprintf(output, "ars\n");
+				i++;
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;

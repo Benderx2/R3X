@@ -101,7 +101,7 @@ values in radians<br>
 <b>store</b> - Store the value last pushed to stack, to the address, pushed second last (32-bit)
 <b>stores</b> <i>imm</i> - Store the value pushed to stack to CPU->Stack[top of stack - imm]. (32-bit)
 <b>storesr</b> <i>register index</i>: Store the value pushed to stack to CPU->Stack[top of stack - valueofregister(register index)] (32-bit)
-<b>or, xor, and</b> - Does the apporpriate bitwise operation on the last 2 values pushed to stack and pushes the result.
+<b>or, xor, and, ars [Arithmetic right shift]</b> - Does the apporpriate bitwise operation on the last 2 values pushed to stack and pushes the result. [First operand pushed to stack is the number, second is the bits to shift/or etc.]
 <b>neg, not</b> - Does the appropriate bitwise operation on the last value pushed to stack and pushes the result.
 <b>ror, rol</b> - Rotates the integer pushed second last by number of bits pushed last, and pushes result.
 <b>call</b> <i>imm</i> - Push return value to stack and jump to imm. (ABSOLUTE)

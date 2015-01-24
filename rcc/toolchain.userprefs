@@ -1,9 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="cc/Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="cc/Scanner.cs">
     <Files>
-      <File FileName="cc/Program.cs" Line="18" Column="7" />
-      <File FileName="cc/Scanner.cs" Line="1" Column="1" />
+      <File FileName="cc/Program.cs" Line="17" Column="44" />
+      <File FileName="cc/Scanner.cs" Line="13" Column="36" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

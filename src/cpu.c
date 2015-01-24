@@ -84,32 +84,32 @@ SDL_Event key_event = {SDL_USEREVENT};
 
 
 // <type>-to-uint32 helpers
-uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
-uint32_t return_32bit_int_from_ip(r3x_cpu_t*);
-float return_float(uint32_t);
-uint32_t return_int_from_float(float);
+static inline uint32_t return_32bit_int(uint8_t, uint8_t, uint8_t, uint8_t);
+static inline uint32_t return_32bit_int_from_ip(r3x_cpu_t*);
+static inline float return_float(uint32_t);
+static inline uint32_t return_int_from_float(float);
 
 
 // Flag push/pop/compare and helper functions
-void push_flags(r3x_cpu_t*);
-void pop_flags(r3x_cpu_t*);
-void compare_and_set_flag_signed(r3x_cpu_t*, int, int);
-void compare_and_set_flag_unsigned(r3x_cpu_t*, unsigned int, unsigned int);
-void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
+static inline void push_flags(r3x_cpu_t*);
+static inline void pop_flags(r3x_cpu_t*);
+static inline void compare_and_set_flag_signed(r3x_cpu_t*, int, int);
+static inline void compare_and_set_flag_unsigned(r3x_cpu_t*, unsigned int, unsigned int);
+static inline void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
 void handle_cpu_exception(r3x_cpu_t*, unsigned int);
 void set_exception_handlers(r3x_cpu_t*, unsigned int, uint32_t);
-void r3x_syscall(r3x_cpu_t* CPU);
-
+static inline void r3x_syscall(r3x_cpu_t* CPU);
+static inline int64_t r3x_ars(int64_t x, int64_t n);
 
 // Something to print string to buffer
-void printfstring(char*, const char * format, ... );
+static inline void printfstring(char*, const char * format, ... );
 
 
 // Let's call it, uh, bitutils? ;)
-uint32_t set_bit32(uint32_t, int);
-uint32_t unset_bit32(uint32_t, int);
-uint32_t toggle_bit32(uint32_t, int);
-bool     test_bit32(uint32_t, int);
+static inline uint32_t set_bit32(uint32_t, int);
+static inline uint32_t unset_bit32(uint32_t, int);
+static inline uint32_t toggle_bit32(uint32_t, int);
+static inline bool     test_bit32(uint32_t, int);
 
 
 // CPU Emulation Funciton
@@ -705,6 +705,10 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			Stack.Push(CPU->Stack, ROL_C(get_item_from_stack_top(2), get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_ARS:
+			Stack.Push(CPU->Stack, (uint64_t)r3x_ars(get_item_from_stack_top(2), get_item_from_stack_top(1)));
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		case R3X_PUSHA:
 			Stack.Push(CPU->CallStack, return_32bit_int_from_ip(CPU));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
@@ -919,7 +923,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 	}
 	return 0;
 }
-uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
+static inline uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 {
 	register __32bit_typecast temp_typecast32;
 	temp_typecast32.__num32 = 0;
@@ -929,14 +933,14 @@ uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 	temp_typecast32.__num8.d = d;
 	return temp_typecast32.__num32;
 }
-float return_float(uint32_t num32)
+static inline float return_float(uint32_t num32)
 {	
 	register __float_typecast temp_typecastFL;;
 	temp_typecastFL.float32 = 0.0f;
 	temp_typecastFL.__num32 = num32;
 	return temp_typecastFL.float32;
 }
-uint32_t return_int_from_float(float fl32)
+static inline uint32_t return_int_from_float(float fl32)
 {
 	register __float_typecast temp_typecastFL;
 	temp_typecastFL.float32 = 0.0f;
@@ -944,20 +948,15 @@ uint32_t return_int_from_float(float fl32)
 	temp_typecastFL.float32 = fl32;
 	return temp_typecastFL.__num32;
 }
-uint32_t return_32bit_int_from_ip(r3x_cpu_t* CPU)
+static inline uint32_t return_32bit_int_from_ip(r3x_cpu_t* CPU)
 {
-	/*register uint8_t a = CPU->Memory[CPU->InstructionPointer+1];
-	register uint8_t b = CPU->Memory[CPU->InstructionPointer+2];
-	register uint8_t c = CPU->Memory[CPU->InstructionPointer+3];
-	register uint8_t d = CPU->Memory[CPU->InstructionPointer+4];
-	return return_32bit_int(a, b, c, d);*/
 	#ifndef R3X_BIG_ENDIAN
 	return *((uint32_t*)(&CPU->Memory[CPU->InstructionPointer+1]));
 	#else
 	return BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->InstructionPointer+1])));
 	#endif
 }
-void compare_and_set_flag_signed(r3x_cpu_t* CPU, signed int op1, signed int op2)
+static inline void compare_and_set_flag_signed(r3x_cpu_t* CPU, signed int op1, signed int op2)
 {
 	// False out all flags
 	CPU->EqualFlag = false;
@@ -978,7 +977,7 @@ void compare_and_set_flag_signed(r3x_cpu_t* CPU, signed int op1, signed int op2)
 		CPU->LesserFlag = true;
 	}
 }
-void compare_and_set_flag_unsigned(r3x_cpu_t* CPU, unsigned int op1, unsigned int op2)
+static inline void compare_and_set_flag_unsigned(r3x_cpu_t* CPU, unsigned int op1, unsigned int op2)
 {
 	// False out all flags
 	CPU->EqualFlag = false;
@@ -999,13 +998,13 @@ void compare_and_set_flag_unsigned(r3x_cpu_t* CPU, unsigned int op1, unsigned in
 		CPU->LesserFlag = true;
 	}
 }
-void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU) {
+static inline void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU) {
 	if(return_32bit_int_from_ip(CPU) > CPU->MemorySize) {	
 		raise(SIGSEGV);	
 	}
 	CPU->ISR_handlers[interrupt] = return_32bit_int_from_ip(CPU);
 }
-void printfstring(char* string, const char * format, ... )
+static inline void printfstring(char* string, const char * format, ... )
 {
   va_list args;
   va_start (args, format);
@@ -1040,7 +1039,7 @@ int keyboard_thread(void* data) {
 	#endif
 	return 0;
 }
-void r3x_syscall(r3x_cpu_t* CPU) {
+static inline void r3x_syscall(r3x_cpu_t* CPU) {
 		char buffer[33];
 		switch (CPU->Memory[CPU->InstructionPointer+1]){
 			case SYSCALL_PUTS:
@@ -1194,24 +1193,24 @@ void r3x_syscall(r3x_cpu_t* CPU) {
 	}
 	return;
 }
-uint32_t set_bit32(uint32_t num, int bit){
+static inline uint32_t set_bit32(uint32_t num, int bit){
 	num |= 1 << bit;
 	return num;
 }
-uint32_t unset_bit32(uint32_t num, int bit){
+static inline uint32_t unset_bit32(uint32_t num, int bit){
 	num &= ~(1 << bit);
 	return num;
 }
-uint32_t toggle_bit32(uint32_t num, int bit){
+static inline uint32_t toggle_bit32(uint32_t num, int bit){
 	num ^= 1 << bit;
 	return num;
 }
-bool test_bit32(uint32_t num, int bit){
+static inline bool test_bit32(uint32_t num, int bit){
 	num = !!(num & (1 << bit));
 	if(num == 0){ return false; }
 	return true;
 }
-void push_flags(r3x_cpu_t* CPU){
+static inline void push_flags(r3x_cpu_t* CPU){
 	CPU->FLAGS = 0x00000000;
 	if(CPU->EqualFlag == true){
 		CPU->FLAGS = set_bit32(CPU->FLAGS, EFLAG_BIT);
@@ -1230,7 +1229,7 @@ void push_flags(r3x_cpu_t* CPU){
 	}
 	Stack.Push(CPU->Stack, CPU->FLAGS);
 }
-void pop_flags(r3x_cpu_t* CPU){
+static inline void pop_flags(r3x_cpu_t* CPU){
 	uint32_t flags = (uint32_t)get_item_from_stack_top(1);
 	CPU->EqualFlag = false; CPU->GreaterFlag = false; CPU->LesserFlag = false; CPU->ZeroFlag = false;
 	CPU->ExceptionFlag = false;
@@ -1294,6 +1293,12 @@ void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
 		CPU->ExceptionFlag = true;
 		return;
 	}
+}
+static inline int64_t r3x_ars(int64_t x, int64_t n) {
+    if (x < 0 && n > 0)
+        return x >> n | ~(~0U >> n);
+    else
+        return x >> n;
 }
 #ifdef REX_OPTIMIZE
 void* CPUDispatchThread(void* ptr){

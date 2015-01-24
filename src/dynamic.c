@@ -254,6 +254,7 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			case R3X_PUSHF:
 			case R3X_POPF:
 			case R3X_PUSHIP:
+			case R3X_ARS:
 				i++;
 				break;
 			case R3X_PUSH:

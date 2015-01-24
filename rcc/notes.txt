@@ -64,3 +64,5 @@ i -> Identifier
 ) -> Block Indicator
 ) -> Block Indicator
 ; -> End Statement
+
+after this step, the scanner's input is given to the parser, which does the real deal.
