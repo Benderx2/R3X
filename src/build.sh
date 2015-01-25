@@ -53,7 +53,7 @@ fi
 export OFLAGS="-O3 -fomit-frame-pointer -falign-functions -falign-loops -fconserve-stack -funsafe-math-optimizations -funsafe-loop-optimizations"
 # Change to empty if you don't want debugging information with the binary
 export DFLAGS=""
-#export DFLAGS=""
+#export DFLAGS="-g -D R_DEBUG"
 # DONT MODIFY
 export AS="fasm"
 export GLFLAGS=""
@@ -165,6 +165,7 @@ $AS programs/symbols.il
 $AS programs/nativelib.il
 $AS programs/jmp.il
 $AS programs/hello.il
+$AS programs/asshole.il
 # now transfer it 
 mv rxvm $BINDIR/
 mv mylib.so $BINDIR/
@@ -175,6 +176,7 @@ mv programs/exception.exe $BINDIR/
 mv programs/overflow.exe $BINDIR/
 mv programs/perf.exe $BINDIR/
 mv programs/stack.exe $BINDIR/
+mv programs/asshole.exe $BINDIR/
 #mv programs/symbols.exe ../disasm/
 mv programs/nativelib.exe $BINDIR/
 mv programs/jmp.exe $BINDIR/

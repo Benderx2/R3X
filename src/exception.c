@@ -81,7 +81,8 @@ void debugger(void) {
 			printf("continue -- Continues execution\n");
 			printf("disasm IP size -- Dissassemble code at instruction pointer 'IP' and size 'size'\n");
 			printf("readsym - Read program's symbol table\n");
-			printf("quit -- Exits the VM and debugger");
+			printf("mmap -- Prints memory map\n");
+			printf("quit -- Exits the VM and debugger\n");
 		}
 		else if(strncmp(input, "quit", 4) == 0) {
 			exit(EXIT_SUCCESS);				
@@ -188,6 +189,8 @@ void debugger(void) {
 			}
 		} else if(strncmp(input, "readsym", 7)==0){
 			read_symbol_table((r3x_header_t*)&r3_cpu->Memory[PROG_EXEC_POINT], r3_cpu->Memory, r3_cpu->MemorySize, r3_cpu->InstructionPointer);
+		} else if(strncmp(input, "mmap", 4) == 0){
+			DumpMemoryMap(r3_cpu->CPUMemoryBlocks);
 		} else if(strncmp(input, "\n", 1)==0){
 		}
 		else { 

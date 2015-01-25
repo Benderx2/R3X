@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_format.h>
 #include <nt_malloc.h>
 #include <big_endian.h>
+uint32_t text_begin, text_size, data_begin, data_size;
 uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 {
 	// open file for reading
@@ -78,11 +79,19 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 		printf("Executable Sections not page aligned / contiguous. Corrupt or malicious executable. [BE]\n");
 		exit(EXIT_FAILURE);
 	}
+	text_begin = BIG_ENDIAN_INT(header->r3x_init);
+	text_size = BIG_ENDIAN_INT(header->r3x_text_size);
+	data_begin = BIG_ENDIAN_INT(header->r3x_data);
+	data_size = (((BIG_ENDIAN_INT(header->r3x_bss) + BIG_ENDIAN_INT(header->r3x_bss_size))-BIG_ENDIAN_INT(header->r3x_data)));
 	#else
 	if((header->r3x_init) % SEGMENT_SIZE != 0 || (header->r3x_text_size) % SEGMENT_SIZE != 0 || (header->r3x_data) % SEGMENT_SIZE != 0 || (header->r3x_data - (header->r3x_bss + header->r3x_bss_size)) % SEGMENT_SIZE != 0){
 		printf("Executable sections not page aligned / contiguous. Corrupt or malicious executable.\n");
 		exit(EXIT_FAILURE);
 	}
+	text_begin = header->r3x_init;
+	text_size = header->r3x_text_size;
+	data_begin = header->r3x_data;
+	data_size = ((header->r3x_bss + header->r3x_bss_size)-header->r3x_data);
 	#endif
 	// now get its' ACTUAL size and malloc (inclusive of bss and stack which are not included in the file)
 	#ifdef R3X_BIG_ENDIAN
