@@ -13,4 +13,4 @@ It currently supports streams, exception handling, multithreading, dynamic memor
 The VM also comes with an inbuilt debugger<br>
 <br>
 
-Current version is 0.3.6c Blue Diamond (unstable)<br>
+Current version is 0.4.0a Cheesecake (unstable)<br>
