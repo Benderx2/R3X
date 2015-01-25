@@ -152,6 +152,10 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 				cpu_sleep(milliseconds, SLEEP_MILLISECONDS);
 			}
 			#endif
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->InstructionPointer) != RX_EXEC){
+				printf("Error: (INSTRUCTION FETCH FAULT) Attempt to execute code in a non-exec region, IP: 0x%X\n", CPU->InstructionPointer);
+				break;
+			}
 			if(r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID) != -1) {
 				r3x_emulate_instruction(CPU);
 				r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
@@ -435,7 +439,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			break;
 		//! Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		case R3X_LOAD:
-			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RONLY  || GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;			
 			}
@@ -444,7 +448,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			break;
 		//! Store a value which was pushed to stack to an address pushed second last.
 		case R3X_STORE:
-			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;		
 			}
@@ -453,7 +457,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			break;
 		//! Memory access for registers...
 		case R3X_LODSB:
-			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;		
 			}
@@ -461,15 +465,15 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LODSW:
-			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;			
+				break;		
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT16(*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_LODSD:
-			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;		
 			}
@@ -477,56 +481,56 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_STOSB:
-			if((unsigned int)CPU->Regs[0] > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;			
+				break;		
 			}
 			CPU->Memory[CPU->Regs[0]] = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_STOSW:
-			if((unsigned int)CPU->Regs[0] > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
+				break;		
 			}
 			*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT16(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_STOSD:
-			if((unsigned int)CPU->Regs[0] > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
+				break;		
 			}
 			*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSB:
-			if(CPU->Regs[3] > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
+				break;		
 			}
 			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSW:
-			if(CPU->Regs[3] > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
+				break;		
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint16_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		case R3X_CMPSD:
-			if(CPU->Regs[3] > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
+				break;		
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
 		//! Relocatable versions of those..
 		case R3X_STOSB_RELOC:
-			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
@@ -534,7 +538,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_STOSW_RELOC:
-			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
@@ -542,7 +546,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_STOSD_RELOC:
-			if(CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
@@ -550,23 +554,23 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSD_RELOC:
-			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;			
+				break;
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)])));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSW_RELOC:
-			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+				break;
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT16(*((uint16_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)])));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_LODSB_RELOC:
-			if((unsigned int)CPU->Regs[0] + return_32bit_int_from_ip(CPU) > CPU->MemorySize){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
@@ -574,7 +578,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSB_RELOC:
-			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RW && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RONLY) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
@@ -582,7 +586,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSW_RELOC:
-			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RW && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RONLY) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
@@ -590,7 +594,7 @@ int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			break;
 		case R3X_CMPSD_RELOC:
-			if((unsigned int)CPU->Regs[3]+return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RW && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RONLY) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;
 			}
@@ -1086,10 +1090,10 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 					Stack.Push(CPU->Stack, 0);				
 				}
 				#else 
-					//int c = getchar();	
-					char a;
-					read(0, &a, 1);
-					Stack.Push(CPU->Stack, a);
+					(void)CPU;
+					char tempchar;
+					read(0, &tempchar, 1);
+					Stack.Push(CPU->Stack, tempchar);
 				#endif
 				break;
 			case SYSCALL_GLUPDATE:
@@ -1125,6 +1129,8 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				Stack.Push(CPU->Stack, CPU->MemorySize);
 				CPU->MemorySize += SEGMENT_SIZE;
 				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
+				CPU->CPUMemoryBlocks = RebuildMemoryBlock(CPU->CPUMemoryBlocks, CPU->MemorySize);
+				MemoryMap(CPU->CPUMemoryBlocks, RX_RW, CPU->MemorySize - SEGMENT_SIZE, CPU->MemorySize);
 				break;
 			case SYSCALL_DISPATCH:
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){
@@ -1308,5 +1314,6 @@ void* CPUDispatchThread(void* ptr){
 			exitcalled = true;
 		}
 	}
+	return NULL;
 }
 #endif

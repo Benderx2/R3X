@@ -14,6 +14,7 @@ myfunc1:
 	syscall SYSCALL_PUTCH
 	pop
 	ret
+	times 4096 db 0
 }
 .export {
 	EXPORT_FUNCTION 0x0, 0

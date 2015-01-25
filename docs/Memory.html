@@ -33,6 +33,24 @@ The REX CPU uses a totally different stack for return addresses, this ensures th
 throughout simple operations which forget to pop out values. Please do note that it is a bad pratice to not pop out used 
 data after use on the stack, and it wastes memory.
 </pre>
+<h3>Memory Security</h3>
+<pre>
+The R3X architecture uses a system of memory "blocks", each block has a total length of 4096 bytes and has an attribute.
+The blocks can have one of the following attributes:
+1. RX_EXEC
+<i>R3X Execute</i>: This block is executable, it cannot be modified or be read from.
+2. RX_RW
+<i>R3X Readable/Writeable</i>: This block is readable/writeable but not executable.
+3. RX_RONLY
+<i>R3X Read-Only</i>: This block is read-only, not executable.
+4. RX_NOEXIST:
+<i>R3X Non-Existent</i>: Even though this block exists, it has been kept hidden from program. It is unreadable, unwriteable, and unexecutable
+The program's sections are required to be 4096-byte aligned, the VM maps the first 4096 bytes of memory and the program's text section as executable,
+while the data, symbol, and bss sections are marked as read-write.
+SYSCALL_ALLOC returns a page with attributes RX_RW.
+When a dynamic library is loaded, it's text sections are marked as RX_EXEC, and the rest as RX_RW.
+Writing to an non-writable section will cause a CPU_INVALID_ACCESS, while executing code in an non-executable will cause an immediate shutdown.<br>
+</pre>
 <h3>Reserved Memory</h3>
 <pre>
 The REX architecture reserves all memory under the program load point, and access memory below is considered undefined behaviour. The program load point is implementation defined, however all implementations are <b>required</b> to define

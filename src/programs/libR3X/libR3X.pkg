@@ -222,6 +222,7 @@ macro Stack.PushRegister reg {
 macro Stack.PopRegister reg {
 	popr reg
 }
+.text {
 ; INTERNAL FUNCTIONS -- NOT FOR APPLICATION USE.
 __GetStringFunc:
 	pushr R0
@@ -297,6 +298,7 @@ __WaitKey:
 		pop
 		je .loop_key
 		ret
+}
 macro import file {
 	include #file
 }

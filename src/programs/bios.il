@@ -27,19 +27,6 @@ init:
 	loadr R18, 0
 	loadr R19, 0
 	loadr R20, 0
-	pushr R0
-	; Clear memory range 512-0x100000
-	loadr R0, _MEM_AFTR
-	loadr R1, 0
-_clear_loop:
-	stosb
-	incr R0
-	push 0x100000
-	pushr R0
-	cmp
-	popn 2
-	jne _clear_loop
-	popr R0
 	; Print System Information
 	push BIOS_STRING
 	syscall SYSCALL_PUTS

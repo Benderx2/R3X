@@ -294,8 +294,15 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 		lbstructs = nt_realloc(lbstructs, sizeof(libimport_struct*)*(total_number_of_structs+16));
 		total_number_of_structs += 16;
 	}
+	uint32_t begin_text = loadaddr + BIG_ENDIAN_INT(dyn_header->text_section);
+	uint32_t end_text = loadaddr + BIG_ENDIAN_INT(dyn_header->text_section) + BIG_ENDIAN_INT(dyn_header->text_size);
+	uint32_t begin_data = loadaddr + BIG_ENDIAN_INT(dyn_header->data_section);
+	uint32_t end_data = loadaddr + (BIG_ENDIAN_INT(dyn_header->bss_section) + BIG_ENDIAN_INT(dyn_header->bss_size));
 	totalsize =  (totalsize & 0xFFFFF000)+SEGMENT_SIZE;
 	CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize+totalsize);
+	CPU->CPUMemoryBlocks = RebuildMemoryBlock(CPU->CPUMemoryBlocks, CPU->MemorySize+totalsize);
+	MemoryMap(CPU->CPUMemoryBlocks, RX_EXEC, begin_text, end_text);
+	MemoryMap(CPU->CPUMemoryBlocks, RX_RW, begin_data, end_data);
 	memcpy(&CPU->Memory[CPU->MemorySize], temp, totalsize);
 	nt_free(temp);
 	for(unsigned int i = 0; i < total_number_of_structs; i++) { 
@@ -333,4 +340,3 @@ uint32_t dynamic_call(unsigned int libhandle, unsigned int functionhandle) {
 	}
 	return 0;
 }
-	

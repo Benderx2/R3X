@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
 #endif
+extern uint32_t text_begin, text_size, data_begin, data_size;
 void quitSDL(void);
 void ParseArguments(int argc, char* argv[]);
 void PrintHelp(void);
@@ -106,6 +107,10 @@ int main(int argc, char* argv[])
 	r3_cpu->HeapAddr = r3_cpu->MemorySize;
 	r3_cpu->use_frequency = true;
 	r3_cpu->CPUFrequency = ChosenCPUFrequency;
+	//! Map the executable regions
+	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_EXEC, 0, SEGMENT_SIZE);
+	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_EXEC, text_begin, text_begin + text_size);
+	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RW, data_begin, data_begin + data_size);
 	if(ChosenCPUFrequency==0.0f){
 		r3_cpu->CPUFrequency = 0;
 		r3_cpu->use_frequency = false;

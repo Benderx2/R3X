@@ -1,5 +1,4 @@
 include 'libR3X/libR3X.pkg'
-import 'simplelib.pkg'
 import 'libR3X/corelib.pkg'
 .text {
 	function main
@@ -9,8 +8,12 @@ import 'libR3X/corelib.pkg'
 	Console.NewLine
 	Console.Write "Calling Dynamic Library (simplelib.ro)"
 	Console.NewLine
-	loadsimplelib
-	simplelib_myfunc1
+	pushr R0
+	pushr R1
+	; Load lib.
+	call loadsimplelib
+	; run lib
+	call callsimplelib
 	Console.Write "Hello, World!"
 	Console.NewLine
 	Console.Write "This is the beta preview of R3X (read : REX) virtual machine"
@@ -31,7 +34,6 @@ import 'libR3X/corelib.pkg'
 	Console.WaitKey
 	System.Quit 0
 	endfunction main
-	
 	function randomjob
 	loadr R20, 678910
 	; Note: This thread has it's own registers, stack, and call stack!
@@ -43,9 +45,40 @@ import 'libR3X/corelib.pkg'
 	; A system.quit here will close ONLY this thread, while a system.quit in our init function will close all jobs.
 	jmp .loop1;
 	endfunction randomjob
+	
+	function loadsimplelib
+		push libname
+		syscall SYSCALL_LOADDYNAMIC
+		popr R1
+		loadr R0, simplelibid
+		stosd
+		pop
+		popr R1
+		popr R0
+		ret
+	endfunction loadsimplelib
+	
+	function callsimplelib
+		pushr R0
+		pushr R1
+		loadr R0, simplelibid
+		lodsd
+		pushr R1
+		push 1
+		calldynamic
+		pop
+		pop
+		popr R1
+		popr R0
+		ret
+	endfunction callsimplelib
 }	
 .data {
-	result: dd 0
-	string: times 256 db 0
+	libname: db "simplelib.ro", 0
+}
+.bss {
+	string: times 256 rb 0
+	simplelibid: rd 0
+	result: rd 0
 }
 end
