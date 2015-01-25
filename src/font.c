@@ -247,11 +247,6 @@ bool vm_puts(font_t* font, char* txt, Graphics_t* Graphics)
 	
 }
 bool gl_text_update(Graphics_t* Graphics) {
-	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//GLUpdate();
-	//GLUpdate();
-	//drawcube(r_x, r_y);
 	int x = 0; int y = 0;
 	for(int i = 0; i < Graphics->CharMaxH * Graphics->CharMaxW; i++){
 		putstring[0] = Graphics->TextBuf[i];

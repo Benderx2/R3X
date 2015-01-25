@@ -1,6 +1,6 @@
 R3X
 ===
-![Alt text](http://i.imgur.com/Klw1O26.png)<br>
+![Alt text](http://i.imgur.com/c97xG9g.png)<br>
 Official repository for the R3X (REX) virtual machine. See docs/REX.html for more details.<br>
 ![Alt text](http://i.imgur.com/1F6Kgpo.png "R3X Running on Linux64 with example program and debugger")
 <h1>What is REX?</h1>

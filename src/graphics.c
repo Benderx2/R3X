@@ -40,10 +40,14 @@ extern r3x_cpu_t* r3_cpu;
 extern bool UseServer;
 extern unsigned int ScreenWidth;
 extern unsigned int ScreenHeight;
-double DefaultRGBA_r = 0.656875f;
+/*double DefaultRGBA_r = 0.656875f;
 double DefaultRGBA_g = 0.1f;
 double DefaultRGBA_b = 0.40625f;
+double DefaultRGBA_a = 1.0f;*/
+double DefaultRGBA_g = 0.0f;
+double DefaultRGBA_r = 0.0f;
 double DefaultRGBA_a = 1.0f;
+double DefaultRGBA_b = 0.0f;
 void Update(SDL_Surface*);
 Graphics_t* InitGraphics(void)
 {
@@ -95,10 +99,10 @@ Graphics_t* InitGraphics(void)
 	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF);
 	graphics->ScreenX = 0;
 	graphics->ScreenY = 0;
-	graphics->FontSize = 16; // using 16x16 fonts...
+	graphics->FontSize = 8; // using 16x16 fonts...
 	graphics->CharMaxW = graphics->Width / graphics->FontSize;
 	graphics->CharMaxH = graphics->Height / graphics->FontSize;
-	graphics->FontScale = 1.0f;
+	graphics->FontScale = 0.50f;
 	graphics->TextBuf = nt_malloc(graphics->Width*graphics->Height*sizeof(uint8_t));
 	graphics->TextOffset = 0;
 	glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
