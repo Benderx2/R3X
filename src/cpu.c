@@ -113,7 +113,7 @@ static inline bool     test_bit32(uint32_t, int);
 
 
 // CPU Emulation Funciton
-int r3x_emulate_instruction(r3x_cpu_t*);
+static inline int r3x_emulate_instruction(r3x_cpu_t*);
 void* CPUDispatchThread(void*);
 
 // Keyboard Thread
@@ -174,7 +174,7 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 	#endif
 	return 0;
 }
-int r3x_emulate_instruction(register r3x_cpu_t* CPU)
+static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 {
 	//!CPU->CurrentInstruction = CPU->Memory[CPU->InstructionPointer];
 	switch (CPU->Memory[CPU->InstructionPointer])
