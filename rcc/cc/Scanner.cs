@@ -17,7 +17,8 @@ namespace cc
 		public const int _ASSIGNMENT = 9;
 		public const int _SEMICOLON = 10;
 		public const int _CONDITIONAL = 11;
-		public const int _TOKEN_ID_MAX = 12;
+		public const int _INTERNAL_FUNC = 12;
+		public const int _TOKEN_ID_MAX = 13;
 		public const string StartBlock = "{";
 		public const string EndBlock = "}";
 		public const string StartFunctionBlock = "(";
@@ -74,6 +75,11 @@ namespace cc
 		public const string KeywordElse = "else";
 		public const string KeywordAsm = "__asm__";
 		public const string KeywordSizeof = "sizeof";
+		//! Internal functions
+		public const string InternalFunctionPrint = "@print";
+		public const string InternalFunctionInput = "@input";
+		public const string InternalFunctionWrite = "@write";
+		public const string InternalFunctionRead = "@read";
 		public struct token_t
 		{
 			private int _token_id;
@@ -122,7 +128,9 @@ namespace cc
 					return "Assignment Operator";
 				} else if (token == _SEMICOLON) {
 					return "Semicolon";
-				} else {
+				} else if (token == _INTERNAL_FUNC) {
+					return "Internal Function";
+				}else {
 					return "Unknown Token";
 				}
 			}
@@ -224,6 +232,15 @@ namespace cc
 				case AssignmentSub:
 				case AssignmentXor:
 					temptok.token_id = _ASSIGNMENT;
+					temptok.token_string = Tokens [i];
+					ScannerList.Add (temptok);
+					i++;
+					break;
+				case InternalFunctionPrint:
+				case InternalFunctionInput:
+				case InternalFunctionRead:
+				case InternalFunctionWrite:
+					temptok.token_id = _INTERNAL_FUNC;
 					temptok.token_string = Tokens [i];
 					ScannerList.Add (temptok);
 					i++;

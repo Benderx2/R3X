@@ -207,8 +207,6 @@ void vm_putc(char a, Graphics_t* Graphics)
 		glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GLUpdate(); 
-		//GLUpdate();
-		//memcpy(Graphics->TextBuf, Graphics->TextBuf + Graphics->CharMaxW, (Graphics->CharMaxH - 1)*(Graphics->CharMaxW));
         for(int i = 0; i < (Graphics->CharMaxH-1)*(Graphics->CharMaxW); i++){
             Graphics->TextBuf[i] = Graphics->TextBuf[i+Graphics->CharMaxW];
         }
@@ -222,10 +220,6 @@ void vm_putc(char a, Graphics_t* Graphics)
 }
 bool vm_puts(font_t* font, char* txt, Graphics_t* Graphics)
 {
-	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//GLUpdate();
-	//GLUpdate();
 	GLUpdate();
 	for(unsigned int i = 0; i < strlen(txt); i++)
 	{

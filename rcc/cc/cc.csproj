@@ -39,6 +39,7 @@
     <Compile Include="Tokenizer.cs" />
     <Compile Include="Scanner.cs" />
     <Compile Include="CodeGen.cs" />
+    <Compile Include="Parser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

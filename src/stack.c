@@ -55,7 +55,6 @@ int Duplicate(vstack_t* stack)
 int64_t GetItemS(vstack_t* stack, unsigned int idx)
 {
 	if(stack == NULL) { return -1; }
-	//if(stack->top_of_stack==0 || stack->stack_count == 0){ return -1; }
 	if (idx > stack->stack_count){ return -1; }
 	else { return (stack->content[idx]); }
 }
