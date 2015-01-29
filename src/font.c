@@ -231,18 +231,7 @@ bool vm_puts(font_t* font, char* txt, Graphics_t* Graphics)
 	{
 		vm_putc(txt[i], Graphics);
 	}
-	int x = 0; int y = 0;
-	for(int i = 0; i < Graphics->CharMaxH * Graphics->CharMaxW; i++){
-		putstring[0] = Graphics->TextBuf[i];
-		putstring[1] = 0;
-			text(x, y, Graphics->FontScale, font, (char*)&putstring);
-			x += Graphics->FontSize; 
-			if(x >= Graphics->Width){
-				y += Graphics->FontSize;
-				x = 0;
-			}
-	}
-	GLUpdate();
+	gl_text_update(Graphics);
 	return true;
 	
 }
