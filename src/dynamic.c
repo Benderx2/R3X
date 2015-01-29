@@ -55,34 +55,19 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 		exit(0);
 	}
 	r3x_dynamic_header_t* dyn_header = (r3x_dynamic_header_t*)&(temp[0]);
-	#ifdef R3X_BIG_ENDIAN
 	if(BIG_ENDIAN_INT(dyn_header->header) != REX_DYNAMIC_HEADER_VAL)
-	#else
-	if(dyn_header->header != REX_DYNAMIC_HEADER_VAL)
-	#endif
 	{
 		printf("Invalid dynamic object file. ABORTING..\n");
 		exit(EXIT_FAILURE);
 	}
-	#ifdef R3X_BIG_ENDIAN
-	if(BIG_ENDIAN_INT(dyn_header->text_section) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(dyn_header->text_size) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(dyn_header->data_section) % SEGMENT_SIZE != 0 || (BIG_ENDIAN_INT(dyn_header->data_section) - BIG_ENDIAN_INT((BIG_ENDIAN_INT(dyn_header->bss_section) + BIG_ENDIAN_INT(dyn_header->data_section)))) % SEGMENT_SIZE != 0){
-		printf("Executable Sections not page aligned / contiguous. Corrupt or malicious executable.\n");
+	if(BIG_ENDIAN_INT(dyn_header->text_section) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(dyn_header->text_size) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(dyn_header->data_section) % SEGMENT_SIZE != 0 || (BIG_ENDIAN_INT(dyn_header->bss_section) + BIG_ENDIAN_INT(dyn_header->bss_size) - BIG_ENDIAN_INT(dyn_header->data_section)) % SEGMENT_SIZE != 0){
+		printf("Attempt to load a malicious dynamic library. Executable sections not page aligned.\n");
+		printf("0x%X, 0x%X, 0x%X, 0x%X\n", BIG_ENDIAN_INT(dyn_header->text_section) % SEGMENT_SIZE, BIG_ENDIAN_INT(dyn_header->text_size) % SEGMENT_SIZE, BIG_ENDIAN_INT(dyn_header->data_section) % SEGMENT_SIZE, (BIG_ENDIAN_INT(dyn_header->bss_section) + BIG_ENDIAN_INT(dyn_header->bss_size) - BIG_ENDIAN_INT(dyn_header->data_section)) % SEGMENT_SIZE);
 		exit(EXIT_FAILURE);
 	}
-	#else
-	if((dyn_header->text_section) % SEGMENT_SIZE != 0 || (dyn_header->text_size) % SEGMENT_SIZE != 0 || (dyn_header->data_section) % SEGMENT_SIZE != 0 || (dyn_header->data_section - (dyn_header->bss_section + dyn_header->bss_size)) % SEGMENT_SIZE != 0){
-		printf("Executable sections not page aligned / contiguous. Corrupt or malicious executable.\n");
-		exit(EXIT_FAILURE);
-	}
-	#endif
 	// Now modify the library since it assumes no loadpoint...
-	#ifdef R3X_BIG_ENDIAN
 	uint32_t i = BIG_ENDIAN_INT(dyn_header->text_section);
 	while(i <= BIG_ENDIAN_INT(dyn_header->text_section) + BIG_ENDIAN_INT(dyn_header->text_size)) 
-	#else
-	uint32_t i = dyn_header->text_section;
-	while(i <= dyn_header->text_section + dyn_header->text_size) 
-	#endif
 	{ 
 		switch(temp[i]) {
 			case R3X_CALL:
@@ -92,111 +77,67 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			case R3X_JG:	
 			case R3X_JZ:
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_STOSD:
 				temp[i] = R3X_STOSD_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_LODSD:
 				temp[i] = R3X_LODSD_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_STOSW:
 				temp[i] = R3X_STOSW_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_STOSB:
 				temp[i] = R3X_STOSB_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_LODSB:
 				temp[i] = R3X_LODSB_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_LODSW:
 				temp[i] = R3X_LODSW_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_CMPSB:
 				temp[i] = R3X_CMPSB_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_CMPSD:
 				temp[i] = R3X_CMPSB_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_CMPSW:
 				temp[i] = R3X_CMPSW_RELOC;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;
 			case R3X_PUSH_RELOC:
 				temp[i] = R3X_PUSH;
 				i++;
-				#ifdef R3X_BIG_ENDIAN
 				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				#else
-				*((uint32_t*)&temp[i]) = CPU->MemorySize + *((uint32_t*)&temp[i]);
-				#endif
 				i += 4;
 				break;	
 			case R3X_SLEEP:
@@ -311,13 +252,8 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 			lbstructs[i]->loadaddr = loadaddr;
 			dyn_header = (r3x_dynamic_header_t*)&CPU->Memory[loadaddr];
 			lbstructs[i]->libid = i;
-			#ifdef R3X_BIG_ENDIAN
 			lbstructs[i]->function_count = BIG_ENDIAN_INT(dyn_header->export_size) / sizeof(export_struct);
 			lbstructs[i]->functions = (export_struct*)&CPU->Memory[loadaddr + BIG_ENDIAN_INT(dyn_header->export_section)];
-			#else
-			lbstructs[i]->function_count = dyn_header->export_size / sizeof(export_struct);
-			lbstructs[i]->functions = (export_struct*)&CPU->Memory[loadaddr + dyn_header->export_section];
-			#endif
 			CPU->MemorySize += totalsize;
 			return i;
 		}
@@ -330,11 +266,7 @@ uint32_t dynamic_call(unsigned int libhandle, unsigned int functionhandle) {
 	} else {
 		if(lbstructs[libhandle] != NULL) {
 			 if(functionhandle <= lbstructs[libhandle]->function_count) {
-			 	#ifdef R3X_BIG_ENDIAN
 			 	return lbstructs[libhandle]->loadaddr + BIG_ENDIAN_INT(lbstructs[libhandle]->functions[functionhandle].instruction_pointer);
-			 	#else
-				return lbstructs[libhandle]->loadaddr + lbstructs[libhandle]->functions[functionhandle].instruction_pointer;
-				#endif
 			 }
 		}
 	}

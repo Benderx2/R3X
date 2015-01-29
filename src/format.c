@@ -64,56 +64,35 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	// check if it's an executable
 	#ifdef R3X_BIG_ENDIAN
 	#warning "Big endian systems are fucking experimental!"
-	if(header->header_id != BIG_ENDIAN_INT(R3X_HEADER_2033))
-	#else
-	if (header->header_id != R3X_HEADER_2033)
 	#endif
+	if(header->header_id != BIG_ENDIAN_INT(R3X_HEADER_2033))
 	{
 		printf("r3x_load_executable: invalid header: 0x%X.\n", header->header_id);
 		nt_free(mem1);
 		return NULL;
 	}
+	
 	//! Check for page alignment for text and data sections
-	#ifdef R3X_BIG_ENDIAN
-	if(BIG_ENDIAN_INT(header->r3x_init) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_text_size) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_data) % SEGMENT_SIZE != 0 || ((BIG_ENDIAN_INT(header->r3x_data) - (BIG_ENDIAN_INT(header->r3x_bss) + BIG_ENDIAN_INT(header->r3x_bss_size)))) % SEGMENT_SIZE != 0){
+	if(BIG_ENDIAN_INT(header->r3x_init) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_text_size) % SEGMENT_SIZE != 0 || BIG_ENDIAN_INT(header->r3x_data) % SEGMENT_SIZE != 0 || ((BIG_ENDIAN_INT(header->r3x_bss) + BIG_ENDIAN_INT(header->r3x_bss_size)) - BIG_ENDIAN_INT(header->r3x_data)) % SEGMENT_SIZE != 0){
 		printf("Executable Sections not page aligned / contiguous. Corrupt or malicious executable. [BE]\n");
+		printf("0x%X, 0x%X, 0x%X, 0x%X\n", BIG_ENDIAN_INT(header->r3x_init) % SEGMENT_SIZE, BIG_ENDIAN_INT(header->r3x_text_size) % SEGMENT_SIZE, BIG_ENDIAN_INT(header->r3x_data) % SEGMENT_SIZE, ((BIG_ENDIAN_INT(header->r3x_bss) + BIG_ENDIAN_INT(header->r3x_bss_size)) - BIG_ENDIAN_INT(header->r3x_data)) % SEGMENT_SIZE);
 		exit(EXIT_FAILURE);
 	}
 	text_begin = BIG_ENDIAN_INT(header->r3x_init);
 	text_size = BIG_ENDIAN_INT(header->r3x_text_size);
 	data_begin = BIG_ENDIAN_INT(header->r3x_data);
 	data_size = (((BIG_ENDIAN_INT(header->r3x_bss) + BIG_ENDIAN_INT(header->r3x_bss_size))-BIG_ENDIAN_INT(header->r3x_data)));
-	#else
-	if((header->r3x_init) % SEGMENT_SIZE != 0 || (header->r3x_text_size) % SEGMENT_SIZE != 0 || (header->r3x_data) % SEGMENT_SIZE != 0 || (header->r3x_data - (header->r3x_bss + header->r3x_bss_size)) % SEGMENT_SIZE != 0){
-		printf("Executable sections not page aligned / contiguous. Corrupt or malicious executable.\n");
-		exit(EXIT_FAILURE);
-	}
-	text_begin = header->r3x_init;
-	text_size = header->r3x_text_size;
-	data_begin = header->r3x_data;
-	data_size = ((header->r3x_bss + header->r3x_bss_size)-header->r3x_data);
-	#endif
 	// now get its' ACTUAL size and malloc (inclusive of bss and stack which are not included in the file)
-	#ifdef R3X_BIG_ENDIAN
 	uint8_t* mem2 = nt_malloc(PROG_EXEC_POINT + BIG_ENDIAN_INT(header->total_size));
 	memset(mem2, 0, PROG_EXEC_POINT + BIG_ENDIAN_INT(header->total_size));
-	#else
-	uint8_t* mem2 = nt_malloc(((PROG_EXEC_POINT + header->total_size)&0xFFFFF000)+SEGMENT_SIZE);
-	memset(mem2, 0, PROG_EXEC_POINT + header->total_size);
-	#endif
 	// copy the execuatable to new buffer (note: some bytes would be empty at the end as stack or bss)
 	memcpy(mem2 + PROG_EXEC_POINT, mem1, size);
 	// free the first buffer
 	nt_free(mem1);
 	fclose(fp); // Free the file no need..
 	header = (r3x_header_t*)&mem2[PROG_EXEC_POINT];
-	#ifdef R3X_BIG_ENDIAN
 	printf("Executable Name: %s\n", (char*)&mem2[BIG_ENDIAN_INT(header->nameaddr)]);
 	printf("Publisher Name: %s\n", (char*)&mem2[BIG_ENDIAN_INT(header->pulibsheraddr)]); 
-	#else
-	printf("Executable Name: %s\n", (char*)&mem2[header->nameaddr]);
-	printf("Publisher Name: %s\n", (char*)&mem2[header->pulibsheraddr]); 
-	#endif
 	// return the buffer
 	return mem2;
 }
