@@ -1,3 +1,4 @@
+REM Future example for a compiler I've started to work on...
 PRINT "Hello, World!"
 DIM A AS INTEGER 
 $A = (15+27)/2
