@@ -1,14 +1,14 @@
 REM Future example for a compiler I've started to work on...
-PRINT "Hello, World!"
-DIM A AS INTEGER 
-$A = (15+27)/2
-PRINT $A
-DIM S AS STRING
-PRINT S
-IF A == 5 THEN GOTO PROC1 ELSE GOTO PROC2
+PRINT "Hello, World!";
+DIM A AS INTEGER;
+$A = (15+27)/2;
+PRINT $A;
+DIM S AS STRING;
+PRINT S;
+IF A == 5 THEN GOTO PROC1 ELSE GOTO PROC2;
 PROC1:
-	QUIT
+	QUIT;
 PROC2:
-	PRINT "noo"
+	PRINT "noo";
 	QUIT
 
