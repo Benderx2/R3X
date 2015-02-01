@@ -57,6 +57,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define R_SHUTDOWN 1
 #define R_KEYPRESS 2  
 #define R_TIMER 3
+#define MAX_NUMBER_OF_REGISTERS 20
+#define TOTAL_EXCEPTIONS 3
 typedef struct r3x_job {
 	uint32_t InstructionPointer;
 	vstack_t* Stack;
@@ -79,8 +81,6 @@ typedef struct r3x_global_domain {
 	unsigned int NumberOfActiveJobs;
 	unsigned int TotalNumberOfJobs;
 } r3x_global_domain_t;
-#define MAX_NUMBER_OF_REGISTERS 20
-#define TOTAL_EXCEPTIONS 3
 typedef struct r3x_cpu {
 	// Not global -- Thread dependent
 	vstack_t* Stack;

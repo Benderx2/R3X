@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+//! DEFAULT_INITIAL_AND_GROWTH_SIZE : Default size of a list, and it's incremental size.
 #define DEFAULT_INITIAL_AND_GROWTH_SIZE 16
 /*!
  * TokenType : Tells what class a token belongs to.
@@ -34,6 +35,7 @@ typedef struct {
 typedef struct {
 	Token* Tokens;
 	unsigned int TotalTokens;
+	unsigned int CurrentToken;
 } TokenList;
 /*!
  * Function Prototypes
@@ -58,7 +60,8 @@ TokenType GetType(char* Tok);
  * @Standard C main function.
  */
 int main(int argc, char** argv){
-	char* MyStr = "PRINT \"Hello, World!\";\nQUIT; A=5*12&36; 5122; IF A <> 512 THEN GOTO 500;";
+	char* MyStr = "1+2";
+	//!char* MyStr = "PRINT \"Hello, World!\";\nQUIT; A=5*12&36; 5122; IF A <> 512 THEN GOTO 500;";
 	printf("Lexer Input: %s\n", MyStr);
 	TokenList* newlist = NULL;
 	newlist = TokenizeString(MyStr);
@@ -120,6 +123,7 @@ TokenList* TokenizeString(char* Source){
 	TokenList* InitialList = malloc(sizeof(TokenList));
 	InitialList->Tokens = malloc(DEFAULT_INITIAL_AND_GROWTH_SIZE * sizeof(Token));
 	InitialList->TotalTokens = DEFAULT_INITIAL_AND_GROWTH_SIZE;
+	InitialList->CurrentToken = 0;
 	bool InsideString = false;
 	for(unsigned int i = 0; i <= strlen(Source); i++){
 		if(Source[i] == '\n'){
@@ -281,12 +285,12 @@ void PrintType(Token Tok){
 	}
 }
 /*!
- * @ParseExpression
- * @param TokenList*, unsigned int
+ * @GenerateCode
+ * @param TokenList*
  * @return void
  * @Description
  * <none>
  */
-void ParseExpression(TokenList* List, unsigned int Begin) {
-
+void ParseExpression(TokenList* List){
+	
 }

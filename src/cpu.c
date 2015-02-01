@@ -1103,8 +1103,11 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				break;
 			case SYSCALL_PUTCH:
 				#ifdef REX_GRAPHICS
-				vm_putc((char)get_item_from_stack_top(1), CPU->Graphics);
-				gl_text_update(CPU->Graphics);			
+				(void)CPU;
+				char pts[2];
+				pts[0] = get_item_from_stack_top(1);
+				pts[1] = 0;
+				vm_puts(CPU->Graphics->font, pts, CPU->Graphics);	
 				#else
 				printf("%c", (char)get_item_from_stack_top(1));
 				#endif

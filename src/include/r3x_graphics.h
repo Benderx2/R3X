@@ -86,5 +86,6 @@ void GLUpdate(void);
 void vm_putc(char a, Graphics_t* Graphics);
 bool gl_text_update(Graphics_t* Graphics);
 bool freefont(font_t * f);
+void GL_ClearScreen(void);
 extern double DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a;
 #endif

@@ -109,13 +109,15 @@ Graphics_t* InitGraphics(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	GLUpdate();
 	glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
-	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	GLUpdate();
 	SDL_EnableUNICODE(SDL_ENABLE);
 	return graphics;
 }
-
+void GL_ClearScreen(void){
+	glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 void GLUpdate(void)
 {
 	SDL_GL_SwapBuffers();

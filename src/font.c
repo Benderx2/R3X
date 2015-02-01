@@ -31,6 +31,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <nt_malloc.h>
 #ifdef REX_GRAPHICS
 char putstring[2];
+int CurrentCursorOffset = 0;
+void ClearCursor(Graphics_t* Graphics);
+void RenderCursor(Graphics_t* Graphics);
 font_t* loadfont(char* s)
 {
     putstring[0] = 0;
@@ -220,16 +223,29 @@ void vm_putc(char a, Graphics_t* Graphics)
 }
 bool vm_puts(font_t* font, char* txt, Graphics_t* Graphics)
 {
+	(void)font;
+	ClearCursor(Graphics);
 	GLUpdate();
 	for(unsigned int i = 0; i < strlen(txt); i++)
 	{
 		vm_putc(txt[i], Graphics);
 	}
+	RenderCursor(Graphics);
 	gl_text_update(Graphics);
 	return true;
 	
 }
+void ClearCursor(Graphics_t* Graphics){
+	if(CurrentCursorOffset != 0){
+		Graphics->TextBuf[CurrentCursorOffset] = 0;
+	}
+}
+void RenderCursor(Graphics_t* Graphics){
+	Graphics->TextBuf[Graphics->TextOffset] = 18;
+	CurrentCursorOffset = Graphics->TextOffset;
+}
 bool gl_text_update(Graphics_t* Graphics) {
+	GL_ClearScreen();
 	int x = 0; int y = 0;
 	for(int i = 0; i < Graphics->CharMaxH * Graphics->CharMaxW; i++){
 		putstring[0] = Graphics->TextBuf[i];
