@@ -4,11 +4,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
-//! DEFAULT_INITIAL_AND_GROWTH_SIZE : Default size of a list, and it's incremental size.
+//! @DEFAULT_INITIAL_AND_GROWTH_SIZE : Default size of a list, and it's incremental size.
 #define DEFAULT_INITIAL_AND_GROWTH_SIZE 16
 /*!
- * TokenType : Tells what class a token belongs to.
- */ 
+ * @TokenType : Tells what class a token belongs to.
+ */
 typedef enum {
 	NULL_TYPE = 0,
 	StringLiteral,
@@ -22,7 +22,7 @@ typedef enum {
 	Keyword
 } TokenType;
 /*!
- * Token : Defines a token structure.
+ * @Token : Defines a token structure.
  */
 typedef struct {
 	char* TokenString;
@@ -30,7 +30,7 @@ typedef struct {
 	int Line;
 } Token;
 /*!
- * TokenList : A list containing an n number of tokens. The number of tokens it contains it store in TokenList.TotalTokens
+ * @TokenList : A list containing an n number of tokens. The number of tokens it contains it store in TokenList.TotalTokens
  */
 typedef struct {
 	Token* Tokens;
@@ -38,7 +38,35 @@ typedef struct {
 	unsigned int CurrentToken;
 } TokenList;
 /*!
- * Function Prototypes
+ * @ExpressionType : Defines what can contain in an expression
+ */
+typedef enum {
+	ENULL_TYPE = 0,
+	EOpenParenthesis,
+	ECloseParenthesis,
+	EIntegerLiteral,
+	EVariable,
+	EOperator,
+} ExpressionType;
+/*!
+ * @ExpressionUnit : Defines the smalles unit of an expression
+ */
+typedef struct {
+	ExpressionType Type;
+	char* UnitName;
+	int Value;
+} ExpressionUnit;
+/*!
+ * @ExpressionStack : A stack containing smaller expression units.
+ */
+typedef struct {
+	ExpressionUnit* Units;
+	unsigned int TopOfStack;
+	unsigned int TotalNumberOfUnits;
+} ExpressionStack;
+
+/*!
+ * @Function Prototypes
  */
 TokenList* TokenizeString(char* Source);
 
@@ -51,6 +79,10 @@ void PrintType(Token Tok);
 void FreeTokenList(TokenList* List);
 
 TokenType GetType(char* Tok);
+
+int PushtoExpressionStack(ExpressionStack* Stack, char* Name, ExpressionType Type, unsigned int Value);
+
+ExpressionUnit PopFromExpressionStack(ExpressionStack* Stack);
 
 /*!
  * @main
@@ -293,4 +325,55 @@ void PrintType(Token Tok){
  */
 void ParseExpression(TokenList* List){
 	
+}
+ExpressionStack* CreateExpressionStack(void) {
+	ExpressionStack* NewStack = malloc(sizeof(ExpressionStack));
+	NewStack->TotalNumberOfUnits = 0;
+	NewStack->TopOfStack = 0;
+	NewStack->Units = NULL;
+}
+/*!
+ * @PushtoExpressionStack 
+ * @param ExpressionStack*, char*, ExpressionType, unsigned int
+ * @return int
+ * @Description
+ * @Pushes an expression unit to an expression stack, with appropriate properties,
+ * @returns 0 on success and -1 on error.
+ */
+int PushtoExpressionStack(ExpressionStack* Stack, char* Name, ExpressionType Type, unsigned int Value){
+	if(Stack->TopOfStack == 0){
+		Stack->Units = malloc(DEFAULT_INITIAL_AND_GROWTH_SIZE * sizeof(ExpressionUnit));
+		Stack->TotalNumberOfUnits += DEFAULT_INITIAL_AND_GROWTH_SIZE;
+	} else if(Stack->TopOfStack >= Stack->TotalNumberOfUnits) {
+		ExpressionUnit* newUnits = realloc(Stack->Units, Stack->TotalNumberOfUnits + DEFAULT_INITIAL_AND_GROWTH_SIZE);
+		if(!newUnits){
+			fprintf(stderr, "Unable to reallocate expression buffer stack.\n");
+			return -1;
+		}
+		Stack->Units = newUnits;
+	}
+	Stack->Units[Stack->TopOfStack].Type = Type;
+	Stack->Units[Stack->TopOfStack].Value = Value;
+	Stack->Units[Stack->TopOfStack].UnitName = strdup(Name);
+	Stack->TopOfStack++;
+	return 0;
+}
+/*!
+ * @PopFromExpressionStack
+ * @param ExpressionStack*
+ * @return ExpressionUnit
+ * @Description
+ * @Returns an ExpressionUnit from the top of an expressions' stack and then 
+ * @decreses the top of stack by 1.
+ * @NOTE: Returns a NULL stack if top of stack is zero or greater than the stack
+ * @limit. 
+ */
+ExpressionUnit PopFromExpressionStack(ExpressionStack* Stack) {
+	ExpressionUnit NullUnit;
+	if(Stack->TopOfStack >= Stack->TotalNumberOfUnits || Stack->TopOfStack == 0){
+		return NullUnit;
+	} else {
+		Stack->TopOfStack--;
+		return Stack->Units[Stack->TopOfStack+1];
+	}
 }

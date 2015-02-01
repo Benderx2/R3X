@@ -176,7 +176,6 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 }
 static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 {
-	//!CPU->CurrentInstruction = CPU->Memory[CPU->InstructionPointer];
 	switch (CPU->Memory[CPU->InstructionPointer])
 	{
 		// Sleep: Delays the CPU by a cycle. Also used by CPU to skip empty memory, as the opcode is 0x0

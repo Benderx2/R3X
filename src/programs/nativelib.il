@@ -1,6 +1,6 @@
 include 'libR3X/libR3X.pkg'
 .text {
-		function main
+	function main
 		pushstring "./mylib.so"
 		loadlib
 		Console.Write "Loaded mylib.so"
@@ -10,7 +10,8 @@ include 'libR3X/libR3X.pkg'
 		libexec
 		Console.Write "Function returned: "
 		syscall SYSCALL_PUTI
+		Console.WaitKey
 		exit
-		endfunction main
+	endfunction main
 }
 end
