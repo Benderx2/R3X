@@ -438,8 +438,14 @@ macro ars {
 	db 0x89
 }
 macro loadrm size, reg1, memaddr {
+	if reg1 eq R0
+	else
 	pushr R0
+	end if
+	if reg1 eq R1
+	else
 	pushr R1
+	end if
 	loadr R0, memaddr
 	if size eq byte
 		lodsb
@@ -452,6 +458,12 @@ macro loadrm size, reg1, memaddr {
 		err
 	end if
 	loadrr reg1, R1
+	if reg1 eq R1
+	else
 	popr R1
+	end if
+	if reg1 eq R0
+	else
 	popr R0
+	end if
 }

@@ -11,6 +11,6 @@ The main goal for R3X is to create an environment which offers maximum portabili
 R3X aims to provide a C-like enviroment, at the same time being highly portable and safe.<br>
 It currently supports streams, exception handling, multithreading, dynamic memory allocation and dynamic linking<br>
 The VM also comes with an inbuilt debugger<br>
+As of version 0.4.6 R3X comes with a TinyBASIC compiler!<br>
 <br>
-
 Current version is 0.4.0a Cheesecake (unstable)<br>
