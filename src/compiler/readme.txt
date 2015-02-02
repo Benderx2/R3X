@@ -1,7 +1,7 @@
 TBC+ - TinyBasic+ for R3X
 TBC+ is a small extended version of the TinyBASIC programming language. It is designed to run
 on R3X systems.
-
+I'd like to give credit to the original creator by providing the link to the original repository: https://github.com/Luiji/TinyBASIC-C
 Language:
 	TBC+ is very similar to TinyBASIC and other BASIC-based languages, however there are certain differences.
 	
