@@ -12,6 +12,7 @@ Keywords:
 	PTR [A-Z] = EXPRESSION - Set a variable (A-Z Only). to the 32-bit value at the addressof(value of EXPRESSION)
 	ASM "<asm code>" - Output the assembler code directly
 	IF [A-Z] [> < = >= <=] INT/LITERAL GOTO/GOTOL INT/LABEL - Jump to a line number / label if condition is true.
+	LABEL labelname - Declare a label
 	GOTO - Goto a line number
 	GOTOL - Goto a label
 	GOSUB - Goto a line number, and push return address to stack
