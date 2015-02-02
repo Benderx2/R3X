@@ -1,3 +1,13 @@
+WARNING
+[
+THIS MANUAL CONTAINS "BAD WORDS"! yes, the ones you little sh#$)*@)*@!s refer to as "effyouseekay".
+Go back to your mom/dad and ask them to engage you into something better.
+
+plz dun see if you dun want to get offended.
+
+liek if you cry ev4erytime.
+]
+
 TBC+ - TinyBasic+ for R3X
 TBC+ is a small extended version of the TinyBASIC programming language. It is designed to run
 on R3X systems.
@@ -28,7 +38,8 @@ Operators:
 
 Using variables in inline asm:
 	The address to variables can be referred to as v0 [for variable A]. v1 [for variable B] and so on..
-	You're free to use these addresses to modify variables in inline asm.
+	You're free to use these addresses to modify variables in inline asm. Yes, you're free the fuck with
+	whatever you want, just dont come to me.
 
 Usage:
 	./tbc file.bas > output.asm
