@@ -19,8 +19,11 @@ Keywords:
 	RETURN - Return to the address pushed to stack
 	
 Operators:
-	Unfortunately, the current supported operators are +/-/"/"/*
-	Support for bitwise operators |, &, ^ is being worked on.
+	Current supported operators are +, -, /, *, &, ^, |. There is operator precendence, but it's very shitty.
+	Please don't use it, instead just use fkn parentheses, and if you can't then go fuck yourself, I don't
+	have time for this shit.
+	
+	Thank you. And fuck off, please goto the second last line of this page to see what it means.
 
 Using variables in inline asm:
 	The address to variables can be referred to as v0 [for variable A]. v1 [for variable B] and so on..
@@ -32,3 +35,6 @@ Usage:
 P.S. While compiling with FASM you will need an 'libR3X.pkg' and 'r3x_asm.pkg' which are in src/programs/libR3X.
 
 -----Uh, this document is badly written, I'll write a better version when I've more time on my hands.-----
+
+Please goto line 26.
+... OMFG WTF RECURSION??!?!?! RECURSION IS SUPPORTED YAY!

@@ -1,4 +1,4 @@
-0  PRINT "Testing Division"
+0  PRINT "Testing Division and bitwise"
 GOTOL mylabel
 10 PRINT "Testing division"
 LABEL mylabel
@@ -6,5 +6,7 @@ LABEL mylabel
 40 LET Y = 5
 50 LET Z = X / Y
 60 PRINT "Div: "; Z
-70 ASM "push 0"
-80 ASM "exit"
+70 LET A = 50 & 2
+80 PRINT "Or: "; A
+90 ASM "push 0"
+100 ASM "exit"

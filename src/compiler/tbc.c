@@ -901,7 +901,7 @@ do_term ()
 {
   do_factor ();
 
-  while (look == '*' || look == '/')
+  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/')
     {
       int op = look;
       puts ("\tpushr R1");
@@ -913,6 +913,12 @@ do_term ()
 	puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\n\t");
       else if (op == '/')
 	puts ("\tpushr R2\n\tpushr R1\n\tdiv\n\tpopr R1\n\tpop\n\tpop");
+	  else if (op == '&')
+	puts ("\tpushr R2\n\tpushr R1\n\tand\n\tpopr R1\n\tpop\n\tpop");
+	  else if (op == '|')
+	puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpop\n\tpop");
+	  else if (op == '^')
+	puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpop\n\tpop");
     }
 }
 
