@@ -28,7 +28,8 @@ Keywords:
 	GOSUB - Goto a line number, and push return address to stack
 	GOSUBL - Goto a label and push address to stack
 	RETURN - Return to the address pushed to stack
-	
+	WHILE EXPRESSION [> < = >= <=] EXPRESSION - Do a while loop (max 256 nestings allowed)
+	ENDW - End while
 Operators:
 	Current supported operators are +, -, /, *, &, ^, |. There is operator precendence, but it's very shitty.
 	Please don't use it, instead just use fkn parentheses, and if you can't then go fuck yourself, I don't

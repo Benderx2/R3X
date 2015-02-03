@@ -38,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # define PARAMS(protos) (/* unsupported */)
 #endif
 
+#define MAX_WHILE_NESTING 256
 enum
 {
   T_PRINT,
@@ -54,6 +55,8 @@ enum
   T_GOTOL,
   T_GOSUBL,
   T_PTR,
+  T_WHILE,
+  T_ENDW,
   T_END
 };
 
@@ -69,12 +72,15 @@ enum
 
 static char        look          = 0;
 static int         line          = 1;
+static int			whilelines 	  = 0;
+static int 		currentwhile  = MAX_WHILE_NESTING;
 static int         use_print_i   = 0;
 static int         use_print_s   = 0;
 static int         use_print_t   = 0;
 static int         use_print_n   = 0;
 static int         use_input_i   = 0;
 static int         vars_used[26] = { 0 };
+static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
 static char **     strings       = NULL;
 static int         string_count  = 0;
 static const char *program_name  = "<?>";
@@ -118,6 +124,8 @@ static void  do_label		PARAMS ((void));
 static void  do_gotol		PARAMS ((void));
 static void  do_gosubl 	PARAMS ((void));
 static void  do_ptr		PARAMS ((void));
+static void  do_while		PARAMS ((void));
+static void  do_endw		PARAMS ((void));
 char* 		  return_str	PARAMS ((void));
 char*        return_next_tok(void);
 int
@@ -532,6 +540,10 @@ get_keyword ()
     i = T_GOSUBL;
   else if(!strcmp(token, "ptr"))
 	i = T_PTR;
+  else if(!strcmp(token, "while"))
+	i = T_WHILE;
+  else if(!strcmp(token, "endw"))
+	i = T_ENDW;
   else
     error ("expected keyword got '%s'", token);
 
@@ -604,6 +616,8 @@ do_statement ()
     case T_GOTOL:  do_gotol(); break;
     case T_GOSUBL: do_gosubl(); break;
     case T_PTR:    do_ptr(); break;
+    case T_WHILE:  do_while(); break;
+    case T_ENDW:   do_endw(); break;
     default:       assert (0);   break;
     }
 }
@@ -814,7 +828,113 @@ do_if ()
 
   printf ("i%i:\n", line);
 }
+/*!
+ * A = 0
+ * WHILE A < 5 ---> while0 :
+ * 					cmpr A, 5
+ * 	A = A + 1		jge endw0
+ * ENDW				mov A, A+1
+ * 					jmp while0
+ * 					endw0:
+ * */				
+static void 
+do_while()
+{
+	int op;
+  printf("while%u:\n", whilelines);
+  while_stack[currentwhile] = whilelines;
+  do_expression ();
+  puts ("\tloadrr R4, R1");
 
+  if (look == '=')
+    {
+      match ('=');
+      if (look == '<')
+	{
+	  match ('<');
+	  op = O_LESS_OR_EQUAL;
+	}
+      else if (look == '>')
+	{
+	  match ('>');
+	  op = O_MORE_OR_EQUAL;
+	}
+      else
+	{
+	  op = O_EQUAL;
+	}
+    }
+  else if (look == '<')
+    {
+      match ('<');
+      if (look == '=')
+	{
+	  match ('=');
+	  op = O_LESS_OR_EQUAL;
+	}
+      else if (look == '>')
+	{
+	  match ('>');
+	  op = O_NOT_EQUAL;
+	}
+      else
+	{
+	  op = O_LESS;
+	}
+    }
+  else if (look == '>')
+    {
+      match ('>');
+      if (look == '=')
+	{
+	  match ('=');
+	  op = O_MORE_OR_EQUAL;
+	}
+      else if (look == '<')
+	{
+	  match ('<');
+	  op = O_NOT_EQUAL;
+	}
+      else
+	{
+	  op = O_MORE;
+	}
+    }
+  else
+    {
+      error ("expected =, <>, ><, <=, =<, >= or => got '%c'", look);
+    }
+
+  do_expression ();
+
+  fputs ("\tcmpr R4, R1\n\tj", stdout);
+
+  /* note inversal of operators */
+  if (op == O_EQUAL)
+    fputs ("ne", stdout);
+  else if (op == O_NOT_EQUAL)
+    fputs ("e", stdout);
+  else if (op == O_LESS)
+    fputs ("ge", stdout);
+  else if (op == O_MORE)
+    fputs ("le", stdout);
+  else if (op == O_LESS_OR_EQUAL)
+    fputs ("g", stdout);
+  else if (op == O_MORE_OR_EQUAL)
+    fputs ("l", stdout);
+  printf(" endwhile%u\n", whilelines);
+  
+  whilelines++;
+  currentwhile--;
+}
+static void 
+do_endw()
+{
+	int currentwhile_now = while_stack[currentwhile+1];
+	printf("\tjmp while%u\n", currentwhile_now);
+	printf("endwhile%u:\n", currentwhile_now);
+	currentwhile++;
+}
 static void
 do_goto ()
 {
