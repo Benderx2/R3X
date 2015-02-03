@@ -1,0 +1,58 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div>
+<style>
+body {
+  background-image: url(data/background.jpg);
+  background-size: cover;
+}
+</style>
+<font color=#FFFFFF face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h1>THIS DOCUMENT IS BEING WORKED ON!</h1>
+<h2>BASIC</h2>
+An implementation of TinBASIC is the only HLL language which is ported to R3X VM.
+<h3>Let's begin with a "Hello, World!"</h3>
+<pre>
+	REM This is a comment
+	REM Print Hello, world to screen
+	PRINT "Hello, World!"
+	REM Exit.
+	END
+</pre>
+Using a text editor, save this file as "hello.bas", and run tbc, with the following:<br>
+tbc hello.bas > hello.asm<br>
+Now it should generate an assembler file, however if you use FASM to compile it, it gives an error:<br>
+<pre>
+fasm: 'include/libR3X.pkg' not found.
+</pre>
+You need the "libR3X.pkg" and the "r3x_asm.pkg", in an "include" directory, which should be where you generate your progrmas.<br>
+Then use:<br>
+<pre>fasm hello.asm</pre>
+This should generate a "hello.exe" file, run the program using:<br>
+<pre>
+rxvm -exe ./hello.exe
+</pre>
+You should see the words "Hello, World!" on the output screen. If you press a key, then the program will exit.<br>
+<h3>Integers</h3>
+Unfortunately, as of it's current state, TinyBASIC for R3X doesn't support strings (even C-like strings!). The only<br>
+available type is an integer, what's worse is that the only integer names which can be used are A-Z. Hence, there can only be 26 total<br>
+integers in all. This limitation is being worked on.<br>
+To get started let's know about the "LET" keyword:<br>
+<pre>
+REM Set X to 23 / 5
+LET X = 20 / 5
+REM Y = 4 now
+LET Y = (X/2)+5
+REM Print Y
+PRINT "Y is : "; Y
+END
+</pre>
+<h3>Getting to know keywords</h3>
+The <b>IF</b> keyword:<br>
+<pre>
+...
+IF A+1 [ = > < >= <=] Y+2 GOTO 20
+</pre>
+
