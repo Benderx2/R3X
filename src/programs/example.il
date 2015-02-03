@@ -9,11 +9,7 @@ function main
 	; debug line 1
 
 	; debug line 2
-
-	; debug line 4
-
-	; debug line 5
-	loadr R1, 0
+	loadr R1, 1
 	pushr R0
 	pushr R1
 	loadr R0, vi
@@ -21,7 +17,7 @@ function main
 	popr R1
 	popr R0
 
-	; debug line 6
+	; debug line 3
 	loadr R1, 1
 	pushr R0
 	pushr R1
@@ -30,7 +26,7 @@ function main
 	popr R1
 	popr R0
 
-	; debug line 7
+	; debug line 4
 	loadr R1, 0
 	pushr R0
 	pushr R1
@@ -39,12 +35,15 @@ function main
 	popr R1
 	popr R0
 
-	; debug line 9
+	; debug line 5
+while0:
+	loadrm dword, R1, vi
+	loadrr R4, R1
+	loadr R1, 10
+	cmpr R4, R1
+	jg endwhile0
 
-	; debug line 10
-lfiblabel:
-
-	; debug line 11
+	; debug line 6
 	loadr R1, s0
 	call print_s
 	loadrm dword, R1, vi
@@ -54,11 +53,7 @@ lfiblabel:
 	call print_i
 	call print_n
 
-	; debug line 13
-
-	; debug line 14
-
-	; debug line 15
+	; debug line 8
 	loadrm dword, R1, vx
 	pushr R0
 	pushr R1
@@ -67,7 +62,7 @@ lfiblabel:
 	popr R1
 	popr R0
 
-	; debug line 16
+	; debug line 9
 	loadrm dword, R1, vx
 	pushr R1
 	loadrm dword, R1, vy
@@ -86,7 +81,7 @@ lfiblabel:
 	popr R1
 	popr R0
 
-	; debug line 17
+	; debug line 10
 	loadrm dword, R1, vz
 	pushr R0
 	pushr R1
@@ -95,9 +90,7 @@ lfiblabel:
 	popr R1
 	popr R0
 
-	; debug line 19
-
-	; debug line 20
+	; debug line 11
 	loadrm dword, R1, vi
 	pushr R1
 	loadr R1, 1
@@ -116,14 +109,21 @@ lfiblabel:
 	popr R1
 	popr R0
 
-	; debug line 21
-	loadrm dword, R1, vi
-	loadrr R4, R1
-	loadr R1, 10
-	cmpr R4, R1
-	jg i21
-	jmp lfiblabel
-i21:
+	; debug line 13
+	jmp while0
+endwhile0:
+
+	; debug line 14
+	.data \{ mystr : db 'Thank You!', 0 \}
+
+	; debug line 15
+	push mystr
+
+	; debug line 16
+	syscall SYSCALL_PUTS
+
+	; debug line 17
+	jmp _exit
 endfunction main
 
 	; exit to operating system
@@ -182,3 +182,4 @@ _exit:
 	s0: db "FIB: ", 0
 }
 end
+; Task Completed -- Assemble with FASM 
