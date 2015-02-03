@@ -8,5 +8,8 @@ LET Z = X / Y
 PRINT "Div: "; Z
 LET A = 50 & 2
 PRINT "Or: "; A
+INPUT Y
+PRINT "Y = "; Y
+INPUT Y
 ASM "push 0"
 ASM "exit"

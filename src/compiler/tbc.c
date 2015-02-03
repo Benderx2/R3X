@@ -385,13 +385,26 @@ finish ()
     {
       puts ("\t; read a number from the terminal");
       puts ("\tinput_i:");
+      puts ("\tsyscall SYSCALL_GETC");
       puts ("\tpush 0");
+      puts ("\tcmp");
+      puts ("\tpop");
+      puts ("\tpopr R1");
+      puts ("\tje input_i");
       puts ("\tret");
     }
   else
     {
       puts ("; input_i excluded");
     }
+  puts ("\tOpen a file");
+  puts ("\topen_f:");
+  puts ("\tpushr R1");
+  puts ("\tsyscall SYSCALL_OPENSTREAM");
+  puts ("\tpopr R1");
+  puts ("\tpop");
+  puts ("\tret");
+  
   puts ("");
   puts ("}");
   puts (".bss {");
@@ -498,7 +511,9 @@ get_keyword ()
 {
   int i;
   char token[7];
-
+  while(look == ' ' || look == '\t' || look == '\n'){
+	get_char();
+  }
   if (!isalpha (look))
     error ("expected keyword got '%c'", look);
 

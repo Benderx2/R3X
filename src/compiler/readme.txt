@@ -49,8 +49,6 @@ Usage:
 P.S. While compiling with FASM you will need an 'libR3X.pkg' and 'r3x_asm.pkg' which are in src/programs/libR3X.
 
 -----Uh, this document is badly written, I'll write a better version when I've more time on my hands.-----
-Notes:
-	DONT USE TABS OR IDENTATION PLZ.
 
 Please goto line 39.
 ... OMFG WTF RECURSION??!?!?! RECURSION IS SUPPORTED YAY!
