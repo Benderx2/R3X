@@ -250,11 +250,13 @@ bool gl_text_update(Graphics_t* Graphics) {
 	for(int i = 0; i < Graphics->CharMaxH * Graphics->CharMaxW; i++){
 		putstring[0] = Graphics->TextBuf[i];
 		putstring[1] = 0;
-		if(putstring[0] != 0){
+		if(putstring[0] == '\t' || putstring[0] == ' '){
+		} 
+		else if(putstring[0] != 0){
 			text(x, y, Graphics->FontScale, Graphics->font, (char*)&putstring);
-		}
-			x += Graphics->FontSize; 
-			if(x >= Graphics->Width){
+		} 
+		x += Graphics->FontSize; // and the 8th :D
+		if(x >= Graphics->Width){
 				y += Graphics->FontSize;
 				x = 0;
 			}

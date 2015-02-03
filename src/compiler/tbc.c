@@ -397,7 +397,7 @@ finish ()
     {
       puts ("; input_i excluded");
     }
-  puts ("\tOpen a file");
+  puts ("\t; Open a file");
   puts ("\topen_f:");
   puts ("\tpushr R1");
   puts ("\tsyscall SYSCALL_OPENSTREAM");
