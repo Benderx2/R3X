@@ -283,6 +283,7 @@ print_version ()
 <http://gnu.org/licenses/gpl.html>");
   puts ("This is free software: you are free to change and redistribute it.");
   puts ("There is NO WARRANTY, to the extent permitted by law.");
+  puts ("Modified by Benderx2 to run on R3X Systems.\n");
 }
 
 static void
