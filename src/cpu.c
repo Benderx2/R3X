@@ -1297,6 +1297,7 @@ void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
 		}
 		raise(SIGSEGV);
 	} else {
+		Stack.Push(CPU->Stack, CPU->Regs[0]);
 		CPU->InstructionPointer = CPU->ExceptionHandlers[ExceptionID];
 		CPU->ExceptionFlag = true;
 		return;

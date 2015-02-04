@@ -7,91 +7,34 @@ function main
 
 
 	; debug line 1
+	loadr R1, s0
+	call print_s
+	call print_n
 
 	; debug line 2
-	loadr R1, 1
-	pushr R0
-	pushr R1
-	loadr R0, vi
-	stosd
-	popr R1
-	popr R0
 
 	; debug line 3
-	loadr R1, 1
+	loadr R1, 256
 	pushr R0
 	pushr R1
-	loadr R0, vx
+	call alloc_n
+	loadr R0, vs
 	stosd
 	popr R1
 	popr R0
 
 	; debug line 4
-	loadr R1, 0
+	loadrm dword, R1, vs
+	loadrr R5, R1
+	loadr R1, 65
 	pushr R0
-	pushr R1
-	loadr R0, vy
-	stosd
-	popr R1
+	loadrr R0, R5
+	stosb
 	popr R0
+
 
 	; debug line 5
-while0:
-	loadrm dword, R1, vi
-	loadrr R4, R1
-	loadr R1, 10
-	cmpr R4, R1
-	jg endwhile0
-
-	; debug line 6
-	loadr R1, s0
-	call print_s
-	loadrm dword, R1, vi
-	call print_i
-	call print_t
-	loadrm dword, R1, vx
-	call print_i
-	call print_n
-
-	; debug line 8
-	loadrm dword, R1, vx
-	pushr R0
-	pushr R1
-	loadr R0, vz
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 9
-	loadrm dword, R1, vx
-	pushr R1
-	loadrm dword, R1, vy
-	popr R2
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
-	pushr R0
-	pushr R1
-	loadr R0, vx
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 10
-	loadrm dword, R1, vz
-	pushr R0
-	pushr R1
-	loadr R0, vy
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 11
-	loadrm dword, R1, vi
+	loadrm dword, R1, vs
 	pushr R1
 	loadr R1, 1
 	popr R2
@@ -102,27 +45,36 @@ while0:
 	pop
 	pop
 
+	loadrr R5, R1
+	loadr R1, 0
+	pushr R0
+	loadrr R0, R5
+	stosb
+	popr R0
+
+
+	; debug line 6
+	loadrm dword, R1, vs
+	pushr R0
+	loadrr R0, R1
+	lodsb
+	popr R0
+
 	pushr R0
 	pushr R1
-	loadr R0, vi
+	loadr R0, vx
 	stosd
 	popr R1
 	popr R0
 
-	; debug line 13
-	jmp while0
-endwhile0:
+	; debug line 7
+	loadr R1, s1
+	call print_s
+	loadrm dword, R1, vx
+	call print_i
+	call print_n
 
-	; debug line 14
-	.data \{ mystr : db 'Thank You!', 0 \}
-
-	; debug line 15
-	push mystr
-
-	; debug line 16
-	syscall SYSCALL_PUTS
-
-	; debug line 17
+	; debug line 8
 	jmp _exit
 endfunction main
 
@@ -146,12 +98,7 @@ _exit:
 	popr R1
 	ret
 
-	; print a tab to the terminal
-	print_t:
-	push 0x09
-	syscall SYSCALL_PUTCH
-	pop
-	ret
+; print_t excluded
 
 	; print a newline to the terminal
 	print_n:
@@ -161,10 +108,10 @@ _exit:
 	ret
 
 ; input_i excluded
-	; Open a file
-	open_f:
+; Allocate n bytes of memory
+alloc_n:
 	pushr R1
-	syscall SYSCALL_OPENSTREAM
+	syscall SYSCALL_ALLOC
 	popr R1
 	pop
 	ret
@@ -172,14 +119,13 @@ _exit:
 }
 .bss {
 
-	vi: rd 1
+	vs: rd 1
 	vx: rd 1
-	vy: rd 1
-	vz: rd 1
 }
 .data {
 
-	s0: db "FIB: ", 0
+	s0: db "Array stuff", 0
+	s1: db "S[0] = ", 0
 }
 end
 ; Task Completed -- Assemble with FASM 

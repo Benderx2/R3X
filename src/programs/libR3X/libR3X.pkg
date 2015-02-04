@@ -339,7 +339,8 @@ __libR3X_init:
 	
 
 __invalid_access_handler:
-	pushstring "Program attempted an invalid memory access. (Segmentation Fault)"
+	syscall SYSCALL_PUTI
+	pushstring " : (Address), Program attempted an invalid memory access. (Segmentation Fault)"
 	jmp __handler_prologue
 
 __invalid_opcode_handler:

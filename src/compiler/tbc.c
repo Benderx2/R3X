@@ -42,6 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 enum
 {
   T_PRINT,
+  T_ALLOC,
   T_IF,
   T_GOTO,
   T_INPUT,
@@ -126,6 +127,7 @@ static void  do_gosubl 	PARAMS ((void));
 static void  do_ptr		PARAMS ((void));
 static void  do_while		PARAMS ((void));
 static void  do_endw		PARAMS ((void));
+static void  do_alloc		PARAMS ((void));
 char* 		  return_str	PARAMS ((void));
 char*        return_next_tok(void);
 int
@@ -397,10 +399,11 @@ finish ()
     {
       puts ("; input_i excluded");
     }
-  puts ("\t; Open a file");
-  puts ("\topen_f:");
+  
+  puts ("; Allocate n bytes of memory");
+  puts ("alloc_n:");
   puts ("\tpushr R1");
-  puts ("\tsyscall SYSCALL_OPENSTREAM");
+  puts ("\tsyscall SYSCALL_ALLOC");
   puts ("\tpopr R1");
   puts ("\tpop");
   puts ("\tret");
@@ -559,6 +562,8 @@ get_keyword ()
 	i = T_WHILE;
   else if(!strcmp(token, "endw"))
 	i = T_ENDW;
+  else if (!strcmp(token, "alloc"))
+	i = T_ALLOC;
   else
     error ("expected keyword got '%s'", token);
 
@@ -633,6 +638,7 @@ do_statement ()
     case T_PTR:    do_ptr(); break;
     case T_WHILE:  do_while(); break;
     case T_ENDW:   do_endw(); break;
+    case T_ALLOC:  do_alloc(); break;
     default:       assert (0);   break;
     }
 }
@@ -725,6 +731,15 @@ do_print_item ()
       do_string ();
       puts ("\tcall print_s");
     }
+  else if (look == '$') {
+		use_print_s = 1;
+		get_char();
+		if(!isalpha(look)) {
+			error("expected a variable name but got %c\n", look);
+		}
+		printf ("\tpushr R1\n\tloadrm dword, R1, v%c\n", look);
+		printf ("\tcall print_s\n\tpopr R1");
+  }
   else
     {
       use_print_i = 1;
@@ -972,10 +987,30 @@ do_input ()
 static void
 do_let ()
 {
+  if(look == '[') {
+	get_char();
+	do_expression();
+	match(']');
+	printf ("\tloadrr R5, R1\n");
+	eat_blanks();
+	match('=');
+	do_expression();
+	puts("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
+	
+  } else {
+	char name = get_name ();
+	match ('=');
+	do_expression ();
+	printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, v%c\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
+ }
+}
+static void
+do_alloc()
+{
   char name = get_name ();
   match ('=');
   do_expression ();
-  printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, v%c\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
+  printf ("\tpushr R0\n\tpushr R1\n\tcall alloc_n\n\tloadr R0, v%c\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
 }
 static void 
 do_ptr()
@@ -1055,6 +1090,7 @@ do_term ()
 	puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpop\n\tpop");
 	  else if (op == '^')
 	puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpop\n\tpop");
+		
     }
 }
 
@@ -1067,10 +1103,28 @@ do_factor ()
       do_expression ();
       match (')');
     }
+  else if(look == '[') {
+	match('[');
+	do_expression();
+	match(']');
+	puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
+  }
   else if (isalpha (look))
     {
       printf ("\tloadrm dword, R1, v%c\n", get_name ());
     }
+  else if(look == '\'') {
+	get_char();
+	if(look == '\'') {
+		printf("\tloadr R1, 0\n");
+	}
+	else {
+		int num_char = look;
+		printf("\tloadr R1, %i\n", num_char);
+		get_char();
+		match('\'');
+	}
+  }
   else
     {
       printf ("\tloadr R1, %i\n", get_num ());
