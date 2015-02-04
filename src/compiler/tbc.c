@@ -15,7 +15,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+/*
+ * Partly rewritten and extended for R3X systems by Benderx2.
+ * Licensed as the above.
+ * */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -785,7 +788,7 @@ do_if ()
 	}
       else if (look == '>')
 	{
-	  match ('>');
+	  match ('>');effyouseekay
 	  op = O_MORE_OR_EQUAL;
 	}
       else
