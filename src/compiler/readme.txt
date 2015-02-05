@@ -41,7 +41,7 @@ Arrays:
 		[S+1] = 0
 		LET X = [S] // X = 'A' or 65.
 Operators:
-	Current supported operators are +, -, /, *, &, ^, |. There is operator precendence, but it's very shitty.
+	Current supported operators are +, -, /, *, %, &, ^, |. There is operator precendence, but it's very shitty.
 	Please don't use it, instead just use fkn parentheses, and if you can't then go fuck yourself, I don't
 	have time for this shit.
 	

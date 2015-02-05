@@ -14,7 +14,7 @@ function main
 	; debug line 2
 
 	; debug line 3
-	loadr R1, 256
+	loadr R1, 4
 	pushr R0
 	pushr R1
 	call alloc_n
@@ -24,32 +24,14 @@ function main
 	popr R0
 
 	; debug line 4
-	loadrm dword, R1, vs
-	loadrr R5, R1
-	loadr R1, 65
-	pushr R0
-	loadrr R0, R5
-	stosb
-	popr R0
-
 
 	; debug line 5
 	loadrm dword, R1, vs
-	pushr R1
-	loadr R1, 1
-	popr R2
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
 	loadrr R5, R1
-	loadr R1, 0
+	loadr R1, 41089340
 	pushr R0
 	loadrr R0, R5
-	stosb
+	stosd
 	popr R0
 
 
@@ -71,6 +53,14 @@ function main
 	loadr R1, s1
 	call print_s
 	loadrm dword, R1, vx
+	call print_i
+	call print_t
+	loadrm dword, R1, vs
+	pushr R0
+	loadrr R0, R1
+	lodsd
+	popr R0
+
 	call print_i
 	call print_n
 
@@ -98,7 +88,12 @@ _exit:
 	popr R1
 	ret
 
-; print_t excluded
+	; print a tab to the terminal
+	print_t:
+	push 0x09
+	syscall SYSCALL_PUTCH
+	pop
+	ret
 
 	; print a newline to the terminal
 	print_n:

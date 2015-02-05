@@ -788,7 +788,7 @@ do_if ()
 	}
       else if (look == '>')
 	{
-	  match ('>');effyouseekay
+	  match ('>');
 	  op = O_MORE_OR_EQUAL;
 	}
       else
@@ -990,15 +990,37 @@ do_input ()
 static void
 do_let ()
 {
-  if(look == '[') {
+  if(look == '[' || look == '@' || look == '{') {
+	char m_save = look;
+	if(m_save == '[') {
+		m_save = ']';
+	} else if(m_save == '{') {
+		m_save = '}';
+	} else if(m_save == '@') {
+		m_save = '@';
+	}
 	get_char();
 	do_expression();
-	match(']');
+	match(m_save);
 	printf ("\tloadrr R5, R1\n");
 	eat_blanks();
 	match('=');
 	do_expression();
-	puts("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
+	switch(m_save) {
+		case ']':
+			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
+			break;
+		case '@':
+			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosw\n\tpopr R0\n");
+			break;
+		case '}':
+			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosd\n\tpopr R0\n");
+			break;
+		default:
+			puts("; Warning, some internal compiler error!");
+			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
+			break;
+	}
 	
   } else {
 	char name = get_name ();
@@ -1075,7 +1097,7 @@ do_term ()
 {
   do_factor ();
 
-  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/')
+  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
     {
       int op = look;
       puts ("\tpushr R1");
@@ -1092,7 +1114,10 @@ do_term ()
 	  else if (op == '|')
 	puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpop\n\tpop");
 	  else if (op == '^')
-	puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpop\n\tpop");
+	puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpopn 2");
+	  else if (op == '%'){
+		puts("pushr R2\n\tpushr R1\n\tmod\n\tpopr R1\n\tpopn 2");
+	  }
 		
     }
 }
@@ -1106,12 +1131,34 @@ do_factor ()
       do_expression ();
       match (')');
     }
-  else if(look == '[') {
-	match('[');
+  else if(look == '[' || look == '@' || look == '{') {
+	char m_save = look;
+	if(m_save == '[') {
+		m_save = ']';
+	} else if(m_save == '{') {
+		m_save = '}';
+	} else if(m_save == '@') {
+		m_save = '@';
+	}
+	match(look);
 	do_expression();
-	match(']');
-	puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
+	match(m_save);
+	switch(m_save) {
+		case ']':
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
+			break;
+		case '@':
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsw\n\tpopr R0\n");
+			break;
+		case '}':
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsd\n\tpopr R0\n");
+			break;
+		default:
+			puts("; Warning: Internal compiler error. Unable to find maccess operator!");
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
+			break;
   }
+}
   else if (isalpha (look))
     {
       printf ("\tloadrm dword, R1, v%c\n", get_name ());
