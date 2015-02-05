@@ -308,7 +308,7 @@ begin ()
   /*
    * 256-bit header in text section
    * */
-  puts (".text {")
+  puts (".text {");
   puts ("dd 0x56081124");
   puts ("dd 0x12345678");
   puts ("dd 0x12335850");
