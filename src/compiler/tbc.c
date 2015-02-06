@@ -510,13 +510,56 @@ static int
 get_num ()
 {
   int result = 0;
-
   if (isdigit (look))
     for (; isdigit (look); get_char ())
       {
 	result *= 10;
 	result += look - '0';
       }
+   /*
+    * Hexadecimal notation
+    * */
+   else if(look == '#') {
+	   get_char();
+	   for(; isdigit(look) || look == 'A' || look == 'B' || look == 'C' || look == 'D' || look == 'E' || look == 'F'; get_char())
+	   {
+		   result *= 16;
+		   if(isdigit(look)) {
+			result += look - '0';
+		   } else {
+			switch(look) {
+				case 'a':
+					result += 10;
+					break;
+				case 'b':
+					result += 11;
+					break;
+				case 'c':
+					result += 12;
+					break;
+				case 'd':
+					result += 13;
+					break;
+				case 'e':
+					result += 14;
+					break;
+				case 'f':
+					result += 15;
+					break;
+			}
+		   }
+	   }
+   }
+   /*
+    * Binary notation
+    * */
+    else if(look == '`') {
+		get_char();
+		for(; look == '0' || look == '1'; get_char()) {
+			result *= 2;
+			result += look - '0';
+		}
+	}
   else
     error ("expected integer got '%c'", look);
 
