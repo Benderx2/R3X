@@ -760,7 +760,7 @@ do_print ()
 
   for (;;)
     {
-      if (look == ',')
+      if (look == ';')
 	{
 	  match (',');
 	  use_print_t = 1;

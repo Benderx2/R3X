@@ -30,10 +30,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef R3X_VERSION_H
 #define R3X_VERSION_H
 #ifdef LINUX_ARCH_X8664
-	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.0a BASICPie, compiled for: Linux64"
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.6a BASICPie, compiled for: Linux64"
 #endif
 #ifdef LINUX_ARCH_X8632
-	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.0a BASICPie, compiled for: Linux32"
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.6a BASICPie, compiled for: Linux32"
 #endif
 #ifdef LINUX_ARCH_ARM64
 	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.6a BASICPie, compiled for: LinuxARM64"
