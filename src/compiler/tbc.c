@@ -574,16 +574,33 @@ get_num ()
 				case 'F':
 					result += 15;
 					break;
+				default:
+					error("expected hex digit but got %c\n", look);
+					break;
 			}
 		   }
 	   }
+	   eat_blanks();
 	   return result;
+	} else if(operand_prefix == 'o'){
+		get_char();
+		for(; isdigit(look); get_char()) {
+			result *= 8;
+			int octal = look - '0';
+			if(octal >= 8) {
+				error("expect octal digit but got %c\n", look);
+			}
+			result += octal;
+		}
+		eat_blanks();
+		return result;
 	} else if(operand_prefix == 'b') {
 		get_char();
 		for(; look == '0' || look == '1'; get_char()) {
 			result *= 2;
 			result += look - '0';
 		}
+		eat_blanks();
 		return result;
 	} else {
 		ungetc(operand_prefix, stdin);

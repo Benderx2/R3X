@@ -19,6 +19,7 @@ Keywords:
 
 	Use a 0xFFFFFF to use hexadecimal notation. (A,B,C,D,E,F digits should be in caps)
 	Use a 0b101010101 for binary notation
+	Use a 0o01234567 for octal notation
 	
 	PRINT "STR"; EXPRESSION - Print a string to the terminal, or an integer which is a result of EXPRESSION as described.
 	INPUT <INT> - Input an integer from the terminal
