@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
@@ -56,9 +57,6 @@ enum
   T_RUN,
   T_ASM,
   T_LABEL,
-  T_GOTOL,
-  T_GOSUBL,
-  T_PTR,
   T_WHILE,
   T_ENDW,
   T_END
@@ -73,7 +71,11 @@ enum
   O_LESS_OR_EQUAL,
   O_MORE_OR_EQUAL
 };
-
+typedef struct {
+	char** name;
+	unsigned int id;
+	bool is_used;
+} variable_type;
 static char        look          = 0;
 static int         line          = 1;
 static int			whilelines 	  = 0;
@@ -84,13 +86,16 @@ static int         use_print_t   = 0;
 static int         use_print_n   = 0;
 static int         use_input_i   = 0;
 static int         vars_used[26] = { 0 };
+static int			vars_used_gc[26] = { 0 };
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
 static char **     strings       = NULL;
+static unsigned int 		current_variable_index = 0;
+static unsigned int		total_variables = 0;
+static char** 				variables_used = NULL;
 static int         string_count  = 0;
 static const char *program_name  = "<?>";
 static const char *input_name    = NULL;
 static const char *output_name   = NULL;
-
 static void  shutdown      PARAMS ((void));
 static void *xmalloc       PARAMS ((size_t size));
 static void *xrealloc      PARAMS ((void *original, size_t size));
@@ -125,12 +130,11 @@ static void  do_factor     PARAMS ((void));
 static void  do_string     PARAMS ((void));
 static void  do_asm		PARAMS ((void));
 static void  do_label		PARAMS ((void));
-static void  do_gotol		PARAMS ((void));
-static void  do_gosubl 	PARAMS ((void));
-static void  do_ptr		PARAMS ((void));
 static void  do_while		PARAMS ((void));
 static void  do_endw		PARAMS ((void));
 static void  do_alloc		PARAMS ((void));
+static void  add_variable  PARAMS ((char*));
+static char*  return_next_int_name PARAMS((void));
 char* 		  return_str	PARAMS ((void));
 char*        return_next_tok(void);
 int
@@ -141,14 +145,33 @@ main (argc, argv)
   atexit (shutdown);
 
   parse_opts (argc, argv);
-
+	
+  variables_used = xmalloc(sizeof(char**)*16);
+  total_variables = 16;
   begin ();
   while (do_line ());
   finish ();
 
   return EXIT_SUCCESS;
 }
-
+static void 
+add_variable(char* var_name) {
+	unsigned int i;
+	for(i = 0; i < total_variables; i++) {
+		if(variables_used[i] != NULL) {
+			if(!strcmp(variables_used[i], var_name)) {
+				//! Already used variable
+				return;
+			}
+		}
+	}
+	if(total_variables < current_variable_index) {
+		total_variables += 16;
+		variables_used = xrealloc(variables_used, total_variables);
+	}
+	variables_used[current_variable_index] = var_name;
+	current_variable_index++;
+}
 static void
 shutdown ()
 {
@@ -170,6 +193,7 @@ xmalloc (size)
       fprintf (stderr, "%s: failed to allocate memory\n", program_name);
       exit (EXIT_FAILURE);
     }
+  memset(data, 0, size);
   return data;
 }
 
@@ -309,14 +333,14 @@ begin ()
    * 256-bit header in text section
    * */
   puts (".text {");
-  puts ("dd 0x56081124");
-  puts ("dd 0x12345678");
-  puts ("dd 0x12335850");
-  puts ("dd 0xFFFF3FFF");
-  puts ("dd 0x23FF0FFF");
-  puts ("dd 0x13370000");
-  puts ("dd 0x66600000");
-  puts ("dd 0xEF7L0016");
+  puts ("\tdd 0x56081124");
+  puts ("\tdd 0x12345678");
+  puts ("\tdd 0x12335850");
+  puts ("\tdd 0xFFFF3FFF");
+  puts ("\tdd 0x23FF0FFF");
+  puts ("\tdd 0x13370000");
+  puts ("\tdd 0x66600000");
+  puts ("\tdd 0xEF7L0016");
   puts ("}");
   puts ("");
   puts (".text {");
@@ -424,6 +448,13 @@ finish ()
   puts ("\tpop");
   puts ("\tret");
   
+  puts ("; Free an allocated region");
+  puts ("free:");
+  puts ("\tpushr R1");
+  puts ("\tsyscall SYSCALL_FREE");
+  puts ("\tpop");
+  puts ("\tret");
+  
   puts ("");
   puts ("}");
   puts (".bss {");
@@ -432,9 +463,12 @@ finish ()
   for (i = 0; i < 26; ++i)
     if (vars_used[i])
       printf ("\tv%c: rd 1\n", 'a' + i);
-
+  for (i = 0; i < total_variables; ++i) {
+	    if(variables_used[i] != NULL) {
+			printf("\tv%s: rd 1\n", variables_used[i]);
+		}
+  }
   puts ("}");
-
   puts (".data {");
   puts ("");
 
@@ -510,16 +544,10 @@ static int
 get_num ()
 {
   int result = 0;
-  if (isdigit (look))
-    for (; isdigit (look); get_char ())
-      {
-	result *= 10;
-	result += look - '0';
-      }
-   /*
-    * Hexadecimal notation
-    * */
-   else if(look == '#') {
+  if(look == '0') {
+	char operand_prefix = getc(stdin);
+	operand_prefix = tolower(operand_prefix);
+	if(operand_prefix == 'x') {
 	   get_char();
 	   for(; isdigit(look) || look == 'A' || look == 'B' || look == 'C' || look == 'D' || look == 'E' || look == 'F'; get_char())
 	   {
@@ -528,38 +556,45 @@ get_num ()
 			result += look - '0';
 		   } else {
 			switch(look) {
-				case 'a':
+				case 'A':
 					result += 10;
 					break;
-				case 'b':
+				case 'B':
 					result += 11;
 					break;
-				case 'c':
+				case 'C':
 					result += 12;
 					break;
-				case 'd':
+				case 'D':
 					result += 13;
 					break;
-				case 'e':
+				case 'E':
 					result += 14;
 					break;
-				case 'f':
+				case 'F':
 					result += 15;
 					break;
 			}
 		   }
 	   }
-   }
-   /*
-    * Binary notation
-    * */
-    else if(look == '`') {
+	   return result;
+	} else if(operand_prefix == 'b') {
 		get_char();
 		for(; look == '0' || look == '1'; get_char()) {
 			result *= 2;
 			result += look - '0';
 		}
+		return result;
+	} else {
+		ungetc(operand_prefix, stdin);
 	}
+  }
+  if (isdigit (look))
+    for (; isdigit (look); get_char ())
+      {
+	result *= 10;
+	result += look - '0';
+      }
   else
     error ("expected integer got '%c'", look);
 
@@ -611,12 +646,6 @@ get_keyword ()
 	i = T_ASM;
   else if (!strcmp(token, "label"))
 	i = T_LABEL;
-  else if (!strcmp(token, "gotol"))
-	i = T_GOTOL;
-  else if(!strcmp(token, "gosubl"))
-    i = T_GOSUBL;
-  else if(!strcmp(token, "ptr"))
-	i = T_PTR;
   else if(!strcmp(token, "while"))
 	i = T_WHILE;
   else if(!strcmp(token, "endw"))
@@ -692,9 +721,6 @@ do_statement ()
     case T_END:    do_end ();    break;
     case T_ASM:    do_asm(); break;
     case T_LABEL:  do_label(); break;
-    case T_GOTOL:  do_gotol(); break;
-    case T_GOSUBL: do_gosubl(); break;
-    case T_PTR:    do_ptr(); break;
     case T_WHILE:  do_while(); break;
     case T_ENDW:   do_endw(); break;
     case T_ALLOC:  do_alloc(); break;
@@ -736,20 +762,21 @@ return_next_tok() {
   string = xmalloc (1);
   string[0] = 0;
 
-  for (; look != ' ' && look != '\t' && look != '\n'; get_char ())
+  for (; look != ' ' && look != '\t' && look != '\n' && look != '/' && look != '*' && look != '+' && look != '-' && look != '^' && look != '%' && look != '@' && look != '{' && look != '}' && look != '[' && look != ']' && look != '^' && look != '&' && look != '|' && look != '!' && look != '~' && look != '\'' && look != ';' && look != '.' && look != '>' && look != '<' && look != '?' && look != '>' && look != ',' && look != '='; get_char ())
     {
       ++string_size;
       string = xrealloc (string, string_size + 1);
       string[string_size - 1] = look;
       string[string_size] = 0;
     }
-
-  //!get_char ();
   return string;
 }
-static void
-do_gosubl() {
-	printf("\tcall l%s\n", return_next_tok());
+char* return_next_int_name()
+{
+	char* returnval = return_next_tok();
+	add_variable(returnval);
+	eat_blanks();
+	return returnval;
 }
 static void
 do_print ()
@@ -760,7 +787,7 @@ do_print ()
 
   for (;;)
     {
-      if (look == ';')
+      if (look == ',')
 	{
 	  match (',');
 	  use_print_t = 1;
@@ -1027,19 +1054,19 @@ do_endw()
 static void
 do_goto ()
 {
-  printf ("\tjmp l%i\n", get_num ());
+  if(isalpha(look)) {
+	printf("\tjmp l%s", return_next_tok());
+  } else {
+	printf ("\tjmp l%i\n", get_num ());
+  }
 }
-static void
-do_gotol () 
-{	
-  printf("\tjmp l%s\n", return_next_tok());
-}
+
 static void
 do_input ()
 {
   use_input_i = 1;
   do
-    printf ("\tcall input_i\n\tpushr R0\n\tpushr R1\n\tloadr R0, v%c\n\tstosd\n\tpopr R1\n\tpopr R0\n", get_name ());
+    printf ("\tcall input_i\n\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", return_next_int_name ());
   while (look == ',');
 }
 
@@ -1079,31 +1106,26 @@ do_let ()
 	}
 	
   } else {
-	char name = get_name ();
-	match ('=');
+	char* name = return_next_int_name ();
+	match('=');
 	do_expression ();
-	printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, v%c\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
+	printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
  }
 }
 static void
 do_alloc()
 {
-  char name = get_name ();
+  char* name = return_next_int_name ();
   match ('=');
   do_expression ();
-  printf ("\tpushr R0\n\tpushr R1\n\tcall alloc_n\n\tloadr R0, v%c\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
-}
-static void 
-do_ptr()
-{
-	char name = get_name ();
-  match ('=');
-  do_expression ();
-  printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, R1\n\tlodsdloadr R0, v%c\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
+  printf ("\tpushr R0\n\tpushr R1\n\tcall alloc_n\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
 }
 static void
 do_gosub ()
 {
+  if(isalpha(look)) {
+	printf("\tcall l%s", return_next_tok());
+  }
   printf ("\tcall l%i\n", get_num ());
 }
 
@@ -1217,7 +1239,7 @@ do_factor ()
 }
   else if (isalpha (look))
     {
-      printf ("\tloadrm dword, R1, v%c\n", get_name ());
+      printf ("\tloadrm dword, R1, v%s\n", return_next_int_name ());
     }
   else if(look == '\'') {
 	get_char();
