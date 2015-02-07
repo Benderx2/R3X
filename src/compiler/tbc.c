@@ -45,6 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MAX_WHILE_NESTING 256
 enum
 {
+  T_NULL = 0,
   T_PRINT,
   T_ALLOC,
   T_IF,
@@ -340,7 +341,7 @@ begin ()
   puts ("\tdd 0x23FF0FFF");
   puts ("\tdd 0x13370000");
   puts ("\tdd 0x66600000");
-  puts ("\tdd 0xEF7L0016");
+  puts ("\tdd 0xEF7E0016");
   puts ("}");
   puts ("");
   puts (".text {");
@@ -501,7 +502,7 @@ error (format)
 static void
 eat_blanks ()
 {
-  while (look == ' ' || look == '\t')
+  while (look == ' ' || look == '\t' || look == '\r')
     get_char ();
 }
 
@@ -628,10 +629,10 @@ get_keyword ()
   while(look == ' ' || look == '\t' || look == '\n'){
 	get_char();
   }
-  if (!isalpha (look))
-    error ("expected keyword got '%c'", look);
+  if ((!isalpha (look)) && look != '#')
+    error ("expected keyword got %c", look);
 
-  for (i = 0; i < (int) sizeof (token) - 1 && isalpha (look); ++i)
+  for (i = 0; i < (int) sizeof (token) - 1 && (isalpha (look) || look == '#' || look == '!'); ++i)
     {
       token[i] = tolower (look);
       get_char ();
@@ -653,7 +654,7 @@ get_keyword ()
     i = T_GOSUB;
   else if (!strcmp (token, "return"))
     i = T_RETURN;
-  else if (!strcmp (token, "rem"))
+  else if (!strcmp (token, "rem") || !strcmp(token, "#!"))
     i = T_REM;
   else if (!strcmp (token, "run"))
     i = T_RUN;
@@ -671,7 +672,6 @@ get_keyword ()
 	i = T_ALLOC;
   else
     error ("expected keyword got '%s'", token);
-
   eat_blanks ();
 
   return i;
@@ -1090,14 +1090,14 @@ do_input ()
 static void
 do_let ()
 {
-  if(look == '[' || look == '@' || look == '{') {
+  if(look == '[' || look == '<' || look == '{') {
 	char m_save = look;
 	if(m_save == '[') {
 		m_save = ']';
 	} else if(m_save == '{') {
 		m_save = '}';
-	} else if(m_save == '@') {
-		m_save = '@';
+	} else if(m_save == '<') {
+		m_save = '>';
 	}
 	get_char();
 	do_expression();
@@ -1110,7 +1110,7 @@ do_let ()
 		case ']':
 			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
 			break;
-		case '@':
+		case '>':
 			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosw\n\tpopr R0\n");
 			break;
 		case '}':
@@ -1226,14 +1226,14 @@ do_factor ()
       do_expression ();
       match (')');
     }
-  else if(look == '[' || look == '@' || look == '{') {
+  else if(look == '[' || look == '<' || look == '{') {
 	char m_save = look;
 	if(m_save == '[') {
 		m_save = ']';
 	} else if(m_save == '{') {
 		m_save = '}';
-	} else if(m_save == '@') {
-		m_save = '@';
+	} else if(m_save == '<') {
+		m_save = '>';
 	}
 	match(look);
 	do_expression();
@@ -1242,7 +1242,7 @@ do_factor ()
 		case ']':
 			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
 			break;
-		case '@':
+		case '>':
 			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsw\n\tpopr R0\n");
 			break;
 		case '}':
