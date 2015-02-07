@@ -1,7 +1,7 @@
 print "Testing Division and bitwise"
 goto mylabel
 print "Testing division"
-label mylabel
+:mylabel
 let X = 21
 let Y = 5
 let Z = X / Y

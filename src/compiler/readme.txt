@@ -37,9 +37,15 @@ Keywords:
 Labels:
 	Labels can be created like this:
 	  label mylabel
+	  or like
+	  :mylabel
+	  or use numbers like
+	  10 <code>
 	...And can be used like this,
 		goto mylabel
 		gosub mylabel
+		goto 10
+		gosub 10
 	Unfortunately, you currently cannot refer to the address of labels as of now, nor can you
 	currently pass an expression to goto or gosub.
 Arrays:

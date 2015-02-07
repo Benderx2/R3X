@@ -965,7 +965,10 @@ do_statement ()
 {
   if (isdigit (look))
     printf ("l%i:\n", get_num ());
-
+  if (look == ':') {
+	get_char();
+	printf("l%s:\n", return_next_tok());
+  }
   switch (get_keyword ())
     {
     case T_PRINT:  do_print ();  break;

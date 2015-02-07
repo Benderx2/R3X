@@ -1,6 +1,6 @@
 	print "Array stuff"
 	goto mylabel
-label mylabel
+:mylabel
 #! Allocate 4 bytes for S.
 	alloc buffer = 4
 	let B=100
