@@ -57,7 +57,7 @@ Operators:
 	Please don't use it, instead just use fkn parentheses, and if you can't then go fuck yourself, I don't
 	have time for this shit.
 	
-	Thank you. And fuck off, please goto the line 61 to see what it means...
+	Thank you. And fuck off, please goto the line 60 to see what it means...
 	... OMFG WTF RECURSION??!?!?! RECURSION IS SUPPORTED YAY! [to an extent]
 
 Using variables in inline asm:
