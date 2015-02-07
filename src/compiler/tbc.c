@@ -89,6 +89,11 @@ static int         use_input_i   = 0;
 static int         vars_used[26] = { 0 };
 static int			vars_used_gc[26] = { 0 };
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
+
+static char ** 	function_names = NULL;
+static unsigned int current_function_index = 0;
+static unsigned int total_functions = 0;
+
 static char **     strings       = NULL;
 static unsigned int 		current_variable_index = 0;
 static unsigned int		total_variables = 0;
@@ -138,6 +143,9 @@ static void  add_variable  PARAMS ((char*));
 static char*  return_next_int_name PARAMS((void));
 char* 		  return_str	PARAMS ((void));
 char*        return_next_tok(void);
+/*!
+ * Standard C main function
+ * */
 int
 main (argc, argv)
      int argc;
@@ -155,6 +163,9 @@ main (argc, argv)
 
   return EXIT_SUCCESS;
 }
+/*!
+ * Adds a variable to the variable table with a name.
+ * */
 static void 
 add_variable(char* var_name) {
 	unsigned int i;
@@ -173,6 +184,9 @@ add_variable(char* var_name) {
 	variables_used[current_variable_index] = var_name;
 	current_variable_index++;
 }
+/*!
+ * Frees memory allocated previously.
+ * */
 static void
 shutdown ()
 {
@@ -183,7 +197,9 @@ shutdown ()
 
   xfree (strings);
 }
-
+/*!
+ * A wrapper over malloc
+ * */
 static void *
 xmalloc (size)
      size_t size;
@@ -197,7 +213,9 @@ xmalloc (size)
   memset(data, 0, size);
   return data;
 }
-
+/*!
+ * A wrapper over realloc
+ * */
 static void *
 xrealloc (original, size)
      void *original;
@@ -211,7 +229,9 @@ xrealloc (original, size)
     }
   return data;
 }
-
+/*!
+ * A wrapper over free
+ * */
 static void
 xfree (pointer)
      void *pointer;
@@ -219,7 +239,9 @@ xfree (pointer)
   if (pointer)
     free (pointer);
 }
-
+/*!
+ * Parses arugments given to program
+ * */
 static void
 parse_opts (argc, argv)
      int argc;
@@ -293,7 +315,334 @@ parse_opts (argc, argv)
       output_name = "<stdout>";
     }
 }
+/*!
+ * Returns a string literal
+ * */
+char* 
+return_str() {
+  int i;
+  size_t string_size = 0;
+  char *string;
 
+  string = xmalloc (1);
+  string[0] = 0;
+
+  for (get_char (); look != '"'; get_char ())
+    {
+      ++string_size;
+      string = xrealloc (string, string_size + 1);
+      string[string_size - 1] = look;
+      string[string_size] = 0;
+    }
+
+  get_char ();
+  eat_blanks();
+  return string;
+}
+/*!
+ * Returns a new token separated by operators etc.
+ * */
+char* 
+return_next_tok() {
+  int i;
+  size_t string_size = 0;
+  char *string;
+
+  string = xmalloc (1);
+  string[0] = 0;
+
+  for (; look != ' ' && look != '\t' && look != '\n' && look != '/' && look != '*' && look != '+' && look != '-' && look != '^' && look != '%' && look != '@' && look != '{' && look != '}' && look != '[' && look != ']' && look != '^' && look != '&' && look != '|' && look != '!' && look != '~' && look != '\'' && look != ';' && look != '.' && look != '>' && look != '<' && look != '?' && look != '>' && look != ',' && look != '='; get_char ())
+    {
+      ++string_size;
+      string = xrealloc (string, string_size + 1);
+      string[string_size - 1] = look;
+      string[string_size] = 0;
+    }
+  eat_blanks();
+  return string;
+}
+/*!
+ * Returns a variable name.
+ * */
+char* return_next_int_name()
+{
+	char* returnval = return_next_tok();
+	add_variable(returnval);
+	eat_blanks();
+	return returnval;
+}
+/*!
+ * Skips spaces, tabs, and CR
+ */
+static void
+eat_blanks ()
+{
+  while (look == ' ' || look == '\t' || look == '\r')
+    get_char ();
+}
+/*!
+ * Checks if a certain character is at current position in source
+ */
+static void
+match (what)
+     int what;
+{
+  if (look == what)
+    get_char ();
+  else
+    error ("expected '%c' got '%c'", what, look);
+
+  eat_blanks ();
+}
+/*!
+ * Gets a character from the source file
+ */
+static void
+get_char ()
+{
+  look = fgetc (stdin);
+}
+/*!
+ * Gets an integer literal, decimal/hex/octal
+ */
+static int
+get_num ()
+{
+  int result = 0;
+  if(look == '0') {
+	char operand_prefix = getc(stdin);
+	operand_prefix = tolower(operand_prefix);
+	if(operand_prefix == 'x') {
+	   get_char();
+	   for(; isdigit(look) || look == 'A' || look == 'B' || look == 'C' || look == 'D' || look == 'E' || look == 'F'; get_char())
+	   {
+		   result *= 16;
+		   if(isdigit(look)) {
+			result += look - '0';
+		   } else {
+			switch(look) {
+				case 'A':
+					result += 10;
+					break;
+				case 'B':
+					result += 11;
+					break;
+				case 'C':
+					result += 12;
+					break;
+				case 'D':
+					result += 13;
+					break;
+				case 'E':
+					result += 14;
+					break;
+				case 'F':
+					result += 15;
+					break;
+				default:
+					error("expected hex digit but got %c\n", look);
+					break;
+			}
+		   }
+	   }
+	   eat_blanks();
+	   return result;
+	} else if(operand_prefix == 'o'){
+		get_char();
+		for(; isdigit(look); get_char()) {
+			result *= 8;
+			int octal = look - '0';
+			if(octal >= 8) {
+				error("expect octal digit but got %c\n", look);
+			}
+			result += octal;
+		}
+		eat_blanks();
+		return result;
+	} else if(operand_prefix == 'b') {
+		get_char();
+		for(; look == '0' || look == '1'; get_char()) {
+			result *= 2;
+			result += look - '0';
+		}
+		eat_blanks();
+		return result;
+	} else {
+		ungetc(operand_prefix, stdin);
+	}
+  }
+  if (isdigit (look))
+    for (; isdigit (look); get_char ())
+      {
+	result *= 10;
+	result += look - '0';
+      }
+  else
+    error ("expected integer got '%c'", look);
+
+  eat_blanks ();
+
+  return result;
+}
+/*! 
+ * Parses an expression
+ */
+static void
+do_expression ()
+{
+  if (look == '+' || look == '-')
+    puts ("\tloadr R1, 0");
+  else
+    do_term ();
+
+  while (look == '+' || look == '-')
+    {
+      int op = look;
+      puts ("\tpushr R1");
+      match (look);
+      do_term ();
+      puts ("\tpopr R2");
+      if (op == '+')
+	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpop\n\tpop\n");
+      else if (op == '-')
+	puts ("\tpushr R1\n\tpushr R2\n\tsub\n\t\n\tneg\n\tpopr R1\n\tpop\n\tpop\n");
+    }
+}
+/*!
+ * Provides support for non-separing operators (multiplication, division, modulo bitwise etc.)
+ */
+static void
+do_term ()
+{
+  do_factor ();
+
+  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
+    {
+      int op = look;
+      puts ("\tpushr R1");
+      match (look);
+      do_factor ();
+      puts ("\tpopr R2");
+      puts ("\tloadr R4, 0");
+      if (op == '*')
+	puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\n\t");
+      else if (op == '/')
+	puts ("\tpushr R2\n\tpushr R1\n\tdiv\n\tpopr R1\n\tpop\n\tpop");
+	  else if (op == '&')
+	puts ("\tpushr R2\n\tpushr R1\n\tand\n\tpopr R1\n\tpop\n\tpop");
+	  else if (op == '|')
+	puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpop\n\tpop");
+	  else if (op == '^')
+	puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpopn 2");
+	  else if (op == '%'){
+		puts("pushr R2\n\tpushr R1\n\tmod\n\tpopr R1\n\tpopn 2");
+	  }
+		
+    }
+}
+/*!
+ * Factors an expression, parses parenetheses and memory access brackets.
+ */
+static void
+do_factor ()
+{
+  if (look == '(')
+    {
+      match ('(');
+      do_expression ();
+      match (')');
+    }
+  else if(look == '[' || look == '<' || look == '{') {
+	char m_save = look;
+	if(m_save == '[') {
+		m_save = ']';
+	} else if(m_save == '{') {
+		m_save = '}';
+	} else if(m_save == '<') {
+		m_save = '>';
+	}
+	match(look);
+	do_expression();
+	match(m_save);
+	switch(m_save) {
+		case ']':
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
+			break;
+		case '>':
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsw\n\tpopr R0\n");
+			break;
+		case '}':
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsd\n\tpopr R0\n");
+			break;
+		default:
+			puts("; Warning: Internal compiler error. Unable to find maccess operator!");
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
+			break;
+  }
+}
+  else if (isalpha (look))
+    {
+      printf ("\tloadrm dword, R1, v%s\n", return_next_int_name ());
+    }
+  else if(look == '\'') {
+	get_char();
+	if(look == '\'') {
+		printf("\tloadr R1, 0\n");
+	}
+	else {
+		int num_char = look;
+		printf("\tloadr R1, %i\n", num_char);
+		get_char();
+		match('\'');
+	}
+  }
+  else if(look == '"') {
+		do_string ();
+	}
+  else
+    {
+      printf ("\tloadr R1, %i\n", get_num ());
+    }
+}
+/*!
+ * Generates code for string declaration
+ */
+static void
+do_string ()
+{
+  int i;
+  size_t string_size = 0;
+  char *string;
+
+  string = xmalloc (1);
+  string[0] = 0;
+
+  for (get_char (); look != '"'; get_char ())
+    {
+      ++string_size;
+      string = xrealloc (string, string_size + 1);
+      string[string_size - 1] = look;
+      string[string_size] = 0;
+    }
+
+  get_char ();
+
+  for (i = 0; i < string_count; ++i)
+    if (!strcmp (strings[i], string))
+      {
+	printf ("\tloadr R1, s%i\n", i);
+	return;
+      }
+
+  ++string_count;
+  strings = xrealloc (strings, string_count * sizeof (char *));
+  strings[string_count - 1] = string;
+
+  printf ("\tloadr R1, s%i\n", i);
+}
+/*!
+ * Outputs help
+ * */
 static void
 print_help ()
 {
@@ -311,7 +660,9 @@ print_help ()
   puts ("Report bugs to: Issues at github repository");
   puts ("Project Page: http://github.com/Benderx2/R3X");
 }
-
+/*!
+ * Outputs version
+ * */
 static void
 print_version ()
 {
@@ -323,7 +674,9 @@ print_version ()
   puts ("There is NO WARRANTY, to the extent permitted by law.");
   puts ("Modified by Benderx2 to run on R3X Systems.\n");
 }
-
+/*!
+ * Adds system specific functions, like print, alloc, input etc.
+ * */
 static void
 begin ()
 {
@@ -350,7 +703,9 @@ begin ()
 
   get_char ();
 }
-
+/*!
+ * Adds system specific mechanism, called when the compiler finishes parsing code.
+ * */
 static void
 finish ()
 {
@@ -480,7 +835,9 @@ finish ()
   puts("end");
   puts ("; Task Completed -- Assemble with FASM ");
 }
-
+/*!
+ * Output error when the compiler encounters something unexpected
+ * */
 static void
 error (format)
      const char *format;
@@ -498,129 +855,9 @@ error (format)
 
   exit (EXIT_FAILURE);
 }
-
-static void
-eat_blanks ()
-{
-  while (look == ' ' || look == '\t' || look == '\r')
-    get_char ();
-}
-
-static void
-match (what)
-     int what;
-{
-  if (look == what)
-    get_char ();
-  else
-    error ("expected '%c' got '%c'", what, look);
-
-  eat_blanks ();
-}
-
-static void
-get_char ()
-{
-  look = fgetc (stdin);
-}
-
-static char
-get_name ()
-{
-  char name = tolower (look);
-
-  if (isalpha (name))
-    get_char ();
-  else
-    error ("expected identifier got '%c'", name);
-
-  vars_used[name - 'a'] = 1;
-
-  eat_blanks ();
-
-  return name;
-}
-
-static int
-get_num ()
-{
-  int result = 0;
-  if(look == '0') {
-	char operand_prefix = getc(stdin);
-	operand_prefix = tolower(operand_prefix);
-	if(operand_prefix == 'x') {
-	   get_char();
-	   for(; isdigit(look) || look == 'A' || look == 'B' || look == 'C' || look == 'D' || look == 'E' || look == 'F'; get_char())
-	   {
-		   result *= 16;
-		   if(isdigit(look)) {
-			result += look - '0';
-		   } else {
-			switch(look) {
-				case 'A':
-					result += 10;
-					break;
-				case 'B':
-					result += 11;
-					break;
-				case 'C':
-					result += 12;
-					break;
-				case 'D':
-					result += 13;
-					break;
-				case 'E':
-					result += 14;
-					break;
-				case 'F':
-					result += 15;
-					break;
-				default:
-					error("expected hex digit but got %c\n", look);
-					break;
-			}
-		   }
-	   }
-	   eat_blanks();
-	   return result;
-	} else if(operand_prefix == 'o'){
-		get_char();
-		for(; isdigit(look); get_char()) {
-			result *= 8;
-			int octal = look - '0';
-			if(octal >= 8) {
-				error("expect octal digit but got %c\n", look);
-			}
-			result += octal;
-		}
-		eat_blanks();
-		return result;
-	} else if(operand_prefix == 'b') {
-		get_char();
-		for(; look == '0' || look == '1'; get_char()) {
-			result *= 2;
-			result += look - '0';
-		}
-		eat_blanks();
-		return result;
-	} else {
-		ungetc(operand_prefix, stdin);
-	}
-  }
-  if (isdigit (look))
-    for (; isdigit (look); get_char ())
-      {
-	result *= 10;
-	result += look - '0';
-      }
-  else
-    error ("expected integer got '%c'", look);
-
-  eat_blanks ();
-
-  return result;
-}
-
+/*!
+ * Gets a keyword, errors out if no keyword is found
+ */
 static int
 get_keyword ()
 {
@@ -676,7 +913,9 @@ get_keyword ()
 
   return i;
 }
-
+/*!
+ * The compiler calls this when it expects newline(s)
+ */
 static int
 do_line ()
 {
@@ -718,7 +957,9 @@ do_line ()
 
   return 1;
 }
-
+/*!
+ * Called when the compiler expects a statement
+ * */
 static void
 do_statement ()
 {
@@ -744,57 +985,18 @@ do_statement ()
     default:       assert (0);   break;
     }
 }
+/*!
+ * Does a label declaration
+ * */
 static void 
 do_label()
 {
   char* string = return_next_tok();
   printf("l%s:\n", string);
 }
-char* 
-return_str() {
-  int i;
-  size_t string_size = 0;
-  char *string;
-
-  string = xmalloc (1);
-  string[0] = 0;
-
-  for (get_char (); look != '"'; get_char ())
-    {
-      ++string_size;
-      string = xrealloc (string, string_size + 1);
-      string[string_size - 1] = look;
-      string[string_size] = 0;
-    }
-
-  get_char ();
-  return string;
-}
-char* 
-return_next_tok() {
-  int i;
-  size_t string_size = 0;
-  char *string;
-
-  string = xmalloc (1);
-  string[0] = 0;
-
-  for (; look != ' ' && look != '\t' && look != '\n' && look != '/' && look != '*' && look != '+' && look != '-' && look != '^' && look != '%' && look != '@' && look != '{' && look != '}' && look != '[' && look != ']' && look != '^' && look != '&' && look != '|' && look != '!' && look != '~' && look != '\'' && look != ';' && look != '.' && look != '>' && look != '<' && look != '?' && look != '>' && look != ',' && look != '='; get_char ())
-    {
-      ++string_size;
-      string = xrealloc (string, string_size + 1);
-      string[string_size - 1] = look;
-      string[string_size] = 0;
-    }
-  return string;
-}
-char* return_next_int_name()
-{
-	char* returnval = return_next_tok();
-	add_variable(returnval);
-	eat_blanks();
-	return returnval;
-}
+/*! 
+ * Called when a compiler sees a 'print' keyword.
+ * */
 static void
 do_print ()
 {
@@ -824,7 +1026,9 @@ do_print ()
 
   puts ("\tcall print_n");
 }
-
+/*!
+ * The actual code that does the generation for the 'print' keyword.
+ * */
 static void
 do_print_item ()
 {
@@ -835,13 +1039,11 @@ do_print_item ()
       puts ("\tcall print_s");
     }
   else if (look == '$') {
+	    get_char();
 		use_print_s = 1;
-		get_char();
-		if(!isalpha(look)) {
-			error("expected a variable name but got %c\n", look);
-		}
-		printf ("\tpushr R1\n\tloadrm dword, R1, v%c\n", look);
-		printf ("\tcall print_s\n\tpopr R1");
+		char* name = return_next_int_name();
+		printf ("\tpushr R1\n\tloadrm dword, R1, v%s\n", name);
+		printf ("\tcall print_s\n\tpopr R1\n");
   }
   else
     {
@@ -850,26 +1052,39 @@ do_print_item ()
       puts ("\tcall print_i");
     }
 }
+/*!
+ * Takes one character from terminal and puts it in a variable
+ * */
+static void
+do_input ()
+{
+  use_input_i = 1;
+  do
+    printf ("\tcall input_i\n\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", return_next_int_name ());
+  while (look == ',');
+}
+/*!
+ * Allocates amount of memory defined by an expression, and sets it to a variable.
+ * */
+static void
+do_alloc()
+{
+  char* name = return_next_int_name ();
+  match ('=');
+  do_expression ();
+  printf ("\tpushr R0\n\tpushr R1\n\tcall alloc_n\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
+}
+/*!
+ * Inline assembler support
+ * */
 static void 
 do_asm() {
-  int i;
-  size_t string_size = 0;
-  char *string;
-
-  string = xmalloc (1);
-  string[0] = 0;
-
-  for (get_char (); look != '"'; get_char ())
-    {
-      ++string_size;
-      string = xrealloc (string, string_size + 1);
-      string[string_size - 1] = look;
-      string[string_size] = 0;
-    }
-
-  get_char ();
-  printf("\t%s\n", string);
+  char* asmcode = return_str();
+  printf("\t%s\n", asmcode);
 }
+/*!
+ * Code for the if keyword
+ * */
 static void
 do_if ()
 {
@@ -961,6 +1176,9 @@ do_if ()
 
   printf ("i%i:\n", line);
 }
+/*!
+ * While keyword
+ * */
 /*!
  * A = 0
  * WHILE A < 5 ---> while0 :
@@ -1060,6 +1278,9 @@ do_while()
   whilelines++;
   currentwhile--;
 }
+/*!
+ * End of a while statement.
+ * */
 static void 
 do_endw()
 {
@@ -1068,6 +1289,9 @@ do_endw()
 	printf("endwhile%u:\n", currentwhile_now);
 	currentwhile++;
 }
+/*!
+ * Does a goto (jump)
+ * */
 static void
 do_goto ()
 {
@@ -1077,16 +1301,29 @@ do_goto ()
 	printf ("\tjmp l%i\n", get_num ());
   }
 }
-
+/*!
+ * Does a gosub (call)
+ * */
 static void
-do_input ()
+do_gosub ()
 {
-  use_input_i = 1;
-  do
-    printf ("\tcall input_i\n\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", return_next_int_name ());
-  while (look == ',');
+  if(isalpha(look)) {
+	printf("\tcall l%s\n", return_next_tok());
+  }
+  printf ("\tcall l%i\n", get_num ());
 }
-
+/*!
+ * Does a return
+ * */
+static void
+do_return ()
+{
+  puts ("\tret");
+}
+/*!
+ * Sets a variable [or the address to which it points to] to a value defined by an expression
+ * passed to it.
+ * */
 static void
 do_let ()
 {
@@ -1129,185 +1366,22 @@ do_let ()
 	printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
  }
 }
-static void
-do_alloc()
-{
-  char* name = return_next_int_name ();
-  match ('=');
-  do_expression ();
-  printf ("\tpushr R0\n\tpushr R1\n\tcall alloc_n\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
-}
-static void
-do_gosub ()
-{
-  if(isalpha(look)) {
-	printf("\tcall l%s\n", return_next_tok());
-  }
-  printf ("\tcall l%i\n", get_num ());
-}
-
-static void
-do_return ()
-{
-  puts ("\tret");
-}
-
+/*!
+ * Ignores everything till it receives a newline character
+ */
 static void
 do_rem ()
 {
   while (look != '\n')
     get_char ();
 }
-
+/*!
+ * Quits the program
+ * */
 static void
 do_end ()
 {
   puts ("\tjmp _exit");
-}
-
-static void
-do_expression ()
-{
-  if (look == '+' || look == '-')
-    puts ("\tloadr R1, 0");
-  else
-    do_term ();
-
-  while (look == '+' || look == '-')
-    {
-      int op = look;
-      puts ("\tpushr R1");
-      match (look);
-      do_term ();
-      puts ("\tpopr R2");
-      if (op == '+')
-	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpop\n\tpop\n");
-      else if (op == '-')
-	puts ("\tpushr R1\n\tpushr R2\n\tsub\n\t\n\tneg\n\tpopr R1\n\tpop\n\tpop\n");
-    }
-}
-
-static void
-do_term ()
-{
-  do_factor ();
-
-  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
-    {
-      int op = look;
-      puts ("\tpushr R1");
-      match (look);
-      do_factor ();
-      puts ("\tpopr R2");
-      puts ("\tloadr R4, 0");
-      if (op == '*')
-	puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\n\t");
-      else if (op == '/')
-	puts ("\tpushr R2\n\tpushr R1\n\tdiv\n\tpopr R1\n\tpop\n\tpop");
-	  else if (op == '&')
-	puts ("\tpushr R2\n\tpushr R1\n\tand\n\tpopr R1\n\tpop\n\tpop");
-	  else if (op == '|')
-	puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpop\n\tpop");
-	  else if (op == '^')
-	puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpopn 2");
-	  else if (op == '%'){
-		puts("pushr R2\n\tpushr R1\n\tmod\n\tpopr R1\n\tpopn 2");
-	  }
-		
-    }
-}
-
-static void
-do_factor ()
-{
-  if (look == '(')
-    {
-      match ('(');
-      do_expression ();
-      match (')');
-    }
-  else if(look == '[' || look == '<' || look == '{') {
-	char m_save = look;
-	if(m_save == '[') {
-		m_save = ']';
-	} else if(m_save == '{') {
-		m_save = '}';
-	} else if(m_save == '<') {
-		m_save = '>';
-	}
-	match(look);
-	do_expression();
-	match(m_save);
-	switch(m_save) {
-		case ']':
-			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
-			break;
-		case '>':
-			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsw\n\tpopr R0\n");
-			break;
-		case '}':
-			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsd\n\tpopr R0\n");
-			break;
-		default:
-			puts("; Warning: Internal compiler error. Unable to find maccess operator!");
-			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
-			break;
-  }
-}
-  else if (isalpha (look))
-    {
-      printf ("\tloadrm dword, R1, v%s\n", return_next_int_name ());
-    }
-  else if(look == '\'') {
-	get_char();
-	if(look == '\'') {
-		printf("\tloadr R1, 0\n");
-	}
-	else {
-		int num_char = look;
-		printf("\tloadr R1, %i\n", num_char);
-		get_char();
-		match('\'');
-	}
-  }
-  else
-    {
-      printf ("\tloadr R1, %i\n", get_num ());
-    }
-}
-
-static void
-do_string ()
-{
-  int i;
-  size_t string_size = 0;
-  char *string;
-
-  string = xmalloc (1);
-  string[0] = 0;
-
-  for (get_char (); look != '"'; get_char ())
-    {
-      ++string_size;
-      string = xrealloc (string, string_size + 1);
-      string[string_size - 1] = look;
-      string[string_size] = 0;
-    }
-
-  get_char ();
-
-  for (i = 0; i < string_count; ++i)
-    if (!strcmp (strings[i], string))
-      {
-	printf ("\tloadr R1, s%i\n", i);
-	return;
-      }
-
-  ++string_count;
-  strings = xrealloc (strings, string_count * sizeof (char *));
-  strings[string_count - 1] = string;
-
-  printf ("\tloadr R1, s%i\n", i);
 }
 
 /* vim:set ts=8 sts=2 sw=2 noet: */

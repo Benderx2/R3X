@@ -22,9 +22,15 @@ function main
 	call print_n
 
 	; debug line 2
+	jmp lmylabel
 
 	; debug line 3
-	loadr R1, 256
+lmylabel:
+
+	; debug line 4
+
+	; debug line 5
+	loadr R1, 4
 	pushr R0
 	pushr R1
 	call alloc_n
@@ -33,47 +39,145 @@ function main
 	popr R1
 	popr R0
 
-	; debug line 4
+	; debug line 6
+	loadr R1, 100
+	pushr R0
+	pushr R1
+	loadr R0, vB
+	stosd
+	popr R1
+	popr R0
+
+	; debug line 7
+
+	; debug line 8
+
+	; debug line 9
 	loadrm dword, R1, vbuffer
 	loadrr R5, R1
-	loadr R1, 65348
+	loadr R1, 168882893
+	pushr R1
+	loadr R1, 1051324
+	popr R2
+	pushr R1
+	pushr R2
+	add
+	popr R1
+	pop
+	pop
+
+	pushr R1
+	loadr R1, 697
+	pushr R1
+	loadr R1, 963
+	popr R2
+	pushr R1
+	pushr R2
+	add
+	popr R1
+	pop
+	pop
+
+	pushr R1
+	loadr R1, 1
+	popr R2
+	pushr R1
+	pushr R2
+	add
+	popr R1
+	pop
+	pop
+
+	popr R2
+	pushr R1
+	pushr R2
+	add
+	popr R1
+	pop
+	pop
+
 	pushr R0
 	loadrr R0, R5
-	stosw
+	stosd
 	popr R0
 
 
-	; debug line 5
+	; debug line 10
 	loadrm dword, R1, vbuffer
+	pushr R0
+	loadrr R0, R1
+	lodsw
+	popr R0
+
+	pushr R0
+	pushr R1
+	loadr R0, vX
+	stosd
+	popr R1
+	popr R0
+
+	; debug line 11
+	loadr R1, s1
+	call print_s
+	loadrm dword, R1, vX
+	call print_i
+	call print_t
+	loadrm dword, R1, vbuffer
+	pushr R0
+	loadrr R0, R1
+	lodsd
+	popr R0
+
+	call print_i
+	call print_n
+
+	; debug line 12
+	loadr R1, s2
+	pushr R0
+	pushr R1
+	loadr R0, vmystr
+	stosd
+	popr R1
+	popr R0
+
+	; debug line 13
+	pushr R1
+	loadrm dword, R1, vmystr
+	call print_s
+	popr R1
+	call print_n
+
+	; debug line 14
+	loadrm dword, R1, vmystr
 	pushr R0
 	loadrr R0, R1
 	lodsb
 	popr R0
 
-	loadrr R4, R1
-	loadr R1, 68
-	cmpr R4, R1
-	jne i5
-	jmp lyes
-i5:
+	pushr R0
+	pushr R1
+	loadr R0, vfirstvariable
+	stosd
+	popr R1
+	popr R0
 
-	; debug line 6
-	loadr R1, s1
+	; debug line 15
+	loadr R1, s3
 	call print_s
+	loadrm dword, R1, vfirstvariable
+	call print_i
 	call print_n
 
-	; debug line 7
-	jmp _exit
+	; debug line 16
+	loadr R1, 0
+	pushr R0
+	pushr R1
+	loadr R0, vS
+	stosd
+	popr R1
+	popr R0
 
-	; debug line 8
-lyes:
-
-	; debug line 9
-	loadr R1, s2
-	call print_s
-	call print_n
-
-	; debug line 10
+	; debug line 17
 	jmp _exit
 endfunction main
 
@@ -83,7 +187,12 @@ _exit:
 	Console.WaitKey
 	System.Quit 0
 
-; print_i excluded
+	; print an integer to the terminal
+	print_i:
+	pushr R1
+	syscall SYSCALL_PUTI
+	popr R1
+	ret
 
 	; print string to terminal
 	print_s:
@@ -92,7 +201,12 @@ _exit:
 	popr R1
 	ret
 
-; print_t excluded
+	; print a tab to the terminal
+	print_t:
+	push 0x09
+	syscall SYSCALL_PUTCH
+	pop
+	ret
 
 	; print a newline to the terminal
 	print_n:
@@ -120,12 +234,18 @@ free:
 .bss {
 
 	vbuffer: rd 1
+	vB: rd 1
+	vX: rd 1
+	vmystr: rd 1
+	vfirstvariable: rd 1
+	vS: rd 1
 }
 .data {
 
-	s0: db "If stuff", 0
-	s1: db "Uh, error!", 0
-	s2: db "Yay, little endian!", 0
+	s0: db "Array stuff", 0
+	s1: db "(uint8_t)S[0] and (uint32_t)S[0] = ", 0
+	s2: db "Hello, World!", 0
+	s3: db "first char: ", 0
 }
 end
 ; Task Completed -- Assemble with FASM 

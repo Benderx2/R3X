@@ -1,5 +1,5 @@
 	print "Array stuff"
-goto mylabel
+	goto mylabel
 label mylabel
 #! Allocate 4 bytes for S.
 	alloc buffer = 4
@@ -9,5 +9,9 @@ label mylabel
 	let {buffer} = 0xA10F2CD+0x100ABC+(0b1010111001 + 0o1703+0x01)
 	let X = <buffer>
 	print "(uint8_t)S[0] and (uint32_t)S[0] = "; X, {buffer}
+	let mystr = "Hello, World!"
+	print $mystr
+	let firstvariable = [mystr]
+	print "first char: "; firstvariable
 	let S = 0
 end
