@@ -47,7 +47,7 @@ Arrays:
 	Creating an array:
 		alloc S = 256 --- Allocate 256 bytes for S.
 		[S] = 'A'  -> 8-bit assignment
-		@S@ = 0x41 -> 16-bit assignment
+		<S> = 0x41 -> 16-bit assignment
 		{S} = 0x41 -> 32-bit assignment
 		[S+1] = 0
 		LET X = [S] // X = 'A' or 65.
