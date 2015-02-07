@@ -1,5 +1,4 @@
-#! No scoping yet. :'(
-#! Global variables are left uninitialized. Initialize them when you want to!
+#! No global variables yet :(
 function x, 3
 	print "I'm a function take takes 3 args"
 	let a = $1
