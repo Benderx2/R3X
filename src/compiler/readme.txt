@@ -1,3 +1,10 @@
+NOTICE
+[
+***************************************************************************
+THIS DOCUMENT IS OUTDATED! SEE /docs/BASIC.html!
+PLZ.
+***************************************************************************
+]
 WARNING
 [
 THIS MANUAL CONTAINS "BAD WORDS"! yes, the ones you little sh#$)*@)*@!s refer to as "effyouseekay".

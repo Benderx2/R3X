@@ -12,8 +12,13 @@ body {
 <h1>REX Virtual Machine Documentation</h1>
 <h1>THIS DOCUMENT IS BEING WORKED ON!</h1>
 <h2>BASIC</h2>
-An implementation of TinBASIC is the only HLL language which is ported to R3X VM.
+An implementation of TinyBASIC is the only HLL language which is ported to R3X VM.
 <h3>Let's begin with a "Hello, World!"</h3>
+First compile the compiler using the GNU Compiler Toolchain. If your system has the required tools, then it's simply a <br>
+<pre>
+gcc tbc.c -o tbc
+</pre>
+Let's begin with some code? Shall we? :)
 <pre>
 function main, 0
 	#! This is a comment
@@ -130,4 +135,103 @@ function addtwonumbers, 2
 	return a
 endf
 </pre>
-
+The above code declares a function with 2 arguments as "add2numbers". It then uses a local variable called a to add it's first and second argument (referenced<br>
+by $1, and $2 respectively), to store the result of the addition. It then returns a.<br>
+This can now be called like this, from another function:<br>
+<pre>
+	...
+	let result = @add2numbers(57, 90)
+	...
+</pre>
+Or you can simply call it like this, and trash the result:<br>
+<pre>
+	@add2numbers(57, 90)
+</pre>
+You can also pass expressions, like this:<br>
+<pre>
+	@add2numbers(myvar1*20+60, myvar2-15)
+</pre>
+You must always return, or not returning from a function causes undefined behaviour, for functions that don't<br>
+intend to return anything use:<br>
+<pre>
+	...
+	return 0
+</pre>
+<h3>Internal functions</h3>
+TinyBASIC++ provides 4 internal functions for a program to use.<br>
+<h4>print</h4>
+	The "print" function outputs a string / integer to stdout. The usage is shown below:<br>
+<pre>
+	...
+	#! Print a literal string
+	print "hello"
+	#! Print a string stored in a pointer
+	print $variable
+	#! Print an integer
+	print my_int
+	#! Print a string + integer
+	print "hello: "; my_int1, my_int2+1, my_int3*3 ...
+</pre>
+<h4>input</h4>
+	The "input" function inputs a single character from stdin into a variable. The usage is shown below:<br>
+<pre>
+	...
+	input my_var
+	# might store it or use it?
+	if my_var == 'y' goto yes
+	...
+	let [buffer] = my_var
+</pre>
+<h4>alloc</h4>
+	The "alloc" function allocates a region of memory, by size, and then puts the pointer into a variable<br>
+	<pre>
+	#! Allocate 256 bytes and assign pointer to x
+	alloc x = 256
+	</pre>
+<h4>end</h4>
+	The "end" function simply quits the program.<br>
+<h3>Inline assembler</h3>
+Inline assembly can be achieved through the "asm" keyword, like this:<br>
+<pre>
+	...
+	asm "loadrr R1, R5"
+	asm "pushr R1"
+	asm "popr R5"
+	...
+</pre>
+Of course, you're !not! supposed to mess up the stack, while doing inline asm, ALWAYS restore it before resuming back to<br>
+tbc code.<br>
+If you want to refer to a variable's address, you can do: 
+<pre>
+function myfunc, 0
+	...
+	let var = 5
+	#! Address of variable = v[function name].[variable name]
+	asm "loadr R0, vmyfunc.var"
+</pre>
+Labels can be used in a similar way:<br>
+<pre>
+function myfunc, 0
+	...
+:label
+	...
+	#! Address of label = l[function name].[variable name]
+	asm "loadr R0, lmyfunc.label"
+</pre>
+<h3>Operators</h3>
+These are the following operators present in the language:<br>
+<pre>
+Highest precedence:
+& - Bitwise AND
+| - Bitwise OR
+^ - Bitwise XOR
+~ - Bitwise NOT (Not implemented yet)
+! - Logical NOT (Not implemented yet)
+Higher precedence:
+* - Multiply
+/ - Divide
+% - Modulo
+Low precedence:
++ - Plus
+- - minus
+</pre>
