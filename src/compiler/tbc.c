@@ -1072,7 +1072,7 @@ static void
 do_goto ()
 {
   if(isalpha(look)) {
-	printf("\tjmp l%s", return_next_tok());
+	printf("\tjmp l%s\n", return_next_tok());
   } else {
 	printf ("\tjmp l%i\n", get_num ());
   }
@@ -1141,7 +1141,7 @@ static void
 do_gosub ()
 {
   if(isalpha(look)) {
-	printf("\tcall l%s", return_next_tok());
+	printf("\tcall l%s\n", return_next_tok());
   }
   printf ("\tcall l%i\n", get_num ());
 }
