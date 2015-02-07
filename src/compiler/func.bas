@@ -1,3 +1,4 @@
+#! This stuff doesn't work yet, but it's planned.
 function x, 3
 	print "I'm a function take takes 3 args"
 	let a = $1
