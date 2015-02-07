@@ -99,10 +99,11 @@ Graphics_t* InitGraphics(void)
 	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF);
 	graphics->ScreenX = 0;
 	graphics->ScreenY = 0;
-	graphics->FontSize = 8; // using 16x16 fonts...
-	graphics->CharMaxW = graphics->Width / graphics->FontSize;
-	graphics->CharMaxH = graphics->Height / graphics->FontSize;
-	graphics->FontScale = 0.50f;
+	graphics->FontWidth = FontWidth; // using 16x16 fonts...
+	graphics->FontHeight = FontHeight;
+	graphics->CharMaxW = graphics->Width / graphics->FontWidth;
+	graphics->CharMaxH = graphics->Height / graphics->FontHeight;
+	graphics->FontScale = FontScale;//!0.50f;
 	graphics->TextBuf = nt_malloc(graphics->Width*graphics->Height*sizeof(uint8_t));
 	graphics->TextOffset = 0;
 	glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);

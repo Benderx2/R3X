@@ -58,7 +58,8 @@ typedef struct Graphics {
 	#endif
 	uint8_t* TextBuf;
 	int TextOffset;
-	int FontSize;
+	int FontHeight;
+	int FontWidth;
 	float FontScale;
 	int CharMaxW;
 	int CharMaxH;
@@ -88,4 +89,6 @@ bool gl_text_update(Graphics_t* Graphics);
 bool freefont(font_t * f);
 void GL_ClearScreen(void);
 extern double DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a;
+extern unsigned int FontHeight, FontWidth; extern char* FontFileName;
+extern double FontScale;
 #endif

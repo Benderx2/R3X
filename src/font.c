@@ -196,7 +196,7 @@ void vm_putc(char a, Graphics_t* Graphics)
 		ScreenY++;
 		Graphics->TextOffset = ScreenY * Graphics->CharMaxW;
 	}
-	if(Graphics->TextOffset < ((Graphics->Height/Graphics->FontSize)*(Graphics->Width/Graphics->FontSize))){
+	if(Graphics->TextOffset < ((Graphics->Height/Graphics->FontHeight)*(Graphics->Width/Graphics->FontWidth))){
 		if(a != 0 && a != '\n'){
 			Graphics->TextBuf[Graphics->TextOffset] = a;
 			Graphics->TextOffset++;
@@ -214,7 +214,7 @@ void vm_putc(char a, Graphics_t* Graphics)
             Graphics->TextBuf[i] = Graphics->TextBuf[i+Graphics->CharMaxW];
         }
 		memset(Graphics->TextBuf + (Graphics->CharMaxH - 1)*Graphics->CharMaxW, 0, Graphics->CharMaxW);
-		Graphics->TextOffset -=  ((Graphics->Width)/(Graphics->FontSize));
+		Graphics->TextOffset -=  ((Graphics->Width)/(Graphics->FontWidth));
 		if(a != 0 && a != '\n'){
 			Graphics->TextBuf[Graphics->TextOffset] = a;
 			Graphics->TextOffset++;
@@ -255,9 +255,9 @@ bool gl_text_update(Graphics_t* Graphics) {
 		else if(putstring[0] != 0){
 			text(x, y, Graphics->FontScale, Graphics->font, (char*)&putstring);
 		} 
-		x += Graphics->FontSize; // and the 8th :D
+		x += Graphics->FontWidth; // and the 8th :D
 		if(x >= Graphics->Width){
-				y += Graphics->FontSize;
+				y += Graphics->FontHeight;
 				x = 0;
 			}
 	}
