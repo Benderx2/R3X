@@ -77,6 +77,15 @@ typedef struct {
 	unsigned int id;
 	bool is_used;
 } variable_type;
+typedef struct {
+	char* name;
+	unsigned int number_of_arguments;
+} function_type;
+typedef struct {
+	function_type* functions;
+	unsigned int total_functions;
+	unsigned int current_index;
+} f_table;
 static char        look          = 0;
 static int         line          = 1;
 static int			whilelines 	  = 0;
@@ -89,11 +98,7 @@ static int         use_input_i   = 0;
 static int         vars_used[26] = { 0 };
 static int			vars_used_gc[26] = { 0 };
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
-
-static char ** 	function_names = NULL;
-static unsigned int current_function_index = 0;
-static unsigned int total_functions = 0;
-
+static f_table*    function_table = NULL;
 static char **     strings       = NULL;
 static unsigned int 		current_variable_index = 0;
 static unsigned int		total_variables = 0;
@@ -157,6 +162,11 @@ main (argc, argv)
 	
   variables_used = xmalloc(sizeof(char**)*16);
   total_variables = 16;
+  
+  function_table = xmalloc(sizeof(f_table));
+  function_table->functions = xmalloc(sizeof(function_type)*16);
+  function_table->current_index = 0;
+  function_table->total_functions = 16;
   begin ();
   while (do_line ());
   finish ();
@@ -179,10 +189,17 @@ add_variable(char* var_name) {
 	}
 	if(total_variables < current_variable_index) {
 		total_variables += 16;
-		variables_used = xrealloc(variables_used, total_variables);
+		variables_used = xrealloc(variables_used, total_variables * sizeof(char*));
 	}
 	variables_used[current_variable_index] = var_name;
 	current_variable_index++;
+}
+static void
+add_to_function_table(char* function_name, unsigned int no_of_args) {
+	if(function_table->total_functions < function_table->current_index) {
+		function_table->total_functions += 16;
+		function_table->functions = xrealloc(function_table->functions, function_table->total_functions * sizeof(function_type));
+	}
 }
 /*!
  * Frees memory allocated previously.
