@@ -15,11 +15,13 @@ body {
 An implementation of TinBASIC is the only HLL language which is ported to R3X VM.
 <h3>Let's begin with a "Hello, World!"</h3>
 <pre>
-	REM This is a comment
-	REM Print Hello, world to screen
-	PRINT "Hello, World!"
-	REM Exit.
-	END
+function main, 0
+	#! This is a comment
+	#! Print Hello, world to screen
+	print "Hello, World!"
+	#! Exit.
+	end
+endf
 </pre>
 Using a text editor, save this file as "hello.bas", and run tbc, with the following:<br>
 tbc hello.bas > hello.asm<br>
@@ -27,7 +29,7 @@ Now it should generate an assembler file, however if you use FASM to compile it,
 <pre>
 fasm: 'include/libR3X.pkg' not found.
 </pre>
-You need the "libR3X.pkg" and the "r3x_asm.pkg", in an "include" directory, which should be where you generate your progrmas.<br>
+You need the "libR3X.pkg" and the "r3x_asm.pkg", in an "include" directory, which should be where you generate your programs.<br>
 Then use:<br>
 <pre>fasm hello.asm</pre>
 This should generate a "hello.exe" file, run the program using:<br>
@@ -35,24 +37,97 @@ This should generate a "hello.exe" file, run the program using:<br>
 rxvm -exe ./hello.exe
 </pre>
 You should see the words "Hello, World!" on the output screen. If you press a key, then the program will exit.<br>
-<h3>Integers</h3>
-Unfortunately, as of it's current state, TinyBASIC for R3X doesn't support strings (even C-like strings!). The only<br>
-available type is an integer, what's worse is that the only integer names which can be used are A-Z. Hence, there can only be 26 total<br>
-integers in all. This limitation is being worked on.<br>
-To get started let's know about the "LET" keyword:<br>
+<h3>Variable Assigment</h3>
+TinyBASIC++ is a typeless language, meaning one variable is not limited to one type.<br>
+All variables are assigned with the "let" keyword. The first "let" keyword is supposed to initialize the variable.
 <pre>
-REM Set X to 23 / 5
-LET X = 20 / 5
-REM Y = 4 now
-LET Y = (X/2)+5
-REM Print Y
-PRINT "Y is : "; Y
-END
+let int = 27+3
+let str = "Hello, World!"
+...
 </pre>
-<h3>Getting to know keywords</h3>
-The <b>IF</b> keyword:<br>
+Note that there is no such thing as a global variable, and when you refer to the variable, you're referring to something current scope.<br>
+<h3>Memory Allocation</h3>
+Memory allocation is supported through the "alloc" variable, use it like this:
+<pre>
+alloc buffer = size
+</pre>
+"buffer" could be anything you wish, now buffer = pointer to a region of memory mapped as data.<br>
+<h3>Memory Access Operators</h3>
+There are "memory access" operators which can help you access certain region in memory, these are:
+<pre>
+{} - 32-bit memory access
+<> - 16-bit memory access
+[] - 8-bit memory access
+</pre>
+To set a location in memory, you can make use of the "let" keyword:
+<pre>
+	#! Set a 32-bit value at memory location 0x1000 
+	let {0x1000} = 0xFFFFFFFF
+	#! Set a 16-bit value at memory location pointed by "buffer+5"
+	let x = 65535
+	let &lt;buffer+5&gt; = x
+	...
+</pre>
+<h3>Program/Control Flow and looping</h3>
+<h3>goto</h3>
+The "goto" keyword monitors function-specific program flow through a system of labels.<br>
+A label can be declared with a semicolon in front of it:<br>
 <pre>
 ...
-IF A+1 [ = > < >= <=] Y+2 GOTO 20
+:label
+...
+</pre>
+You can then jump to this label using "goto":<br>
+<pre>
+...
+goto label
+...
+</pre>
+You can also "gosub", if you want recursion, note that you would need to return as well. [You may rather use functions for this!]
+<pre>
+:label
+	...
+	do stuff
+	...
+	#! This will be explained in detail under "functions"
+	return 0 
+...
+gosub label
+...
+code after this will run as expected
+</pre>
+NOTE: Labels cannot be used in expressions!
+Control flow in TinyBASIC++ is achieved through 2 keywords: "IF" and "WHILE"<br>
+The "if" keyword compares two expressions and then performs a statment, (usually a goto to a label)<br>
+<pre>
+...
+	if a = 5 goto yes
+	if a != 5 goto yes
+	if a &lt; 5 goto yes
+	if a &gt; 5 goto yes
+	if a &lt;= 5 goto yes
+	if a &gt;= 5 goto yes
+	#! Labels are scope-specific
+:yes
+...
+</pre>
+The "while" keyword loops through the code between it and another keyword "endw" provided the condition is true [like if] (end while).<br>
+<pre>
+...
+	while a &lt; 5
+		...
+		let a = a + 1
+		...
+	endw 
+</pre>
+<h3>Functions</h3>
+Functions are certain pieces of code which are organized together, and expect input and give output. In the "Hello, World" example we saw, <br>
+a "function main, 0" -- This is the "main" function and is called by libR3X after it's initialization.
+Here's a simple example on how to use functions:
+<pre>
+function addtwonumbers, 2
+	let a = $1+$2
+	return a
+endf
 </pre>
 

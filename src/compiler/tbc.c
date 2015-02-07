@@ -98,8 +98,6 @@ static int         use_print_s   = 0;
 static int         use_print_t   = 0;
 static int         use_print_n   = 0;
 static int         use_input_i   = 0;
-static int         vars_used[26] = { 0 };
-static int			vars_used_gc[26] = { 0 };
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
 static f_table*    function_table = NULL;
 static char* 		current_function_name = NULL;
@@ -144,7 +142,6 @@ static void  do_term       PARAMS ((void));
 static void  do_factor     PARAMS ((void));
 static void  do_string     PARAMS ((void));
 static void  do_asm		PARAMS ((void));
-static void  do_label		PARAMS ((void));
 static void  do_while		PARAMS ((void));
 static void  do_endw		PARAMS ((void));
 static void  do_alloc		PARAMS ((void));
@@ -573,10 +570,10 @@ do_expression ()
   while (look == '+' || look == '-')
     {
       int op = look;
-      puts ("\tpushr R1");
+      puts ("\tloadrr R9, R1");
       match (look);
       do_term ();
-      puts ("\tpopr R2");
+      puts ("\tloadrr R2, R9");
       if (op == '+')
 	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpop\n\tpop\n");
       else if (op == '-')
@@ -905,10 +902,6 @@ finish ()
   puts ("}");
   puts (".bss {");
   puts ("");
-
-  for (i = 0; i < 26; ++i)
-    if (vars_used[i])
-      printf ("\tv%c: rd 1\n", 'a' + i);
   for (i = 0; i < total_variables; ++i) {
 	    if(variables_used[i] != NULL) {
 			printf("\tv%s: rd 1\n", variables_used[i]);
@@ -1060,7 +1053,11 @@ do_statement ()
   eat_blanks();
   if (look == ':') {
 	get_char();
-	printf("l%s:\n", return_next_tok());
+	if(current_function_name!=NULL) {
+		printf("%s.l%s:\n", current_function_name, return_next_tok());
+	} else {
+		error("label declaration not present in function\n");
+	}
   }
   if (look == '@') {
 	get_char();
@@ -1078,7 +1075,6 @@ do_statement ()
     case T_REM:    do_rem ();    break;
     case T_END:    do_end ();    break;
     case T_ASM:    do_asm(); break;
-    case T_LABEL:  do_label(); break;
     case T_WHILE:  do_while(); break;
     case T_ENDW:   do_endw(); break;
     case T_ALLOC:  do_alloc(); break;
@@ -1086,15 +1082,6 @@ do_statement ()
     case T_ENDF:   do_endf(); break;
     default:       assert (0);   break;
     }
-}
-/*!
- * Does a label declaration
- * */
-static void 
-do_label()
-{
-  char* string = return_next_tok();
-  printf("l%s:\n", string);
 }
 /*! 
  * Called when a compiler sees a 'print' keyword.
@@ -1397,10 +1384,10 @@ do_endw()
 static void
 do_goto ()
 {
-  if(isalpha(look)) {
-	printf("\tjmp l%s\n", return_next_tok());
+  if(isalpha(look) && current_function_name!=NULL) {
+	printf("\tjmp %s.l%s\n", current_function_name, return_next_tok());
   } else {
-	printf ("\tjmp l%i\n", get_num ());
+	error("unknown goto.\n");
   }
 }
 /*!
@@ -1409,10 +1396,11 @@ do_goto ()
 static void
 do_gosub ()
 {
-  if(isalpha(look)) {
-	printf("\tcall l%s\n", return_next_tok());
+  if(isalpha(look) && current_function_name != NULL) {
+	printf("\tcall %s.l%s\n", current_function_name, return_next_tok());
+  } else {
+	error("unknown gosub.\n");
   }
-  printf ("\tcall l%i\n", get_num ());
 }
 /*!
  * Does a return

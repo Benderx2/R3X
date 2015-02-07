@@ -17,16 +17,14 @@ include 'libR3X/libR3X.pkg'
 	; debug line 1
 
 	; debug line 2
-
-	; debug line 3
 function x
 
-	; debug line 4
+	; debug line 3
 	loadr R1, s0
 	call print_s
 	call print_n
 
-	; debug line 5
+	; debug line 4
 	loadr R8, 3
 	loadsr R8
 	popr R1
@@ -37,20 +35,20 @@ function x
 	popr R1
 	popr R0
 
-	; debug line 6
+	; debug line 5
 	loadr R1, s1
 	call print_s
 	loadrm dword, R1, vx.a
 	call print_i
 	call print_n
 
-	; debug line 7
+	; debug line 6
 	loadr R8, 2
 	loadsr R8
 	popr R1
-	pushr R1
+	loadrr R9, R1
 	loadr R1, 15
-	popr R2
+	loadrr R2, R9
 	pushr R1
 	pushr R2
 	add
@@ -65,14 +63,14 @@ function x
 	popr R1
 	popr R0
 
-	; debug line 8
+	; debug line 7
 	loadr R1, s2
 	call print_s
 	loadrm dword, R1, vx.b
 	call print_i
 	call print_n
 
-	; debug line 9
+	; debug line 8
 	loadr R1, 5
 	pushr R0
 	pushr R1
@@ -81,47 +79,81 @@ function x
 	popr R1
 	popr R0
 
-	; debug line 10
+	; debug line 9
 	loadr R1, s3
 	call print_s
 	loadrm dword, R1, vx.f
 	call print_i
 	call print_n
 
-	; debug line 11
+	; debug line 10
 	loadr R8, 1
 	loadsr R8
 	popr R1
 	loadrr R7, R1
 	ret
 
-	; debug line 12
+	; debug line 11
 endfunction x
 
+	; debug line 12
+function add2numbers
+
 	; debug line 13
-function misc
+	loadr R8, 2
+	loadsr R8
+	popr R1
+	loadrr R9, R1
+	loadr R8, 1
+	loadsr R8
+	popr R1
+	loadrr R2, R9
+	pushr R1
+	pushr R2
+	add
+	popr R1
+	pop
+	pop
+
+	pushr R0
+	pushr R1
+	loadr R0, vadd2numbers.a
+	stosd
+	popr R1
+	popr R0
 
 	; debug line 14
+	loadrm dword, R1, vadd2numbers.a
+	loadrr R7, R1
+	ret
+
+	; debug line 15
+endfunction add2numbers
+
+	; debug line 16
+function misc
+
+	; debug line 17
 	loadr R1, s4
 	call print_s
 	loadrm dword, R1, vmisc.f
 	call print_i
 	call print_n
 
-	; debug line 15
+	; debug line 18
 
-	; debug line 16
+	; debug line 19
 	loadr R1, 0
 	loadrr R7, R1
 	ret
 
-	; debug line 17
+	; debug line 20
 endfunction misc
 
-	; debug line 18
+	; debug line 21
 function main
 
-	; debug line 19
+	; debug line 22
 	loadr R1, 1
 	pushr R0
 	pushr R1
@@ -130,7 +162,7 @@ function main
 	popr R1
 	popr R0
 
-	; debug line 20
+	; debug line 23
 	call misc
 	loadrr R1, R7
 	loadr R1, 24
@@ -141,7 +173,7 @@ function main
 	popr R1
 	popr R0
 
-	; debug line 21
+	; debug line 24
 	loadr R1, 100
 	pushr R1
 
@@ -159,9 +191,9 @@ function main
 	pop
 pop
 	
-	pushr R1
+	loadrr R9, R1
 	loadr R1, 2
-	popr R2
+	loadrr R2, R9
 	pushr R1
 	pushr R2
 	add
@@ -180,14 +212,14 @@ pop
 	popr R1
 	popr R0
 
-	; debug line 22
+	; debug line 25
 	loadr R1, s5
 	call print_s
 	loadrm dword, R1, vmain.retval
 	call print_i
 	call print_n
 
-	; debug line 23
+	; debug line 26
 	loadrm dword, R1, vmain.retval
 	loadrr R4, R1
 	loadrm dword, R1, vmain.c
@@ -201,9 +233,9 @@ pop
 	pop
 pop
 	
-	pushr R1
+	loadrr R9, R1
 	loadr R1, 2
-	popr R2
+	loadrr R2, R9
 	pushr R1
 	pushr R2
 	add
@@ -212,35 +244,63 @@ pop
 	pop
 
 	cmpr R4, R1
-	jne i23
-	jmp lcorrect
-i23:
-
-	; debug line 24
-	loadr R1, s6
-	call print_s
-	call print_n
-
-	; debug line 25
-	jmp _exit
-
-	; debug line 26
-lcorrect:
-	loadr R1, s7
-	call print_s
-	call print_n
+	jne i26
+	jmp main.lcorrect
+i26:
 
 	; debug line 27
-	loadr R1, s3
+	loadr R1, s6
 	call print_s
-	loadrm dword, R1, vmain.f
-	call print_i
 	call print_n
 
 	; debug line 28
 	jmp _exit
 
 	; debug line 29
+main.lcorrect:
+	loadr R1, s7
+	call print_s
+	call print_n
+
+	; debug line 30
+	loadr R1, s3
+	call print_s
+	loadrm dword, R1, vmain.f
+	call print_i
+	call print_n
+
+	; debug line 31
+	loadr R1, s8
+	call print_s
+	call print_n
+
+	; debug line 32
+	loadr R1, 57
+	pushr R1
+
+	loadr R1, 90
+	pushr R1
+
+	call add2numbers
+	loadrr R1, R7
+	pushr R0
+	pushr R1
+	loadr R0, vmain.result
+	stosd
+	popr R1
+	popr R0
+
+	; debug line 33
+	loadr R1, s9
+	call print_s
+	loadrm dword, R1, vmain.result
+	call print_i
+	call print_n
+
+	; debug line 34
+	jmp _exit
+
+	; debug line 35
 endfunction main
 
 ; exit to operating system
@@ -293,10 +353,12 @@ free:
 	vx.a: rd 1
 	vx.b: rd 1
 	vx.f: rd 1
+	vadd2numbers.a: rd 1
 	vmisc.f: rd 1
 	vmain.f: rd 1
 	vmain.c: rd 1
 	vmain.retval: rd 1
+	vmain.result: rd 1
 }
 .data {
 
@@ -308,6 +370,8 @@ free:
 	s5: db "return value: ", 0
 	s6: db "lol, this failed.", 0
 	s7: db "lol it's right", 0
+	s8: db "adding 2 numbers: 57 and 90", 0
+	s9: db "result = ", 0
 }
 end
 ; Task Completed -- Assemble with FASM 
