@@ -12,204 +12,205 @@ include 'libR3X/libR3X.pkg'
 }
 
 .text {
-function main
-
 
 
 	; debug line 1
+
+	; debug line 2
+function x
+
+	; debug line 3
 	loadr R1, s0
 	call print_s
 	call print_n
 
-	; debug line 2
-	jmp lmylabel
-
-	; debug line 3
-lmylabel:
-
 	; debug line 4
-
-	; debug line 5
-	loadr R1, 4
+	loadr R8, 3
+	loadsr R8
+	popr R1
 	pushr R0
 	pushr R1
-	call alloc_n
-	loadr R0, vbuffer
+	loadr R0, va
 	stosd
 	popr R1
 	popr R0
 
+	; debug line 5
+	loadr R1, s1
+	call print_s
+	loadrm dword, R1, va
+	call print_i
+	call print_n
+
 	; debug line 6
-	loadr R1, 100
+	loadr R8, 2
+	loadsr R8
+	popr R1
+	pushr R1
+	loadr R1, 15
+	popr R2
+	pushr R1
+	pushr R2
+	add
+	popr R1
+	pop
+	pop
+
 	pushr R0
 	pushr R1
-	loadr R0, vB
+	loadr R0, vb
 	stosd
 	popr R1
 	popr R0
 
 	; debug line 7
-
-	; debug line 8
-
-	; debug line 9
-	loadrm dword, R1, vbuffer
-	loadrr R5, R1
-	loadr R1, 168882893
-	pushr R1
-	loadr R1, 1051324
-	popr R2
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
-	pushr R1
-	loadr R1, 697
-	pushr R1
-	loadr R1, 963
-	popr R2
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
-	pushr R1
-	loadr R1, 1
-	popr R2
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
-	popr R2
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
-	pushr R0
-	loadrr R0, R5
-	stosd
-	popr R0
-
-
-	; debug line 10
-	loadrm dword, R1, vbuffer
-	pushr R0
-	loadrr R0, R1
-	lodsw
-	popr R0
-
-	pushr R0
-	pushr R1
-	loadr R0, vX
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 11
-	loadr R1, s1
+	loadr R1, s2
 	call print_s
-	loadrm dword, R1, vX
-	call print_i
-	call print_t
-	loadrm dword, R1, vbuffer
-	pushr R0
-	loadrr R0, R1
-	lodsd
-	popr R0
-
+	loadrm dword, R1, vb
 	call print_i
 	call print_n
 
+	; debug line 8
+	loadr R8, 1
+	loadsr R8
+	popr R1
+	loadrr R7, R1
+	ret
+
+	; debug line 9
+endfunction x
+
+	; debug line 11
+function main
+
 	; debug line 12
-	loadr R1, s2
+	loadr R1, 24
 	pushr R0
 	pushr R1
-	loadr R0, vmystr
+	loadr R0, vc
 	stosd
 	popr R1
 	popr R0
 
 	; debug line 13
+	loadr R1, 100
 	pushr R1
-	loadrm dword, R1, vmystr
-	call print_s
+
+	loadr R1, 200
+	pushr R1
+
+	loadrm dword, R1, vc
+	pushr R1
+	loadr R1, 5
+	popr R2
+	pushr R1
+	pushr R2
+	mul
 	popr R1
-	call print_n
+	pop
+pop
+	
+	pushr R1
+	loadr R1, 2
+	popr R2
+	pushr R1
+	pushr R2
+	add
+	popr R1
+	pop
+	pop
 
-	; debug line 14
-	loadrm dword, R1, vmystr
-	pushr R0
-	loadrr R0, R1
-	lodsb
-	popr R0
+	pushr R1
 
+	call x
+	loadrr R1, R7
 	pushr R0
 	pushr R1
-	loadr R0, vfirstvariable
+	loadr R0, vretval
 	stosd
 	popr R1
 	popr R0
 
-	; debug line 15
+	; debug line 14
 	loadr R1, s3
 	call print_s
-	loadrm dword, R1, vfirstvariable
+	loadrm dword, R1, vretval
 	call print_i
 	call print_n
 
-	; debug line 16
-	loadr R1, 0
-	pushr R0
+	; debug line 15
+	loadrm dword, R1, vretval
+	loadrr R4, R1
+	loadrm dword, R1, vc
 	pushr R1
-	loadr R0, vS
-	stosd
+	loadr R1, 5
+	popr R2
+	pushr R1
+	pushr R2
+	mul
 	popr R1
-	popr R0
+	pop
+pop
+	
+	pushr R1
+	loadr R1, 2
+	popr R2
+	pushr R1
+	pushr R2
+	add
+	popr R1
+	pop
+	pop
+
+	cmpr R4, R1
+	jne i15
+	jmp lcorrect
+i15:
+
+	; debug line 16
+	loadr R1, s4
+	call print_s
+	call print_n
 
 	; debug line 17
 	jmp _exit
+
+	; debug line 18
+lcorrect:
+	loadr R1, s5
+	call print_s
+	call print_n
+
+	; debug line 19
+	jmp _exit
+
+	; debug line 20
 endfunction main
 
-	; exit to operating system
-	; program falls through to here when there is no explicit end
+; exit to operating system
+
 _exit:
 	Console.WaitKey
 	System.Quit 0
 
-	; print an integer to the terminal
-	print_i:
+; print an integer to the terminal
+print_i:
 	pushr R1
 	syscall SYSCALL_PUTI
 	popr R1
 	ret
 
-	; print string to terminal
-	print_s:
+; print string to terminal
+print_s:
 	pushr R1
 	syscall SYSCALL_PUTS
 	popr R1
 	ret
 
-	; print a tab to the terminal
-	print_t:
-	push 0x09
-	syscall SYSCALL_PUTCH
-	pop
-	ret
+; print_t excluded
 
-	; print a newline to the terminal
-	print_n:
+; print a newline to the terminal
+print_n:
 	push 0x0A
 	syscall SYSCALL_PUTCH
 	pop
@@ -233,19 +234,19 @@ free:
 }
 .bss {
 
-	vbuffer: rd 1
-	vB: rd 1
-	vX: rd 1
-	vmystr: rd 1
-	vfirstvariable: rd 1
-	vS: rd 1
+	va: rd 1
+	vb: rd 1
+	vc: rd 1
+	vretval: rd 1
 }
 .data {
 
-	s0: db "Array stuff", 0
-	s1: db "(uint8_t)S[0] and (uint32_t)S[0] = ", 0
-	s2: db "Hello, World!", 0
-	s3: db "first char: ", 0
+	s0: db "I'm a function take takes 3 args", 0
+	s1: db "the number got in the first arg is: ", 0
+	s2: db "the number got in the second arg + 15 is :", 0
+	s3: db "return value: ", 0
+	s4: db "lol, this failed.", 0
+	s5: db "lol it's right", 0
 }
 end
 ; Task Completed -- Assemble with FASM 

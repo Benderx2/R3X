@@ -60,6 +60,8 @@ enum
   T_LABEL,
   T_WHILE,
   T_ENDW,
+  T_FUNC,
+  T_ENDF,
   T_END
 };
 
@@ -80,6 +82,7 @@ typedef struct {
 typedef struct {
 	char* name;
 	unsigned int number_of_arguments;
+	bool used;
 } function_type;
 typedef struct {
 	function_type* functions;
@@ -99,6 +102,7 @@ static int         vars_used[26] = { 0 };
 static int			vars_used_gc[26] = { 0 };
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
 static f_table*    function_table = NULL;
+static char* 		current_function_name = NULL;
 static char **     strings       = NULL;
 static unsigned int 		current_variable_index = 0;
 static unsigned int		total_variables = 0;
@@ -145,6 +149,9 @@ static void  do_while		PARAMS ((void));
 static void  do_endw		PARAMS ((void));
 static void  do_alloc		PARAMS ((void));
 static void  add_variable  PARAMS ((char*));
+static void  do_func       PARAMS ((void));
+static void  do_endf		PARAMS ((void));
+static void  do_function_call PARAMS((void));
 static char*  return_next_int_name PARAMS((void));
 char* 		  return_str	PARAMS ((void));
 char*        return_next_tok(void);
@@ -200,6 +207,22 @@ add_to_function_table(char* function_name, unsigned int no_of_args) {
 		function_table->total_functions += 16;
 		function_table->functions = xrealloc(function_table->functions, function_table->total_functions * sizeof(function_type));
 	}
+	function_table->functions[function_table->current_index].name = strdup(function_name);
+	function_table->functions[function_table->current_index].number_of_arguments = no_of_args;
+	function_table->functions[function_table->current_index].used = true;
+	function_table->current_index++;
+}
+static function_type*
+return_function_type_if_function_exists(char* function_name) {
+	int i; 
+	for(i = 0; i < function_table->total_functions; i++) {
+		if(function_table->functions[i].used == true) {
+			if(!strcmp(function_table->functions[i].name, function_name)) {
+				return &function_table->functions[i];
+			}
+		}
+	}
+	return NULL;
 }
 /*!
  * Frees memory allocated previously.
@@ -368,7 +391,7 @@ return_next_tok() {
   string = xmalloc (1);
   string[0] = 0;
 
-  for (; look != ' ' && look != '\t' && look != '\n' && look != '/' && look != '*' && look != '+' && look != '-' && look != '^' && look != '%' && look != '@' && look != '{' && look != '}' && look != '[' && look != ']' && look != '^' && look != '&' && look != '|' && look != '!' && look != '~' && look != '\'' && look != ';' && look != '.' && look != '>' && look != '<' && look != '?' && look != '>' && look != ',' && look != '='; get_char ())
+  for (; look != ' ' && look != '\t' && look != '\n' && look != '/' && look != '*' && look != '+' && look != '-' && look != '^' && look != '%' && look != '@' && look != '{' && look != '}' && look != '[' && look != ']' && look != '^' && look != '&' && look != '|' && look != '!' && look != '~' && look != '\'' && look != ';' && look != '.' && look != '>' && look != '<' && look != '?' && look != '>' && look != ',' && look != '=' && look != '(' && look != ')' && look != '{' && look != '[' && look != ']' && look != '}'; get_char ())
     {
       ++string_size;
       string = xrealloc (string, string_size + 1);
@@ -522,7 +545,7 @@ do_expression ()
       if (op == '+')
 	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpop\n\tpop\n");
       else if (op == '-')
-	puts ("\tpushr R1\n\tpushr R2\n\tsub\n\t\n\tneg\n\tpopr R1\n\tpop\n\tpop\n");
+	puts ("\tpushr R1\n\tpushr R2\n\tsub\n\t\n\tneg\n\tpopr R1\n\tpopn 3\n");
     }
 }
 /*!
@@ -540,9 +563,8 @@ do_term ()
       match (look);
       do_factor ();
       puts ("\tpopr R2");
-      puts ("\tloadr R4, 0");
       if (op == '*')
-	puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\n\t");
+	puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\npop\n\t");
       else if (op == '/')
 	puts ("\tpushr R2\n\tpushr R1\n\tdiv\n\tpopr R1\n\tpop\n\tpop");
 	  else if (op == '&')
@@ -601,6 +623,19 @@ do_factor ()
     {
       printf ("\tloadrm dword, R1, v%s\n", return_next_int_name ());
     }
+  else if (look == '$') {
+	get_char();
+	if(current_function_name == NULL) {
+		error("Cannot use arguments when not in a function\n");
+	}
+	function_type* type = return_function_type_if_function_exists(current_function_name);
+	if(type==NULL) {
+		error("INTERNAL COMPILER ERROR!\n");
+	}
+	printf("\tloadr R8, %u\n", type->number_of_arguments - (get_num()-1));
+	printf("\tloadsr R8\n");
+	printf("\tpopr R1\n");
+  }
   else if(look == '\'') {
 	get_char();
 	if(look == '\'') {
@@ -612,6 +647,10 @@ do_factor ()
 		get_char();
 		match('\'');
 	}
+  }
+  else if(look == '@') {
+		get_char();
+		do_function_call();
   }
   else if(look == '"') {
 		do_string ();
@@ -715,7 +754,6 @@ begin ()
   puts ("}");
   puts ("");
   puts (".text {");
-  puts ("function main\n");
   puts ("");
 
   get_char ();
@@ -728,9 +766,9 @@ finish ()
 {
   int i;
 
-  puts ("endfunction main\n");
-  puts ("\t; exit to operating system");
-  puts ("\t; program falls through to here when there is no explicit end");
+  puts ("");
+  puts ("; exit to operating system");
+  puts ("");
   puts ("_exit:");
   puts ("\tConsole.WaitKey");
   puts ("\tSystem.Quit 0");
@@ -738,8 +776,8 @@ finish ()
 
   if (use_print_i)
     {
-      puts ("\t; print an integer to the terminal");
-      puts ("\tprint_i:");
+      puts ("; print an integer to the terminal");
+      puts ("print_i:");
       puts ("\tpushr R1");
       puts ("\tsyscall SYSCALL_PUTI");
       puts ("\tpopr R1");
@@ -753,8 +791,8 @@ finish ()
 
   if (use_print_s)
     {
-      puts ("\t; print string to terminal");
-      puts ("\tprint_s:");
+      puts ("; print string to terminal");
+      puts ("print_s:");
       puts ("\tpushr R1");
       puts ("\tsyscall SYSCALL_PUTS");
       puts ("\tpopr R1");
@@ -768,8 +806,8 @@ finish ()
 
   if (use_print_t)
     {
-      puts ("\t; print a tab to the terminal");
-      puts ("\tprint_t:");
+      puts ("; print a tab to the terminal");
+      puts ("print_t:");
       puts ("\tpush 0x09");
       puts ("\tsyscall SYSCALL_PUTCH");
       puts ("\tpop");
@@ -783,8 +821,8 @@ finish ()
 
   if (use_print_n)
     {
-      puts ("\t; print a newline to the terminal");
-      puts ("\tprint_n:");
+      puts ("; print a newline to the terminal");
+      puts ("print_n:");
 	  puts ("\tpush 0x0A");
 	  puts ("\tsyscall SYSCALL_PUTCH");
 	  puts ("\tpop");
@@ -799,7 +837,7 @@ finish ()
   if (use_input_i)
     {
       puts ("\t; read a number from the terminal");
-      puts ("\tinput_i:");
+      puts ("input_i:");
       puts ("\tsyscall SYSCALL_GETC");
       puts ("\tpush 0");
       puts ("\tcmp");
@@ -879,7 +917,7 @@ static int
 get_keyword ()
 {
   int i;
-  char token[7];
+  char token[11];
   while(look == ' ' || look == '\t' || look == '\n'){
 	get_char();
   }
@@ -924,6 +962,10 @@ get_keyword ()
 	i = T_ENDW;
   else if (!strcmp(token, "alloc"))
 	i = T_ALLOC;
+  else if (!strcmp(token, "function"))
+	i = T_FUNC;
+  else if (!strcmp(token, "endf"))
+	i = T_ENDF;
   else
     error ("expected keyword got '%s'", token);
   eat_blanks ();
@@ -1002,6 +1044,8 @@ do_statement ()
     case T_WHILE:  do_while(); break;
     case T_ENDW:   do_endw(); break;
     case T_ALLOC:  do_alloc(); break;
+    case T_FUNC:   do_func(); break;
+    case T_ENDF:   do_endf(); break;
     default:       assert (0);   break;
     }
 }
@@ -1211,7 +1255,7 @@ do_if ()
 static void 
 do_while()
 {
-	int op;
+  int op;
   printf("while%u:\n", whilelines);
   while_stack[currentwhile] = whilelines;
   do_expression ();
@@ -1243,9 +1287,9 @@ do_while()
 	  match ('=');
 	  op = O_LESS_OR_EQUAL;
 	}
-      else if (look == '>')
+      else if (look == '!')
 	{
-	  match ('>');
+	  match ('=');
 	  op = O_NOT_EQUAL;
 	}
       else
@@ -1338,6 +1382,9 @@ do_gosub ()
 static void
 do_return ()
 {
+  eat_blanks();
+  do_expression();
+  puts("\tloadrr R7, R1");
   puts ("\tret");
 }
 /*!
@@ -1403,5 +1450,45 @@ do_end ()
 {
   puts ("\tjmp _exit");
 }
-
+static void 
+do_func() {
+	eat_blanks();
+	char* function_name = return_next_tok();
+	match(',');
+	unsigned int arguments = get_num();
+	add_to_function_table(function_name, arguments);
+	printf("function %s\n", function_name);
+	current_function_name = function_name;
+}
+static void
+do_endf() {
+	if(current_function_name!=NULL) {
+		printf("endfunction %s\n", current_function_name);
+		current_function_name = NULL;
+	} else {
+		error("endf before any function declaration!\n");
+	}
+}
+static void
+do_function_call() {
+	char* function_name = return_next_tok();
+	function_type* type = return_function_type_if_function_exists(function_name);
+	if(type==NULL) {
+		error("function: %s not declared!\n", function_name);
+	}
+	match('(');
+	unsigned int i = 0;
+	while(i<type->number_of_arguments) {
+		do_expression();
+		if(i<type->number_of_arguments-1) {
+			match(',');
+		} else {
+			match(')');
+		}
+		puts("\tpushr R1\n");
+		i++;
+	}
+	printf("\tcall %s\n", function_name);
+	printf("\tloadrr R1, R7\n");
+}
 /* vim:set ts=8 sts=2 sw=2 noet: */
