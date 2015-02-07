@@ -1,3 +1,4 @@
+function main, 0
 	print "Array stuff"
 	goto mylabel
 :mylabel
@@ -14,4 +15,5 @@
 	let firstvariable = [mystr]
 	print "first char: "; firstvariable
 	let S = 0
-end
+	end
+endf

@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 	#ifdef REX_GRAPHICS
 	// Initialise Graphics Device and load default font.
 	r3_cpu->Graphics = InitGraphics();
-	char* default_fontname = malloc(strlen(ApplicationPath) + strlen(DefaultFontFileName));
+	char* default_fontname = malloc(strlen(ApplicationPath) + strlen(DefaultFontFileName)+1);
 	strcpy(default_fontname, ApplicationPath);
 	strcat(default_fontname, DefaultFontFileName);
 	r3_cpu->Graphics->font = loadfont(default_fontname);

@@ -1,5 +1,7 @@
-LET X = 0x0
-WHILE X <= 5
-	PRINT "Doing a while loop till 5 "; X
-	LET X = X+1
-ENDW
+function main, 0
+	LET X = 0x0
+	WHILE X <= 5
+		PRINT "Doing a while loop till 5 "; X
+		LET X = X+1
+	ENDW
+endf

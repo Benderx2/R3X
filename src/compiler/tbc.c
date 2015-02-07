@@ -155,6 +155,7 @@ static void  do_function_call PARAMS((void));
 static char*  return_next_int_name PARAMS((void));
 char* 		  return_str	PARAMS ((void));
 char*        return_next_tok(void);
+static function_type* return_function_type_if_function_exists PARAMS((char*));
 /*!
  * Standard C main function
  * */
@@ -183,6 +184,20 @@ main (argc, argv)
 /*!
  * Adds a variable to the variable table with a name.
  * */
+static bool
+check_if_variable_exists(char* var_name)
+{
+	unsigned int i;
+	for(i = 0; i < total_variables; i++) {
+		if(variables_used[i] != NULL) {
+			if(!strcmp(variables_used[i], var_name)) {
+				//! Already used variable
+				return true;
+			}
+		}
+	}
+	return false;
+}
 static void 
 add_variable(char* var_name) {
 	unsigned int i;
@@ -203,6 +218,10 @@ add_variable(char* var_name) {
 }
 static void
 add_to_function_table(char* function_name, unsigned int no_of_args) {
+	function_type* type = return_function_type_if_function_exists(function_name);
+	if(type!=NULL) {
+		error("function %s already defined\n", function_name);
+	}
 	if(function_table->total_functions < function_table->current_index) {
 		function_table->total_functions += 16;
 		function_table->functions = xrealloc(function_table->functions, function_table->total_functions * sizeof(function_type));
@@ -407,9 +426,25 @@ return_next_tok() {
 char* return_next_int_name()
 {
 	char* returnval = return_next_tok();
+	if(current_function_name != NULL) {
+		char* new_val = xmalloc(strlen(returnval)+strlen(current_function_name)+3);
+		strcpy(new_val, current_function_name);
+		new_val[strlen(new_val)] = '.';
+		strcat(new_val, returnval);
+		returnval = new_val;
+	}
 	add_variable(returnval);
 	eat_blanks();
 	return returnval;
+}
+char* add_var_with_context(char* var_name) {
+	char* new_val = xmalloc(strlen(var_name)+strlen(current_function_name)+3);
+	if(current_function_name != NULL) {
+		strcpy(new_val, current_function_name);
+		new_val[strlen(new_val)] = '.';
+		strcat(new_val, var_name);
+	}
+	add_variable(new_val);
 }
 /*!
  * Skips spaces, tabs, and CR
@@ -1022,11 +1057,14 @@ do_line ()
 static void
 do_statement ()
 {
-  if (isdigit (look))
-    printf ("l%i:\n", get_num ());
+  eat_blanks();
   if (look == ':') {
 	get_char();
 	printf("l%s:\n", return_next_tok());
+  }
+  if (look == '@') {
+	get_char();
+	do_function_call();
   }
   switch (get_keyword ())
     {
@@ -1478,15 +1516,21 @@ do_function_call() {
 	}
 	match('(');
 	unsigned int i = 0;
-	while(i<type->number_of_arguments) {
-		do_expression();
-		if(i<type->number_of_arguments-1) {
-			match(',');
-		} else {
-			match(')');
+	if(type->number_of_arguments==0) {
+		//! No args need to passed.
+		match(')');
+	}
+	else {
+		while(i<type->number_of_arguments) {
+			do_expression();
+			if(i<type->number_of_arguments-1) {
+				match(',');
+			} else {
+				match(')');
+			}
+			puts("\tpushr R1\n");
+			i++;
 		}
-		puts("\tpushr R1\n");
-		i++;
 	}
 	printf("\tcall %s\n", function_name);
 	printf("\tloadrr R1, R7\n");
