@@ -170,7 +170,17 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 	SDL_KillThread(kthread);
 	#endif
 	#ifdef REX_OPTIMIZE
+	/*
+	 * Nice, no shit needed.
+	 * */
+	#ifdef __unix__
 	pthread_kill(CPUDispatchThread_handle, SIGKILL);
+	#else
+	/*
+	 * Fuck off, non-POZIX platformz
+	 */
+	pthread_kill(CPUDispatchThread_handle, SIGTERM);
+	#endif
 	#endif
 	return 0;
 }

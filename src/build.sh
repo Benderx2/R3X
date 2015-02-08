@@ -15,6 +15,9 @@ then
 elif [ "$1" == "arch=ppc" ]
 then
 	export TARGET="ppc"
+elif [ "$1" == "arch=x86_64win" ]
+then
+	export TARGET="x86_64win"
 else
 # Default to x86_64, x86_32, aarch64, aarch64-big,ppc depending upon stuff..
 export TARGET="x86_64"
@@ -94,7 +97,7 @@ elif [ "$TARGET" == "x86_64win" ]
 	 export ARCHFLAGS="-m64"
 	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN"
 	 export ARCHID="-DWIN_ARCH_X8664"
-	 export CC="x86_64-w64-mingw32-gcc"
+	 export CC="x86_64-w64-mingw32-gcc -static"
 	 export AR="x86_64-w64-mingw32-ar"
 	 export BINDIR="../bin64win"
 elif [ "$TARGET" == "x86_32" ]
@@ -134,7 +137,12 @@ else
  	echo "Unsupported platform. Supported platforms: x86, x86_64, ppc, aarch64, aarch64-big"
 	exit -1
 fi
-export LFLAGS="-lc -lm"
+if [ "$TARGET" -ne "x86_64win" ] 
+then
+	export LFLAGS="-lc -lm"
+else
+	export LFLAGS="-lm"
+fi
 export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o"
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99

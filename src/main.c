@@ -167,7 +167,7 @@ void GetApplicationPath(void) {
 			return;
 		}
 	}
-	#elif defined _WIN32
+	#elif defined WIN32
 	char buf[1024];
 	memset(buf, 0, 1024);
 	GetModuleFileName(NULL, buf, 1024);
@@ -175,11 +175,12 @@ void GetApplicationPath(void) {
 	for(size_t i = strlen(ApplicationPath); i != 0; i--){
 		// Backwards babe...
 		/** Remove the executable name from the path **/
-		if(ApplicationPath[i] == '/'){
+		if(ApplicationPath[i] == '/' || ApplicationPath[i] == '\\' /*fkn win32 with fkn backslahes xxx*/){
 			memset((char*)((intptr_t)ApplicationPath + i), 0, strlen(ApplicationPath)-i);
 			return;
 		}
 	}
+	printf("$TESTING: Application Path: %s$\n", ApplicationPath);
 	#else
 	#error "GetApplicationPath unimplemented for target, please write your own implementation"
 	#endif

@@ -13,6 +13,7 @@
 #include <unistd.h>
 #else
 #include <windows.h>
+#include <process.h>
 #endif
 #include <math.h>
 #include <time.h>
@@ -22,23 +23,17 @@
 #endif
 typedef bool Boolean;
 //! System specific description of file descriptor and stuff
-#ifndef _WIN32 // Assume POSIX
 typedef FILE* File;
 typedef void* Pointer;
 typedef const void* CPointer;
 typedef size_t Size;
 typedef unsigned int Uint;
+#ifndef _WIN32
 typedef pid_t ProcessID;
-typedef int Exception;
 #else
-// WIN32 only supported
-typedef HFILE* File;
-typedef VOID* Pointer;
-typedef SIZE_T Size;
-typedef UINT Uint;
-typedef INT ProcessID;
-typedef INT Exception;
+typedef int ProcessID;
 #endif
+typedef int Exception;
 typedef struct {
 	//! Write formatted output to console
 	int  (*WriteLine)(const char*, ...);
