@@ -15,292 +15,100 @@ include 'libR3X/libR3X.pkg'
 
 
 	; debug line 1
+function factorial
 
 	; debug line 2
-function x
-
-	; debug line 3
-	loadr R1, s0
-	call print_s
-	call print_n
-
-	; debug line 4
 	loadr R8, 3
 	loadsr R8
 	popr R1
-	pushr R0
-	pushr R1
-	loadr R0, vx.a
-	stosd
+	loadrr R4, R1
+	loadr R1, 1
+	cmpr R4, R1
+	jg i2
+	jmp factorial.lfunc_return
+i2:
+
+	; debug line 3
+	loadr R8, 3
+	loadsr R8
 	popr R1
-	popr R0
-
-	; debug line 5
-	loadr R1, s1
-	call print_s
-	loadrm dword, R1, vx.a
-	call print_i
-	call print_n
-
-	; debug line 6
-	loadr R8, 2
+	loadrr R10, R1
+	loadr R8, 3
 	loadsr R8
 	popr R1
 	loadrr R9, R1
-	loadr R1, 15
+	loadr R1, 1
 	loadrr R2, R9
+	pushr R2
+	pushr R1
+	sub
+	popr R1
+	pop
+	pop
+
+	pushr R1
+
+; Save utility registers
+	pushr R9
+	pushr R10
+	call factorial
+	popr R10
+	popr R9
+	popn 1
+	loadrr R1, R7
+	loadrr R2, R10
 	pushr R1
 	pushr R2
-	add
+	mul
 	popr R1
 	pop
-	pop
+pop
+	
+	loadrr R7, R1
+	ret
 
-	pushr R0
-	pushr R1
-	loadr R0, vx.b
-	stosd
-	popr R1
-	popr R0
+	; debug line 4
+factorial.lfunc_return:
+	loadr R1, 1
+	loadrr R7, R1
+	ret
+
+	; debug line 5
+endfunction factorial
 
 	; debug line 7
-	loadr R1, s2
-	call print_s
-	loadrm dword, R1, vx.b
-	call print_i
-	call print_n
+function main
 
 	; debug line 8
-	loadr R1, 5
+	loadr R1, 9
+	pushr R1
+
+; Save utility registers
+	pushr R9
+	pushr R10
+	call factorial
+	popr R10
+	popr R9
+	popn 1
+	loadrr R1, R7
 	pushr R0
 	pushr R1
-	loadr R0, vx.f
+	loadr R0, vmain.fact
 	stosd
 	popr R1
 	popr R0
 
 	; debug line 9
-	loadr R1, s3
+	loadr R1, s0
 	call print_s
-	loadrm dword, R1, vx.f
+	loadrm dword, R1, vmain.fact
 	call print_i
 	call print_n
 
 	; debug line 10
-	loadr R8, 1
-	loadsr R8
-	popr R1
-	loadrr R7, R1
-	ret
+	jmp _exit
 
 	; debug line 11
-endfunction x
-
-	; debug line 12
-function add2numbers
-
-	; debug line 13
-	loadr R8, 2
-	loadsr R8
-	popr R1
-	loadrr R9, R1
-	loadr R8, 1
-	loadsr R8
-	popr R1
-	loadrr R2, R9
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
-	pushr R0
-	pushr R1
-	loadr R0, vadd2numbers.a
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 14
-	loadrm dword, R1, vadd2numbers.a
-	loadrr R7, R1
-	ret
-
-	; debug line 15
-endfunction add2numbers
-
-	; debug line 16
-function misc
-
-	; debug line 17
-	loadr R1, s4
-	call print_s
-	loadrm dword, R1, vmisc.f
-	call print_i
-	call print_n
-
-	; debug line 18
-
-	; debug line 19
-	loadr R1, 0
-	loadrr R7, R1
-	ret
-
-	; debug line 20
-endfunction misc
-
-	; debug line 21
-function main
-
-	; debug line 22
-	loadr R1, 1
-	pushr R0
-	pushr R1
-	loadr R0, vmain.f
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 23
-	call misc
-	loadrr R1, R7
-	loadr R1, 24
-	pushr R0
-	pushr R1
-	loadr R0, vmain.c
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 24
-	loadr R1, 100
-	pushr R1
-
-	loadr R1, 200
-	pushr R1
-
-	loadrm dword, R1, vmain.c
-	pushr R1
-	loadr R1, 5
-	popr R2
-	pushr R1
-	pushr R2
-	mul
-	popr R1
-	pop
-pop
-	
-	loadrr R9, R1
-	loadr R1, 2
-	loadrr R2, R9
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
-	pushr R1
-
-	call x
-	loadrr R1, R7
-	pushr R0
-	pushr R1
-	loadr R0, vmain.retval
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 25
-	loadr R1, s5
-	call print_s
-	loadrm dword, R1, vmain.retval
-	call print_i
-	call print_n
-
-	; debug line 26
-	loadrm dword, R1, vmain.retval
-	loadrr R4, R1
-	loadrm dword, R1, vmain.c
-	pushr R1
-	loadr R1, 5
-	popr R2
-	pushr R1
-	pushr R2
-	mul
-	popr R1
-	pop
-pop
-	
-	loadrr R9, R1
-	loadr R1, 2
-	loadrr R2, R9
-	pushr R1
-	pushr R2
-	add
-	popr R1
-	pop
-	pop
-
-	cmpr R4, R1
-	jne i26
-	jmp main.lcorrect
-i26:
-
-	; debug line 27
-	loadr R1, s6
-	call print_s
-	call print_n
-
-	; debug line 28
-	jmp _exit
-
-	; debug line 29
-main.lcorrect:
-	loadr R1, s7
-	call print_s
-	call print_n
-
-	; debug line 30
-	loadr R1, s3
-	call print_s
-	loadrm dword, R1, vmain.f
-	call print_i
-	call print_n
-
-	; debug line 31
-	loadr R1, s8
-	call print_s
-	call print_n
-
-	; debug line 32
-	loadr R1, 57
-	pushr R1
-
-	loadr R1, 90
-	pushr R1
-
-	call add2numbers
-	loadrr R1, R7
-	pushr R0
-	pushr R1
-	loadr R0, vmain.result
-	stosd
-	popr R1
-	popr R0
-
-	; debug line 33
-	loadr R1, s9
-	call print_s
-	loadrm dword, R1, vmain.result
-	call print_i
-	call print_n
-
-	; debug line 34
-	jmp _exit
-
-	; debug line 35
 endfunction main
 
 ; exit to operating system
@@ -350,28 +158,11 @@ free:
 }
 .bss {
 
-	vx.a: rd 1
-	vx.b: rd 1
-	vx.f: rd 1
-	vadd2numbers.a: rd 1
-	vmisc.f: rd 1
-	vmain.f: rd 1
-	vmain.c: rd 1
-	vmain.retval: rd 1
-	vmain.result: rd 1
+	vmain.fact: rd 1
 }
 .data {
 
-	s0: db "I'm a function take takes 3 args", 0
-	s1: db "the number got in the first arg is: ", 0
-	s2: db "the number got in the second arg + 15 is :", 0
-	s3: db "f in this scope is: ", 0
-	s4: db "f in this scope is", 0
-	s5: db "return value: ", 0
-	s6: db "lol, this failed.", 0
-	s7: db "lol it's right", 0
-	s8: db "adding 2 numbers: 57 and 90", 0
-	s9: db "result = ", 0
+	s0: db "factorial of 9: ", 0
 }
 end
 ; Task Completed -- Assemble with FASM 

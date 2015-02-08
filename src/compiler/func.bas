@@ -13,6 +13,10 @@ function add2numbers, 2
 	let a = $1+$2
 	return a
 endf
+function subtract2numbers, 2
+	let a = $1-$2
+	return a
+endf
 function misc, 0
 	print "f in this scope is"; f
 	#! Dont FORGET TO RETURN! else cause undefined behaviour lol
@@ -32,6 +36,9 @@ function main, 0
 	print "f in this scope is: "; f
 	print "adding 2 numbers: 57 and 90"
 	let result = @add2numbers(57, 90)
+	print "result = "; result
+	print "subtracting 2 numbers: 30 and 10"
+	let result = @subtract2numbers(30, 10)
 	print "result = "; result
 	end
 endf

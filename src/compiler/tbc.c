@@ -99,6 +99,8 @@ static int         use_print_t   = 0;
 static int         use_print_n   = 0;
 static int         use_input_i   = 0;
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
+static int 		stuff_pushed_to_stack = 0;
+static int 		number_of_util_regs = 2;
 static f_table*    function_table = NULL;
 static char* 		current_function_name = NULL;
 static char **     strings       = NULL;
@@ -577,7 +579,7 @@ do_expression ()
       if (op == '+')
 	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpop\n\tpop\n");
       else if (op == '-')
-	puts ("\tpushr R1\n\tpushr R2\n\tsub\n\t\n\tneg\n\tpopr R1\n\tpopn 3\n");
+	puts ("\tpushr R2\n\tpushr R1\n\tsub\n\tpopr R1\n\tpop\n\tpop\n"); 
     }
 }
 /*!
@@ -591,10 +593,10 @@ do_term ()
   while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
     {
       int op = look;
-      puts ("\tpushr R1");
+      puts ("\tloadrr R10, R1");
       match (look);
       do_factor ();
-      puts ("\tpopr R2");
+      puts ("\tloadrr R2, R10");
       if (op == '*')
 	puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\npop\n\t");
       else if (op == '/')
@@ -664,7 +666,7 @@ do_factor ()
 	if(type==NULL) {
 		error("INTERNAL COMPILER ERROR!\n");
 	}
-	printf("\tloadr R8, %u\n", type->number_of_arguments - (get_num()-1));
+	printf("\tloadr R8, %u\n", (type->number_of_arguments + stuff_pushed_to_stack + number_of_util_regs) - (get_num()-1));
 	printf("\tloadsr R8\n");
 	printf("\tpopr R1\n");
   }
@@ -1497,6 +1499,7 @@ do_endf() {
 }
 static void
 do_function_call() {
+	stuff_pushed_to_stack = 0;
 	char* function_name = return_next_tok();
 	function_type* type = return_function_type_if_function_exists(function_name);
 	if(type==NULL) {
@@ -1517,10 +1520,18 @@ do_function_call() {
 				match(')');
 			}
 			puts("\tpushr R1\n");
+			stuff_pushed_to_stack++;
 			i++;
 		}
 	}
+	//! Save util registers
+	printf("; Save utility registers\n");
+	printf("\tpushr R9\n\tpushr R10\n");
 	printf("\tcall %s\n", function_name);
+	printf("\tpopr R10\n\tpopr R9\n");
+	printf("\tpopn %u\n", type->number_of_arguments);
 	printf("\tloadrr R1, R7\n");
+	stuff_pushed_to_stack = 0;
+	
 }
 /* vim:set ts=8 sts=2 sw=2 noet: */
