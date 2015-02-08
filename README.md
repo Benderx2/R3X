@@ -4,7 +4,8 @@ R3X
 Official repository for the R3X (REX) virtual machine. See docs/REX.html for more details.<br>
 ![Alt text](http://i.imgur.com/c97xG9g.png "R3X Running on Linux64 with example program and debugger")
 <h1>What is REX?</h1>
-R3X is a runtime environment for portable applications. it has currently been ported to x86, x86-64, PPC, and ARM architectures and runs on Linux as well as Windows.<br>
+R3X is a runtime environment for portable applications. It's similar to Java, just remove the JIT and the GC part. :P 
+it has currently been ported to x86, x86-64, PPC, and ARM architectures and runs on Linux as well as Windows.<br>
 <br>
 
 R3X programs are compiled to it's own bytecode, which can be run using the VM and are architecture independent. The main goal for R3X is to create an environment which offers maximum portability, while ensuring performance and features.
@@ -35,7 +36,8 @@ In order to use native libraries (usedynamic=yes) for Windows, add an implementa
 OpenGL support for Windows is currently untested.
 In order to build the utilities, run "buildutils.sh" given in the root directory of the project. This will build the compiler front end, the preprocessor, rexdump, and the disassembler and transfer them into
 the "binutils" direcotry
-
+<h1>How 2 Runz?</h1>
+See "docs/Building.html", for a list of options which can be given to "rxvm".
 <h1>Is OS X supported</h1>
 Uh, no :D. Not because I don't like OS X, but because I don't have an OS X machine to test stuff on. I'd be glad if somebody experienced with OS X APIs, could point out what might be needed to port to OS X.
 To know what porting the VM requires, please have a look at: "docs/Porting.html" for the parts of the VM that may need changes.
