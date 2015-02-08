@@ -1,0 +1,470 @@
+use32
+; Custom Instruction set, using fasm preprocessor for R3X Systems
+define SYSCALL_PUTS 0x0 
+define SYSCALL_PUTI 0x1 
+define SYSCALL_PUTF 0x2
+define SYSCALL_GLUPDATE 0x3
+define SYSCALL_GETC 0x4
+define SYSCALL_PUTCH 0x5
+define SYSCALL_ATOI 0x6
+define SYSCALL_ALLOC 0x7
+define SYSCALL_DISPATCH 0x8
+define SYSCALL_LOADDYNAMIC 0x9
+define SYSCALL_OPENSTREAM 0xA
+define SYSCALL_SEEKSTREAM 0xB
+define SYSCALL_CLOSESTREAM 0xC
+define SYSCALL_READSTREAM 0xD
+define SYSCALL_WRITESTREAM 0xE
+define SYSCALL_TELLSTREAM 0xF
+define SYSCALL_GETCLOCK 0x10
+define SYSCALL_GETCLOCKSPERSEC 0x11
+define SYSCALL_FREE 0x12
+define R3_PAGE_SIZE 4096
+define INVALID_ACCESS 0
+define INVALID_OPCODE 1
+define INVALID_ARITH 3
+define R_EXCEP 2
+define __REX_WORD 4
+define __REX_8 1
+define __REX_16 2
+define __REX_32 4
+define byte __REX_8
+define word __REX_16
+define dword __REX_32
+; Register definitions
+define R0 0
+define R1 1
+define R2 2 
+define R3 3 
+define R4 4
+define R5 5
+define R6 6
+define R7 7
+define R8 8
+define R9 9
+define R10 10
+define R11 11
+define R12 12
+define R13 13
+define R14 14
+define R15 15
+define R16 16
+define R17 17
+define R18 18
+define R19 19
+define R20 20
+macro push op {
+	db 0x01
+	dd op
+}
+macro syscall op {
+	db 0x21
+	db op
+}
+macro cmp {
+	db 0x0B
+}
+macro pop op {
+	db 0x02
+}
+macro add {
+	db 0x03
+}
+macro sub {
+	db 0x04
+}
+macro mul {
+	db 0x05
+}
+macro div {
+	db 0x06
+}
+macro fadd {
+	db 0x07
+}
+macro fsub {
+	db 0x08
+}
+macro fmul {
+	db 0x9
+}
+macro fdiv {
+	db 0xA	
+}
+macro jmp op {
+	db 0x20
+	dd op
+}
+macro je op {
+	db 0x0C
+	dd op
+}
+macro jg op {
+	db 0x0E
+	dd op
+}
+macro jl op {
+	db 0x0D
+	dd op
+}
+macro jz op {
+	db 0x11
+	dd op
+}
+macro nop {
+	db 0x0
+}
+macro exit {
+	db 0x1F
+}
+macro dup {
+	db 0x15
+}
+macro load {
+	db 0x18
+}
+macro loads off {
+	db 0x17
+	dd off
+}
+macro or {
+	db 0x13
+}
+macro xor {
+	db 0x14
+}
+macro and {
+	db 0x12
+}
+macro ror {
+	db 0x4C
+}
+macro rol {
+	db 0x4D
+}
+macro loadlib {
+	db 0x22
+}
+macro libexec {
+	db 0x23
+}
+macro store {
+	db 0x19
+}
+macro call op {
+	db 0x24
+	dd op
+}
+macro ret {
+	db 0x25
+}
+macro pusha op {
+	db 0x26
+	dd op
+}
+macro popa {
+	db 0x27
+}
+macro memcpy {
+	db 0x28
+}
+macro lodsb {
+	db 0x29
+}
+macro lodsd {
+	db 0x31
+}
+macro lodsw {
+	db 0x62
+}
+macro stosb {
+	db 0x2A
+}
+macro stosd {
+	db 0x2E 
+}
+macro stosw {
+	db 0x61
+}
+macro loadr reg, op {
+	db 0x2B
+	db reg
+	dd op
+}
+macro pushr reg {
+	db 0x2C
+	db reg
+}
+macro popr reg {
+	db 0x2D
+	db reg 
+}
+macro pushar reg {
+	db 0x38 
+	db reg
+}
+macro popar reg {
+	db 0x39
+	db reg
+}
+macro neg { 
+	db 0x37
+}
+macro not {
+	db 0x36
+}
+macro incr reg {
+	db 0x32
+	db reg
+}
+macro decr reg {
+	db 0x33
+	db reg
+}
+macro cmpr reg1, reg2 {	
+	pushr reg1
+	pushr reg2
+	cmp
+	popr reg2
+	popr reg1
+}
+macro int num {
+	db 0x34
+	db num
+}
+macro loadi num, reg {
+	db 0x35
+	db num
+	dd reg
+}
+macro pushstring string {
+	local addr, behind
+	push addr
+	jmp behind
+	addr: db string, 0
+	behind:
+}
+macro shr { 
+	db 0x4A
+}
+macro cmpsb {
+	db 0x2F
+}
+macro cmpsd {
+	db 0x30
+}
+macro cmpsw {
+	db 0x63
+}
+macro shl { 
+	db 0x4B
+}
+macro fsin {
+	db 0x56
+}
+macro fcos {
+	db 0x57
+}
+macro ftan {
+	db 0x58
+}
+macro asin {
+	db 0x59
+}
+macro acos {
+	db 0x5A
+}
+macro atan {
+	db 0x5B
+}
+macro fpow {
+	db 0x5C
+}
+macro mod {
+	db 0x5D
+}
+macro fmod {
+	db 0x5E
+}
+macro cmps {
+	db 0x67
+}
+macro popn num {
+	db 0x68
+	dd num
+}
+macro rconv {
+	db 0x5F
+}
+macro aconv {
+	db 0x60
+} 
+macro calldynamic {
+	db 0x53
+}
+macro loadrr reg1, reg2 {
+	pushr reg2
+	popr reg1
+}
+macro pushf {
+	db 0x69
+}
+macro popf {
+	db 0x6A
+}
+macro tern {
+	db 0x6B
+}
+macro catch {
+	db 0x6C
+}
+macro throw {
+	db 0x6D
+}
+macro handle {
+	db 0x6E
+}
+macro stores off {
+	db 0x6F
+	dd off
+}
+macro loadsr reg {
+	db 0x70
+	db reg
+}
+macro storesr reg {
+	db 0x71
+	db reg
+}
+macro jne addr {
+	local no_jne
+	je no_jne
+	jmp addr
+	no_jne:
+}
+macro jge addr {
+	jg addr
+	je addr
+}
+macro jle addr {
+	jl addr
+	je addr
+}
+macro sete reg {
+	db 0x72
+	db reg
+}
+macro setne reg {
+	db 0x73
+	db reg
+}
+macro setg reg {
+	db 0x74
+	db reg
+}
+macro setl reg {
+	db 0x75
+	db reg
+}
+macro setle reg {
+	sete reg
+	setl reg
+}
+macro setge reg {
+	sete reg
+	setg reg
+}
+macro fsinh {
+	db 0x76
+}
+macro fcosh {
+	db 0x77
+	
+}
+macro ftanh {
+	db 0x78
+	
+}
+macro fabs {
+	db 0x79
+}
+macro floor {
+	db 0x7A
+}
+macro ceil {
+	db 0x7B
+}
+macro asinh {
+	db 0x7C
+}
+macro acosh {
+	db 0x7D
+}
+macro atanh {
+	db 0x7E
+}
+macro fconv {
+	db 0x7F
+}
+macro iconv {
+	db 0x80
+}
+macro fsqrt {
+	db 0x81
+}
+macro jmpl addr {
+	db 0x82
+	dd addr
+}
+macro jel addr {
+	db 0x83
+	dd addr
+}
+macro jgl addr {
+	db 0x84
+	dd addr
+}
+macro jll addr {
+	db 0x85
+	dd addr
+}
+macro jzl addr {
+	db 0x87
+	dd addr
+}
+macro puship {
+	db 0x86
+}
+macro ars {
+	db 0x89
+}
+macro loadrm size, reg1, memaddr {
+	if reg1 eq R0
+	else
+	pushr R0
+	end if
+	if reg1 eq R1
+	else
+	pushr R1
+	end if
+	loadr R0, memaddr
+	if size eq byte
+		lodsb
+	else if size eq word
+		lodsw
+	else if size eq dword
+		lodsd
+	else 
+		display 'Unknown size operand for loadrm'
+		err
+	end if
+	loadrr reg1, R1
+	if reg1 eq R1
+	else
+	popr R1
+	end if
+	if reg1 eq R0
+	else
+	popr R0
+	end if
+}
