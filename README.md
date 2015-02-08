@@ -56,5 +56,10 @@ You can use FASM (flat assembler), for writing assembly code, no, it's not x86, 
 compiled to R3X bytecode. For instructions supported see "docs/CPU.html and docs/Opcodes.html".<br>
 ...<br>
 Or you can use the tinyBASIC compiler to generate R3X assembly code and then compile it using fasm. (you'll need the assembly header).
+
+<h1>What are those '.exe' files in the /bin*** directories?</h1>
+Uh, they're R3X programs, all programs written for the R3X VM should have a '.exe' (executable) extension by convention.<br>
+Shared libraries have an '.ro', while native shared libraries have platform dependent extensions (.so or .dll)
+<br>
 <br>
 Current version is 0.4.6a BASICPie (unstable)<br>
