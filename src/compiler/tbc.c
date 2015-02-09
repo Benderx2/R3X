@@ -1,6 +1,6 @@
 /*
  * Partly rewritten and extended for R3X systems by Benderx2.
- * Licensed as the below.
+ * Licensed as below.
  * WHATS NEW:
  * -Added new operatos - &, ^, |
  * -Added support for procedures - function x, 1 etc.
