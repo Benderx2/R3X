@@ -47,6 +47,7 @@ import 'libR3X/corelib.pkg'
 	endfunction randomjob
 	
 	function loadsimplelib
+		; We first load the library and then store it's ID, returned by SYSCALL_LOADDYNAMIC
 		push libname
 		syscall SYSCALL_LOADDYNAMIC
 		popr R1
@@ -59,12 +60,14 @@ import 'libR3X/corelib.pkg'
 	endfunction loadsimplelib
 	
 	function callsimplelib
+		; Now we load the ID, push it, and then push the function name, and use the calldynamic instruction
+		; to call the function in simplelib.il.
 		pushr R0
 		pushr R1
 		loadr R0, simplelibid
 		lodsd
 		pushr R1
-		push 1
+		pushstring "test_func"
 		calldynamic
 		pop
 		pop

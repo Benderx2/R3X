@@ -134,7 +134,17 @@ macro loadrm size, reg1, memaddr {
 	popr R1
 	end if
 }
-macro EXPORT_FUNCTION function_id, function_pointer { 
-	dd function_id
-	dd function_pointer
+macro function name {
+	#name:
+	local symbol_name
+	.data \{
+		symbol_name: db `name#, 0
+	\}
+	.export \{
+		dd symbol_name
+		dd name#
+	\}
+}
+macro endfunction name {
+	name#_end:
 }

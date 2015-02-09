@@ -53,6 +53,7 @@ typedef struct r3x_job {
 	uint32_t InstructionPointer;
 	vstack_t* Stack;
 	vstack_t* CallStack;
+	vstack_t* FreeAddressStack;
 	uint32_t Regs[21];
 	uint32_t ExceptionHandlers[4];
 	bool EqualFlag;

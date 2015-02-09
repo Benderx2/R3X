@@ -61,5 +61,5 @@ typedef struct function_call_struct {
 } libimport_struct;
 int load_lib_manager(void);
 int load_dynamic_library(char* name, r3x_cpu_t* CPU);
-uint32_t dynamic_call(unsigned int libhandle, unsigned int functionhandle);
+uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhandle);
 #endif

@@ -33,7 +33,7 @@ Writing a dynamic library is easy, here's an example:
 
 include 'libR3X/dynR3X.inc'
 .text {
-myfunc1:
+function test_func
 	; For dynamically loaded libraries, DONT USE PUSH WHILE REFERRING TO ADDRESSES, use pushad (push relative address)
 	pushad str01
 	syscall SYSCALL_PUTS
@@ -46,13 +46,9 @@ myfunc1:
 	push 0xA
 	syscall SYSCALL_PUTCH
 	pop
+	; Return back
 	ret
-}
-.export {
-	EXPORT_FUNCTION 0x0, 0
-	; Export to index 0x1
-	EXPORT_FUNCTION 0x1, myfunc1
-}
+endfunction test_func
 .data {
 	str01: db 'Hello from dynamic library! I can read stuff from addresses! word_data=',  0
 	word_data: dw 65532
@@ -73,6 +69,6 @@ The library's handle will be pushed to stack. Make SURE to store it! Since this 
 The calldynamic instruction is used to call a function from a library. Use it like this:
 
 push [library handle] -- Handle that you got from the above syscall
-push [function index] -- 0x01 in the above example points to myfunc under the export section
+pushstring [function name] -- "test_func" for the above example.
 calldynamic
 </pre>

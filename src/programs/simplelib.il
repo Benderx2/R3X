@@ -1,6 +1,6 @@
 include 'libR3X/dynR3X.pkg'
 .text {
-myfunc1:
+function test_func
 	; For dynamically loaded libraries, DONT USE PUSH WHILE REFERRING TO ADDRESSES, use pushad (push relative address)
 	pushad str01
 	syscall SYSCALL_PUTS
@@ -16,11 +16,7 @@ myfunc1:
 	ret
 	times 4096 db 0
 }
-.export {
-	EXPORT_FUNCTION 0x0, 0
-	; Export to index 0x1
-	EXPORT_FUNCTION 0x1, myfunc1
-}
+endfunction test_func
 .data {
 	str01: db 'Hello from dynamic library! I can read stuff from addresses! word_data=',  0
 	word_data: dw 212

@@ -27,6 +27,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include <r3x_format.h>
 #include <r3x_cpu.h>
 #include <r3x_opcodes.h>
@@ -43,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef REX_OPTIMIZE
 #include <pthread.h>
 #endif
+
 // Unions to make life easier
 typedef union __32bit_typecast {
 	uint32_t __num32;
@@ -119,6 +121,10 @@ void* CPUDispatchThread(void*);
 // Keyboard Thread
 int keyboard_thread(void* data);
 
+/*!
+ * r3x_cpu_loop - Calls r3x_emulate_instruction repeateadly until it reaches a non-exec region
+ * or an exit instruction. 
+*/
 int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 {
 	r3x_dispatch_job(BIOS_START, 1, CPU->RootDomain, true);
@@ -176,6 +182,7 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 	#ifdef __unix__
 	pthread_kill(CPUDispatchThread_handle, SIGKILL);
 	#else
+	#warning "lolwut."
 	/*
 	 * Fuck off, non-POZIX platformz
 	 */
@@ -184,6 +191,10 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 	#endif
 	return 0;
 }
+
+/**
+ * r3x_emulate_instruction - Emulate a single instruction, and update the CPU variable.
+**/
 static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 {
 	switch (CPU->Memory[CPU->InstructionPointer])
@@ -658,14 +669,17 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			break;
 		//! Support for REX object files (*.ro)
-		case R3X_CALLDYNAMIC:	
-			if(dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1))==0)	{
+		case R3X_CALLDYNAMIC:
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW || GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW) {
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+			}
+			if(dynamic_call(CPU, get_item_from_stack_top(2), (char*)(CPU->Memory + get_item_from_stack_top(1)))==0)	{
 				printf("Invalid dynamic call, causing CPU_EXCEPTION_INVALIDACCESS.\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 				break;			
 			}
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
-			CPU->InstructionPointer = dynamic_call(get_item_from_stack_top(2), get_item_from_stack_top(1));
+			CPU->InstructionPointer = dynamic_call(CPU, get_item_from_stack_top(2), (char*)(CPU->Memory + get_item_from_stack_top(1)));
 			break;
 		/**!
 		 * This is the end of memory acessing instructions section

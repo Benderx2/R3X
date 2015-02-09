@@ -129,7 +129,11 @@ int main(int argc, char* argv[]){
 		} else {
 			export_struct* myexports = (export_struct*)&InputBuffer[myheader->export_section];
 			for(unsigned int i = 0; i < myheader->export_size / sizeof(export_struct); i++){
-				printf("Export 0x%x, to function at: %u\n", myexports[i].function_id,  myexports[i].instruction_pointer);
+				if(myexports[i].function_id > size) {
+					printf("bad export\n");
+				} else {
+					printf("Export %s, to function at: %u\n", (char*)&InputBuffer[myexports[i].function_id],  myexports[i].instruction_pointer);
+				}
 			}
 		}
 	}

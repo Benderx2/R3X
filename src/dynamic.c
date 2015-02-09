@@ -260,14 +260,49 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 	}
 	return -1;
 }
-uint32_t dynamic_call(unsigned int libhandle, unsigned int functionhandle) { 
+uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhandle) { 
 	if(total_number_of_structs <= libhandle) {
 		return 0;
 	} else {
 		if(lbstructs[libhandle] != NULL) {
-			 if(functionhandle <= lbstructs[libhandle]->function_count) {
-			 	return lbstructs[libhandle]->loadaddr + BIG_ENDIAN_INT(lbstructs[libhandle]->functions[functionhandle].instruction_pointer);
-			 }
+			for(unsigned int i = 0; i < lbstructs[libhandle]->function_count; i++) {
+				/**!
+				 * Sometimes when I look at this shit, I just want to cry at the fact that
+				 * humanity has gone too far.
+				 * fkn.
+				 * 
+				 * -Regards,
+				 * Benderx2
+				 * 
+				 * Credits:
+				 * 666
+				 * 69
+				 * 6969
+				 * 666+69
+				 * 666 = 6*3 = 18 / 3 = 3?!!?!?! illuminate cu*tfirmed?
+				 * 69 + 666 = 735 = 7+3+5 = 15 = 15 / 3 = 5 - 2 = 3. woah
+				 * 
+				 * take a random number, multiply it by 3, then by 4, then add 13 to it.
+				 * divide the number by 12 (illuminati 4x = 12), then subtract the remainder off,
+				 * from the quotient. You'll get the same number.
+				 * 
+				 * #mathzskillz #illuminatemath #fknidontknowshit #everything
+				 * 
+				 * I'm sorry if the above wasn't too scary to scare you off
+				 * It's designed as a scarecrow to preven people from reading ahead.
+				 * 
+				 * 
+				 * 
+				 * 
+				 * .........but the below definitely will.
+				**/
+				if(!strcmp(functionhandle, (char*)((uintptr_t)((uintptr_t)(CPU->Memory) + lbstructs[libhandle]->loadaddr + BIG_ENDIAN_INT(lbstructs[libhandle]->functions[i].function_id))))) {
+					return lbstructs[libhandle]->loadaddr + lbstructs[libhandle]->functions[i].instruction_pointer;
+				}
+				/**!
+				 * CALL 911 IMMEDIATELY PLZ.
+				**/
+			}
 		}
 	}
 	return 0;
