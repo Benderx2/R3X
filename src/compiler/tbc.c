@@ -3,6 +3,7 @@
  * Licensed as below.
  * WHATS NEW:
  * -Added new operatos - &, ^, |
+ * -Add support for hexadecimal (0x), octal (0o) and binary (0b) in expressions.
  * -Added support for procedures - function x, 1 etc.
  * -Added support for recursion
  * -Added memory access operators [], {}, <>
