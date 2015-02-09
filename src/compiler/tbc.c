@@ -1,4 +1,9 @@
 /*
+ * Partly rewritten and extended for R3X systems by Benderx2.
+ * Licensed as the below.
+ *
+*/
+/*
 Luiji's Tiny BASIC Compiler
 Copyright (C) 2012 Entertaining Software, Inc.
 
@@ -15,10 +20,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*
- * Partly rewritten and extended for R3X systems by Benderx2.
- * Licensed as the above.
- * */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -738,7 +739,6 @@ print_help ()
 {
   printf ("Usage: %s [-o OUTPUT] [INPUT]\n", program_name);
   puts ("");
-  puts ("Compiles Tiny BASIC++ programs into Netwide Assembler programs.");
   puts ("");
   puts ("Options:");
   puts ("  -o  set output file name");
