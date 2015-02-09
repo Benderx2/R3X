@@ -1,4 +1,5 @@
 include 'libR3X/dynR3X.pkg'
+; NOTE: CODE MUST BE RELOCATABLE!
 .text {
 function test_func
 	; For dynamically loaded libraries, DONT USE PUSH WHILE REFERRING TO ADDRESSES, use pushad (push relative address)
