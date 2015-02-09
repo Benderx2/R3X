@@ -1,7 +1,17 @@
 /*
  * Partly rewritten and extended for R3X systems by Benderx2.
  * Licensed as the below.
- *
+ * WHATS NEW:
+ * -Added new operatos - &, ^, |
+ * -Added support for procedures - function x, 1 etc.
+ * -Added support for recursion
+ * -Added memory access operators [], {}, <>
+ * -Fixed crazy bug with subtraction
+ * -Added better goto/gosub statements with support for labels
+ * -Added the 'while' keyword and the != operator
+ * -Removed ugly BASIC "numbered" lines
+ * -Added strings "", and ASCII characters '' to be used in expressions / arguments
+ * -Improved code generator.
 */
 /*
 Luiji's Tiny BASIC Compiler
