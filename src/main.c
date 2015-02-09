@@ -120,6 +120,7 @@ int main(int argc, char* argv[])
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_EXEC, 0, SEGMENT_SIZE);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_EXEC, text_begin, text_begin + text_size);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RW, data_begin, data_begin + data_size);
+	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RW, data_begin + data_size, data_begin+data_size+SEGMENT_SIZE);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RONLY, PROG_EXEC_POINT, PROG_EXEC_POINT + SEGMENT_SIZE);
 	if(ChosenCPUFrequency==0.0f){
 		r3_cpu->CPUFrequency = 0;

@@ -100,7 +100,7 @@ static int         use_print_n   = 0;
 static int         use_input_i   = 0;
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
 static int 		stuff_pushed_to_stack = 0;
-static int 		number_of_util_regs = 2;
+static int 		number_of_util_regs = 3;
 static f_table*    function_table = NULL;
 static char* 		current_function_name = NULL;
 static char **     strings       = NULL;
@@ -208,7 +208,7 @@ add_variable(char* var_name) {
 			}
 		}
 	}
-	if(total_variables < current_variable_index) {
+	if(total_variables < current_variable_index-1) {
 		total_variables += 16;
 		variables_used = xrealloc(variables_used, total_variables * sizeof(char*));
 	}
@@ -1210,16 +1210,20 @@ do_if ()
 	  match ('=');
 	  op = O_LESS_OR_EQUAL;
 	}
-      else if (look == '>')
-	{
-	  match ('>');
-	  op = O_NOT_EQUAL;
-	}
       else
 	{
 	  op = O_LESS;
 	}
     }
+  else if(look == '!') {
+	match('!');
+	if(look == '=') {
+		match('=');
+		op = O_NOT_EQUAL;
+	} else {
+		error("Unknown operator!\n");
+	}
+  }
   else if (look == '>')
     {
       match ('>');
@@ -1314,16 +1318,20 @@ do_while()
 	  match ('=');
 	  op = O_LESS_OR_EQUAL;
 	}
-      else if (look == '!')
-	{
-	  match ('=');
-	  op = O_NOT_EQUAL;
-	}
       else
 	{
 	  op = O_LESS;
 	}
     }
+  else if(look == '!') {
+	match('!');
+	if(look == '=') {
+		match('=');
+		op = O_NOT_EQUAL;
+	} else {
+		error("Unknown operator!\n");
+	}
+  }
   else if (look == '>')
     {
       match ('>');
@@ -1344,7 +1352,7 @@ do_while()
     }
   else
     {
-      error ("expected =, <>, ><, <=, =<, >= or => got '%c'", look);
+      error ("expected =, !=, ><, <=, =<, >= or => got '%c'", look);
     }
 
   do_expression ();
@@ -1526,9 +1534,9 @@ do_function_call() {
 	}
 	//! Save util registers
 	printf("; Save utility registers\n");
-	printf("\tpushr R9\n\tpushr R10\n");
+	printf("\tpushr R4\n\tpushr R9\n\tpushr R10\n");
 	printf("\tcall %s\n", function_name);
-	printf("\tpopr R10\n\tpopr R9\n");
+	printf("\tpopr R10\n\tpopr R9\n\tpopr R4\n");
 	printf("\tpopn %u\n", type->number_of_arguments);
 	printf("\tloadrr R1, R7\n");
 	stuff_pushed_to_stack = 0;

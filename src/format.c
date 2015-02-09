@@ -83,7 +83,7 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	data_begin = BIG_ENDIAN_INT(header->r3x_data);
 	data_size = (((BIG_ENDIAN_INT(header->r3x_bss) + BIG_ENDIAN_INT(header->r3x_bss_size))-BIG_ENDIAN_INT(header->r3x_data)));
 	// now get its' ACTUAL size and malloc (inclusive of bss and stack which are not included in the file)
-	uint8_t* mem2 = nt_malloc(PROG_EXEC_POINT + BIG_ENDIAN_INT(header->total_size));
+	uint8_t* mem2 = nt_malloc(((PROG_EXEC_POINT + BIG_ENDIAN_INT(header->total_size))&0xFFFFF000)+SEGMENT_SIZE);
 	memset(mem2, 0, PROG_EXEC_POINT + BIG_ENDIAN_INT(header->total_size));
 	// copy the execuatable to new buffer (note: some bytes would be empty at the end as stack or bss)
 	memcpy(mem2 + PROG_EXEC_POINT, mem1, size);

@@ -1,4 +1,5 @@
 #! No global variables yet :(
+
 function x, 3
 	print "I'm a function take takes 3 args"
 	let a = $1
@@ -23,6 +24,9 @@ function misc, 0
 	return 0
 endf
 function main, 0
+	print "result of strlen = "; lol
+	let xxx = 0
+	let y_z = 0
 	let f = 1
 	@misc()
 	let c = 24
@@ -40,5 +44,4 @@ function main, 0
 	print "subtracting 2 numbers: 30 and 10"
 	let result = @subtract2numbers(30, 10)
 	print "result = "; result
-	end
 endf
