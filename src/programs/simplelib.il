@@ -14,9 +14,8 @@ function test_func
 	syscall SYSCALL_PUTCH
 	pop
 	ret
-	times 4096 db 0
-}
 endfunction test_func
+}
 .data {
 	str01: db 'Hello from dynamic library! I can read stuff from addresses! word_data=',  0
 	word_data: dw 212
