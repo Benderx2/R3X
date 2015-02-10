@@ -5,14 +5,14 @@ function main, 0
 #! Allocate 4 bytes for S.
 	alloc buffer = 4
 	let B=100
-#! {} = 32-bit array access, <> = 16-bit array access, [] = 8-bit array access
+#! int32_ptr = 32-bit array access, int16_ptr = 16-bit array access, int8_ptr = 8-bit array access
 #! 122233 = Decimal 0xFFF2FFF = Hex, 0b10101111 = Binary, 0o23339 = Octal
-	let {buffer} = 0xA10F2CD+0x100ABC+(0b1010111001 + 0o1703+0x01)
-	let X = <buffer>
-	print "(uint16_t)S[0] and (uint32_t)S[0] = "; X, {buffer}
+	let int32_ptr(buffer) = 1098143098+0xFF
+	let X = int16_ptr(buffer)
+	print "(uint16_t)S[0] and (uint32_t)S[0] = "; X, int32_ptr(buffer)
 	let mystr = "Hello, World!"
 	print $mystr
-	let firstvariable = [mystr]
+	let firstvariable = int8_ptr(mystr)
 	print "first char: "; firstvariable
 	let S = 0
 	end

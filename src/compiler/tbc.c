@@ -10,6 +10,7 @@
  * -Fixed crazy bug with subtraction
  * -Added better goto/gosub statements with support for labels
  * -Added the 'while' keyword and the != operator
+ * -Added structs.
  * -Removed ugly BASIC "numbered" lines
  * -Added strings "", and ASCII characters '' to be used in expressions / arguments
  * -Improved code generator.
@@ -74,6 +75,8 @@ enum
   T_ENDW,
   T_FUNC,
   T_ENDF,
+  T_STRUCT,
+  T_ENDSTRUCT,
   T_END
 };
 
@@ -86,6 +89,11 @@ enum
   O_LESS_OR_EQUAL,
   O_MORE_OR_EQUAL
 };
+typedef enum {
+	RX_INT8,
+	RX_INT16,
+	RX_INT32
+} RX_STRUCT_TYPE;
 typedef struct {
 	char** name;
 	unsigned int id;
@@ -96,6 +104,20 @@ typedef struct {
 	unsigned int number_of_arguments;
 	bool used;
 } function_type;
+typedef struct {
+	char* Name;
+	RX_STRUCT_TYPE Type;
+} sub_members;
+typedef struct {
+	char* Name;
+	sub_members* SubMembers;
+	unsigned int NumberOfMembers;
+} struct_type;
+typedef struct {
+	struct_type* Structs;
+	unsigned int CurrentIndex;
+	unsigned int NumberOfStructs;
+} s_table;
 typedef struct {
 	function_type* functions;
 	unsigned int total_functions;
@@ -112,8 +134,9 @@ static int         use_print_n   = 0;
 static int         use_input_i   = 0;
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
 static int 		stuff_pushed_to_stack = 0;
-static int 		number_of_util_regs = 3;
+static int 		number_of_util_regs = 4;
 static f_table*    function_table = NULL;
+static s_table*	structs_table = NULL;
 static char* 		current_function_name = NULL;
 static char **     strings       = NULL;
 static unsigned int 		current_variable_index = 0;
@@ -163,10 +186,14 @@ static void  add_variable  PARAMS ((char*));
 static void  do_func       PARAMS ((void));
 static void  do_endf		PARAMS ((void));
 static void  do_function_call PARAMS((void));
+static void  generate_identifier PARAMS((void));
 static char*  return_next_int_name PARAMS((void));
 char* 		  return_str	PARAMS ((void));
 char*        return_next_tok(void);
 static function_type* return_function_type_if_function_exists PARAMS((char*));
+static void AddStruct(char* Name, unsigned int NumberOfMembers);
+static struct_type* return_struct_type_if_struct_exists(char* StructName);
+
 /*!
  * Standard C main function
  * */
@@ -186,6 +213,12 @@ main (argc, argv)
   function_table->functions = xmalloc(sizeof(function_type)*16);
   function_table->current_index = 0;
   function_table->total_functions = 16;
+  
+  structs_table = xmalloc(sizeof(s_table));
+  structs_table->Structs = xmalloc(sizeof(struct_type)*16);
+  structs_table->CurrentIndex = 0;
+  structs_table->NumberOfStructs = 16;
+  
   begin ();
   while (do_line ());
   finish ();
@@ -233,7 +266,7 @@ add_to_function_table(char* function_name, unsigned int no_of_args) {
 	if(type!=NULL) {
 		error("function %s already defined\n", function_name);
 	}
-	if(function_table->total_functions < function_table->current_index) {
+	if(function_table->total_functions < function_table->current_index-1) {
 		function_table->total_functions += 16;
 		function_table->functions = xrealloc(function_table->functions, function_table->total_functions * sizeof(function_type));
 	}
@@ -244,7 +277,7 @@ add_to_function_table(char* function_name, unsigned int no_of_args) {
 }
 static function_type*
 return_function_type_if_function_exists(char* function_name) {
-	int i; 
+	unsigned int i; 
 	for(i = 0; i < function_table->total_functions; i++) {
 		if(function_table->functions[i].used == true) {
 			if(!strcmp(function_table->functions[i].name, function_name)) {
@@ -254,6 +287,40 @@ return_function_type_if_function_exists(char* function_name) {
 	}
 	return NULL;
 }
+static void AddStruct(char* Name, unsigned int NumberOfMembers) {
+	if(Name==NULL) {
+		error("Name of struct is: (null)\n");
+	}
+	struct_type* temp = return_struct_type_if_struct_exists(Name);
+	if(temp==NULL) {
+		error("struct %s redefined.\n", Name);
+	}
+	if(structs_table->NumberOfStructs < structs_table->CurrentIndex-1) {
+		structs_table->NumberOfStructs += 16;
+		structs_table->Structs = xrealloc(structs_table->Structs, structs_table->NumberOfStructs * sizeof(struct_type));
+	}
+	structs_table->Structs[structs_table->CurrentIndex].Name = Name;
+	structs_table->Structs[structs_table->CurrentIndex].NumberOfMembers = NumberOfMembers;
+	structs_table->Structs[structs_table->CurrentIndex].SubMembers = xmalloc(NumberOfMembers*sizeof(sub_members));
+	structs_table->CurrentIndex++;
+}
+static void AddStructMember(char* Name, RX_STRUCT_TYPE Type, unsigned int Index) {
+	/** **/
+	(void)Name;
+	(void)Type;
+	(void)Index;
+}
+static struct_type* return_struct_type_if_struct_exists(char* StructName) {
+	unsigned int i = 0;
+	for(i = 0; i < structs_table->NumberOfStructs; i++) {
+		if(structs_table->Structs[i].Name != NULL) {
+			if(!strcmp(structs_table->Structs[i].Name, StructName)) {
+				return &(structs_table->Structs[i]);
+			}
+		}
+	}
+	return NULL;
+} 
 /*!
  * Frees memory allocated previously.
  * */
@@ -437,6 +504,10 @@ return_next_tok() {
 char* return_next_int_name()
 {
 	char* returnval = return_next_tok();
+	//! Don't mess with keywords!
+	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr"))) {
+		return returnval;
+	}
 	if(current_function_name != NULL) {
 		char* new_val = xmalloc(strlen(returnval)+strlen(current_function_name)+3);
 		strcpy(new_val, current_function_name);
@@ -637,37 +708,9 @@ do_factor ()
       do_expression ();
       match (')');
     }
-  else if(look == '[' || look == '<' || look == '{') {
-	char m_save = look;
-	if(m_save == '[') {
-		m_save = ']';
-	} else if(m_save == '{') {
-		m_save = '}';
-	} else if(m_save == '<') {
-		m_save = '>';
-	}
-	match(look);
-	do_expression();
-	match(m_save);
-	switch(m_save) {
-		case ']':
-			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
-			break;
-		case '>':
-			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsw\n\tpopr R0\n");
-			break;
-		case '}':
-			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsd\n\tpopr R0\n");
-			break;
-		default:
-			puts("; Warning: Internal compiler error. Unable to find maccess operator!");
-			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
-			break;
-  }
-}
   else if (isalpha (look))
     {
-      printf ("\tloadrm dword, R1, v%s\n", return_next_int_name ());
+	  generate_identifier();
     }
   else if (look == '$') {
 	get_char();
@@ -1057,6 +1100,34 @@ do_line ()
 
   return 1;
 }
+static
+void generate_identifier(void) {
+	char* next_potential_maccess_operator = return_next_int_name();
+	if(!strcmp(next_potential_maccess_operator, "int32_ptr") || (!strcmp(next_potential_maccess_operator, "int8_ptr")) || !(strcmp(next_potential_maccess_operator, "int16_ptr"))) {
+		char maccess_operator = next_potential_maccess_operator[3];
+		match('(');
+		do_expression();
+		match(')');
+		switch(maccess_operator) {
+		case '1':
+			printf("\tpushr R0\n\tloadrr R0, R1\n\tlodsw\n\tpopr R0\n");
+			break;
+		case '3':
+			printf("\tpushr R0\n\tloadrr R0, R1\n\tlodsd\n\tpopr R0\n");
+			break;
+		case '8':
+			printf("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
+			break;
+		default:
+			puts("; Warning: Internal compiler error. Unable to find maccess operator!");
+			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
+			break;
+		}
+	  }
+	   else {
+			printf ("\tloadrm dword, R1, v%s\n", next_potential_maccess_operator);
+	  }
+}
 /*!
  * Called when the compiler expects a statement
  * */
@@ -1441,45 +1512,37 @@ do_return ()
 static void
 do_let ()
 {
-  if(look == '[' || look == '<' || look == '{') {
-	char m_save = look;
-	if(m_save == '[') {
-		m_save = ']';
-	} else if(m_save == '{') {
-		m_save = '}';
-	} else if(m_save == '<') {
-		m_save = '>';
-	}
-	get_char();
-	do_expression();
-	match(m_save);
-	printf ("\tloadrr R5, R1\n");
-	eat_blanks();
-	match('=');
-	do_expression();
-	switch(m_save) {
-		case ']':
-			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
+	char* name = return_next_int_name ();
+	if(!strcmp(name, "int32_ptr") || (!strcmp(name, "int8_ptr")) || !(strcmp(name, "int16_ptr"))) {
+		char maccess_operator = name[3];
+		match('(');
+		do_expression();
+		match(')');
+		printf("\tloadrr R5, R1\n");
+		match('=');
+		do_expression();
+		switch(maccess_operator) {
+		case '1':
+			printf("\tpushr R0\n\tloadrr R0, R5\n\tstosw\n\tpopr R0\n");
 			break;
-		case '>':
-			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosw\n\tpopr R0\n");
+		case '3':
+			printf("\tpushr R0\n\tloadrr R0, R5\n\tstosd\n\tpopr R0\n");
 			break;
-		case '}':
-			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosd\n\tpopr R0\n");
+		case '8':
+			printf("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
 			break;
 		default:
-			puts("; Warning, some internal compiler error!");
-			puts("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
+			puts("; Warning: Internal compiler error. Unable to find maccess operator!");
+			puts ("\tpushr R0\n\tloadrr R0, R5\n\tstosb\n\tpopr R0\n");
 			break;
+		}
+	  }
+	else {
+		match('=');
+		do_expression ();
+		printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
 	}
-	
-  } else {
-	char* name = return_next_int_name ();
-	match('=');
-	do_expression ();
-	printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
  }
-}
 /*!
  * Ignores everything till it receives a newline character
  */
@@ -1545,9 +1608,9 @@ do_function_call() {
 	}
 	//! Save util registers
 	printf("; Save utility registers\n");
-	printf("\tpushr R4\n\tpushr R9\n\tpushr R10\n");
+	printf("\tpushr R4\n\tpushr R5\n\tpushr R9\n\tpushr R10\n");
 	printf("\tcall %s\n", function_name);
-	printf("\tpopr R10\n\tpopr R9\n\tpopr R4\n");
+	printf("\tpopr R10\n\tpopr R9\n\tpopr R5\n\tpopr R4\n");
 	printf("\tpopn %u\n", type->number_of_arguments);
 	printf("\tloadrr R1, R7\n");
 	stuff_pushed_to_stack = 0;

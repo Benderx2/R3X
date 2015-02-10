@@ -60,17 +60,17 @@ alloc buffer = size
 <h3>Memory Access Operators</h3>
 There are "memory access" operators which can help you access certain region in memory, these are:
 <pre>
-{} - 32-bit memory access
-<> - 16-bit memory access
-[] - 8-bit memory access
+int32_ptr(addr) - 32-bit memory access
+int16_ptr(addr) - 16-bit memory access
+int8_ptr(addr) - 8-bit memory access
 </pre>
 To set a location in memory, you can make use of the "let" keyword:
 <pre>
 	#! Set a 32-bit value at memory location 0x1000 
-	let {0x1000} = 0xFFFFFFFF
+	let int32_ptr(0x1000) = 0xFFFFFFFF
 	#! Set a 16-bit value at memory location pointed by "buffer+5"
 	let x = 65535
-	let &lt;buffer+5&gt; = x
+	let int16_ptr(buffer+5) = x
 	...
 </pre>
 <h3>Program/Control Flow and looping</h3>
