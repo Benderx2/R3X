@@ -7,10 +7,10 @@ current_ip:
 		puship
 		syscall SYSCALL_PUTI
 		pop
-		; Jump 256 bytes after "rel_jump"
-		jmpl 256
+		; Jump 269 bytes after "rel_jump". NOTE: This jump is position independent.
+		jmpl rel_jump
+		times 269 db 0x1F ; Exit opcode
 rel_jump:
-		times 256 db 0x1F ; Exit opcode
 		Console.Write "Relative Jump!"
 		Console.WaitKey
 		System.Quit 0
