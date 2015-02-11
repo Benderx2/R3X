@@ -73,6 +73,8 @@ void GetApplicationPath(void) {
 The "GetApplicationPath" supposed to get the <i><b>absolute</b></i> path to the directory of the VM executable<br>
 and the store it in a string (char*) called "ApplicationPath".<br>
 The string is uninitialized, which means that the routine must do the allocation itself.<br>
+Also, if no "GetApplicationPath" is implemented for target, the program uses an enviroment variable called 'RX_DIR_ENV'.<br>
+This must be exported as "the executable path" of the program before executing the program.<br>
 <h3>Required headers</h3>
 The R3X VM requires the following headers for a <b>minimal</b> compilation. They are '#included' from src/include/system.h<br>
 <pre>

@@ -183,7 +183,9 @@ void GetApplicationPath(void) {
 	}
 	printf("$TESTING: Application Path: %s$\n", ApplicationPath);
 	#else
-	#error "GetApplicationPath unimplemented for target, please write your own implementation"
+	#warning "GetApplicationPath unimplemented for target, using RX_DIR_ENV. Be sure to export RX_DIR_ENV as the executable path of your directory!"
+	char* env_read = getenv("RX_DIR_ENV");
+	ApplicationPath = env_read;
 	#endif
 }
 void ParseArguments(int argc, char* argv[]){
