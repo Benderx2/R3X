@@ -15,104 +15,69 @@ include 'libR3X/libR3X.pkg'
 
 
 	; debug line 1
-function factorial
-
-	; debug line 2
-	loadr R8, 4
-	loadsr R8
-	popr R1
-	loadrr R4, R1
-	loadr R1, 1
-	cmpr R4, R1
-	jg i2
-	jmp factorial.lfunc_return
-i2:
-
-	; debug line 3
-	loadr R8, 4
-	loadsr R8
-	popr R1
-	loadrr R10, R1
-	loadr R8, 4
-	loadsr R8
-	popr R1
-	loadrr R9, R1
-	loadr R1, 1
-	loadrr R2, R9
-	pushr R2
-	pushr R1
-	sub
-	popr R1
-	pop
-	pop
-
-	pushr R1
-
-; Save utility registers
-	pushr R4
-	pushr R9
-	pushr R10
-	call factorial
-	popr R10
-	popr R9
-	popr R4
-	popn 1
-	loadrr R1, R7
-	loadrr R2, R10
-	pushr R1
-	pushr R2
-	mul
-	popr R1
-	pop
-pop
-	
-	loadrr R7, R1
-	ret
-
-	; debug line 4
-factorial.lfunc_return:
-	loadr R1, 1
-	loadrr R7, R1
-	ret
-
-	; debug line 5
-endfunction factorial
-
-	; debug line 7
 function main
 
-	; debug line 8
-	loadr R1, 9
-	pushr R1
+	; debug line 2
+	loadr R1, s0
+	call print_s
+	call print_n
 
-; Save utility registers
-	pushr R4
+	; debug line 3
 	pushr R9
-	pushr R10
-	call factorial
-	popr R10
-	popr R9
-	popr R4
-	popn 1
-	loadrr R1, R7
+	loadr R1, 1094189056
+	loadrr R9, R1
+	pushr R9
+	loadr R1, 1106544951
+	loadrr R9, R1
+	loadr R1, 1102582907
+	pushr R9
+	pushr R1
+	fadd
+	popr R1
+	popn 2
+popr R9
+
+	pushr R9
+	pushr R1
+	fmul
+	popr R1
+	popn 2
+popr R9
+
 	pushr R0
 	pushr R1
-	loadr R0, vmain.fact
+	loadr R0, vmain.A
 	stosd
 	popr R1
 	popr R0
 
-	; debug line 9
-	loadr R1, s0
+	; debug line 4
+	loadrm dword, R1, vmain.A
+	pushr R1
+	iconv
+	popr R1
+	pop
+	pushr R0
+	pushr R1
+	loadr R0, vmain.rounded_a
+	stosd
+	popr R1
+	popr R0
+
+	; debug line 5
+	loadr R1, s1
 	call print_s
-	loadrm dword, R1, vmain.fact
+	loadrm dword, R1, vmain.A
+	call print_f
+	call print_t
+	loadrm dword, R1, vmain.rounded_a
 	call print_i
 	call print_n
 
-	; debug line 10
+	; debug line 6
 	jmp _exit
 
-	; debug line 11
+	; debug line 7
 endfunction main
 
 ; exit to operating system
@@ -135,7 +100,12 @@ print_s:
 	popr R1
 	ret
 
-; print_t excluded
+; print a tab to the terminal
+print_t:
+	push 0x09
+	syscall SYSCALL_PUTCH
+	pop
+	ret
 
 ; print a newline to the terminal
 print_n:
@@ -152,6 +122,12 @@ alloc_n:
 	popr R1
 	pop
 	ret
+; Output an IEEE-754 floating point number to stdout
+print_f:
+	pushr R1
+	syscall SYSCALL_PUTF
+	popr R1
+	ret
 ; Free an allocated region
 free:
 	pushr R1
@@ -162,11 +138,13 @@ free:
 }
 .bss {
 
-	vmain.fact: rd 1
+	vmain.A: rd 1
+	vmain.rounded_a: rd 1
 }
 .data {
 
-	s0: db "factorial of 9: ", 0
+	s0: db "floating point test", 0
+	s1: db "result of adding 30.567, 23.01 and the multiplying with 11.5 and rounding it off as int32 ", 0
 }
 end
 ; Task Completed -- Assemble with FASM 

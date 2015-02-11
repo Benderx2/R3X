@@ -218,6 +218,21 @@ function myfunc, 0
 	#! Address of label = l[function name].[variable name]
 	asm "loadr R0, lmyfunc.label"
 </pre>
+<h3>Floating Point Numbers</h3>
+Floating Point Numbers are represented like: 30.3256 (note the dot).<br>
+If you want an absolute number, you must do something like: 30.0<br>
+You are allowed to use floating point numbers, however you must use certain operators to do operations on floats.<br>
+<pre>
+add_f(expression, expression) : add two floating point numbers, given out by expression
+mul_f(expression, expression) : multiply two floating point numbers, given out by expression
+div_f(expression, expression) : divide two floating point numbers, given out by expression
+mod_f(expression, expression) : do a modulo operation on two floating point numbers, given out by expression
+</pre>
+<h4>Adding floating point integers and conventional</h4>
+Adding floats and integers together requires another operator: conv_i/conv_f<br>
+Basically, conv_i rounds off a float to it's nearest integers and then converts it to a normal integer.<br>
+conv_f on the other hand converts an integer to floating point representation.<br>
+See float.bas for example usage.<br>
 <h3>Operators</h3>
 These are the following operators present in the language:<br>
 <pre>

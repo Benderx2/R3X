@@ -123,10 +123,14 @@ typedef struct {
 	unsigned int total_functions;
 	unsigned int current_index;
 } f_table;
+typedef union {
+	int ReturnVal;
+	float Float;
+} FloatTypeCastInt;
 static char        look          = 0;
 static int         line          = 1;
-static int			whilelines 	  = 0;
-static int 		currentwhile  = MAX_WHILE_NESTING;
+static unsigned int			whilelines 	  = 0;
+static unsigned int 			currentwhile = MAX_WHILE_NESTING;
 static int         use_print_i   = 0;
 static int         use_print_s   = 0;
 static int         use_print_t   = 0;
@@ -134,6 +138,7 @@ static int         use_print_n   = 0;
 static int         use_input_i   = 0;
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
 static int 		stuff_pushed_to_stack = 0;
+static bool			returned_float = false;
 static int 		number_of_util_regs = 4;
 static f_table*    function_table = NULL;
 static s_table*	structs_table = NULL;
@@ -175,8 +180,8 @@ static void  do_return     PARAMS ((void));
 static void  do_rem        PARAMS ((void));
 static void  do_end        PARAMS ((void));
 static void  do_expression PARAMS ((void));
-static void  do_term       PARAMS ((void));
-static void  do_factor     PARAMS ((void));
+static bool  do_term       PARAMS ((void));
+static bool  do_factor     PARAMS ((void));
 static void  do_string     PARAMS ((void));
 static void  do_asm		PARAMS ((void));
 static void  do_while		PARAMS ((void));
@@ -193,7 +198,6 @@ char*        return_next_tok(void);
 static function_type* return_function_type_if_function_exists PARAMS((char*));
 static void AddStruct(char* Name, unsigned int NumberOfMembers);
 static struct_type* return_struct_type_if_struct_exists(char* StructName);
-
 /*!
  * Standard C main function
  * */
@@ -225,6 +229,7 @@ main (argc, argv)
 
   return EXIT_SUCCESS;
 }
+
 /*!
  * Adds a variable to the variable table with a name.
  * */
@@ -505,7 +510,7 @@ char* return_next_int_name()
 {
 	char* returnval = return_next_tok();
 	//! Don't mess with keywords!
-	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr"))) {
+	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f"))) {
 		return returnval;
 	}
 	if(current_function_name != NULL) {
@@ -566,6 +571,7 @@ static int
 get_num ()
 {
   int result = 0;
+  returned_float = false;
   if(look == '0') {
 	char operand_prefix = getc(stdin);
 	operand_prefix = tolower(operand_prefix);
@@ -629,10 +635,26 @@ get_num ()
 	}
   }
   if (isdigit (look))
-    for (; isdigit (look); get_char ())
+    for (; isdigit (look) || look == '.'; get_char ())
       {
-	result *= 10;
-	result += look - '0';
+	if(look == '.') {
+			get_char();
+			FloatTypeCastInt TempTypeCast;
+			//! floatin point shit
+			//! result stores the stuff, convert it to floating point IEEE-754 system or whatever....
+			float temp = result;
+			float divider = 10;
+			for(; isdigit(look); get_char()) {
+				temp += (look - '0') / divider;
+				divider = divider * 10;
+			}
+			TempTypeCast.Float = temp;
+			returned_float = true;
+			return TempTypeCast.ReturnVal;
+	} else {
+		result *= 10;
+		result += look - '0';
+	}
       }
   else
     error ("expected integer got '%c'", look);
@@ -651,14 +673,13 @@ do_expression ()
     puts ("\tloadr R1, 0");
   else
     do_term ();
-
+  bool current_expression_contains_float = false;
   while (look == '+' || look == '-')
     {
       int op = look;
       puts ("\tloadrr R9, R1");
       match (look);
       do_term ();
-      puts ("\tloadrr R2, R9");
       if (op == '+')
 	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpop\n\tpop\n");
       else if (op == '-')
@@ -668,11 +689,11 @@ do_expression ()
 /*!
  * Provides support for non-separing operators (multiplication, division, modulo bitwise etc.)
  */
-static void
+static bool
 do_term ()
 {
+  bool return_val = false;
   do_factor ();
-
   while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
     {
       int op = look;
@@ -695,11 +716,12 @@ do_term ()
 	  }
 		
     }
+    return return_val;
 }
 /*!
  * Factors an expression, parses parenetheses and memory access brackets.
  */
-static void
+static bool
 do_factor ()
 {
   if (look == '(')
@@ -747,7 +769,9 @@ do_factor ()
   else
     {
       printf ("\tloadr R1, %i\n", get_num ());
+      return returned_float;
     }
+    return false;
 }
 /*!
  * Generates code for string declaration
@@ -947,6 +971,13 @@ finish ()
   puts ("\tpop");
   puts ("\tret");
   
+  puts("; Output an IEEE-754 floating point number to stdout");
+  puts("print_f:");
+  puts("\tpushr R1");
+  puts("\tsyscall SYSCALL_PUTF");
+  puts("\tpopr R1");
+  puts("\tret");
+  
   puts ("; Free an allocated region");
   puts ("free:");
   puts ("\tpushr R1");
@@ -1123,6 +1154,50 @@ void generate_identifier(void) {
 			puts ("\tpushr R0\n\tloadrr R0, R1\n\tlodsb\n\tpopr R0\n");
 			break;
 		}
+	  } else if(!strcmp(next_potential_maccess_operator, "mul_f") || !strcmp(next_potential_maccess_operator, "add_f") || !strcmp(next_potential_maccess_operator, "sub_f") || !strcmp(next_potential_maccess_operator, "div_f")) {
+			char do_op = next_potential_maccess_operator[0];
+			char op_sec = next_potential_maccess_operator[1];
+			match('(');
+			puts("\tpushr R9");
+			do_expression();
+			puts("\tloadrr R9, R1");
+			match(',');
+			do_expression();
+			match(')');
+			switch(do_op) {
+				case 'm':
+					if(op_sec == 'u') {
+						puts("\tpushr R9\n\tpushr R1\n\tfmul\n\tpopr R1\n\tpopn 2");
+					} else if(op_sec == 'o') {
+						puts("\tpushr R9\n\tpushr R1\n\tfmod\n\tpopr R1\n\tpopn 2");
+					} else {
+						error("Unable to resolve floating point operator!\n");
+					}
+					break;
+				case 'a':
+					puts("\tpushr R9\n\tpushr R1\n\tfadd\n\tpopr R1\n\tpopn 2");
+					break;
+				case 's':
+					puts("\tpushr R9\n\tpushr R1\n\tfsub\n\tpopr R1\n\tpopn 2");
+					break;
+				case 'd':
+					puts("\tpushr R9\n\tpushr R1\n\tfdiv\n\tpopr R1\n\tpopn 2");
+					break;
+				default:
+					error("Internal Compiler Error! Unable to resolve float operator!\n");
+					break;
+			}
+			puts("\tpopr R9\n");
+	  } else if(!strcmp(next_potential_maccess_operator, "conv_f")) {
+			match('(');
+			do_expression();
+			puts("\tpushr R1\n\tfconv\n\tpopr R1\n\tpop");
+			match(')');
+	  } else if(!strcmp(next_potential_maccess_operator, "conv_i")) {
+			match('(');
+			do_expression();
+			puts("\tpushr R1\n\ticonv\n\tpopr R1\n\tpop");
+			match(')');
 	  }
 	   else {
 			printf ("\tloadrm dword, R1, v%s\n", next_potential_maccess_operator);
@@ -1217,6 +1292,11 @@ do_print_item ()
 		char* name = return_next_int_name();
 		printf ("\tpushr R1\n\tloadrm dword, R1, v%s\n", name);
 		printf ("\tcall print_s\n\tpopr R1\n");
+  }
+  else if(look == '%') {
+	get_char();
+	do_expression();
+	puts("\tcall print_f");
   }
   else
     {
