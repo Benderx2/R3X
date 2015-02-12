@@ -191,7 +191,23 @@ void debugger(void) {
 			read_symbol_table((r3x_header_t*)&r3_cpu->Memory[PROG_EXEC_POINT], r3_cpu->Memory, r3_cpu->MemorySize, r3_cpu->InstructionPointer);
 		} else if(strncmp(input, "mmap", 4) == 0){
 			DumpMemoryMap(r3_cpu->CPUMemoryBlocks);
-		} else if(strncmp(input, "\n", 1)==0){
+		} else if(strncmp(input, "stacktrace", 10) == 0) {
+			(void)strtok(input, " ");
+			char* token1 = strtok(NULL, " ");
+			if(token1 == NULL) {
+				printf("Error: Expected argument: Integer.\n");
+			} else {
+				unsigned int number_of_elements = atoi(token1);
+				unsigned int current_stack_top = r3_cpu->Stack->top_of_stack-1;
+				while(number_of_elements != 0 && current_stack_top != 0) {
+						printf("[%u] %u\n", current_stack_top, (uint64_t)Stack.GetItem(r3_cpu->Stack, current_stack_top));
+						current_stack_top--;
+						number_of_elements--;
+					}
+				}
+			}
+		else if(strncmp(input, "\n", 1)==0){
+			
 		}
 		else { 
 			printf("Invalid command. Type 'help' for help");		

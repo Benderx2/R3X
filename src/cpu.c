@@ -933,6 +933,10 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->ExceptionFlag = false;
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			break;
+		case R3X_BREAK:
+			handle_cpu_exception(CPU, CPU_BREAK_POINT);
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			break;
 		// Exit application
 		case R3X_EXIT:
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {
@@ -1296,9 +1300,15 @@ void set_exception_handlers(r3x_cpu_t* CPU, unsigned int ExceptionID, uint32_t E
 	}
 }
 void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
+	if(ExceptionID == CPU_BREAK_POINT) {
+		printf("CPU Breakpoint encountered.\n");
+		raise(SIGSEGV);
+		return;
+	}
 	if(CPU->ExceptionFlag==true){
 		printf("Bad Exception handler, IP: %u. ABORTING...\n", CPU->InstructionPointer);
 		raise(SIGSEGV);
+		return;
 	}
  	if(CPU->ExceptionHandlers[ExceptionID]==0){
 		printf("Unhandled Exception!\nException Type: ");
@@ -1320,6 +1330,7 @@ void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
 				break;
 		}
 		raise(SIGSEGV);
+		return;
 	} else {
 		Stack.Push(CPU->Stack, CPU->Regs[0]);
 		CPU->InstructionPointer = CPU->ExceptionHandlers[ExceptionID];

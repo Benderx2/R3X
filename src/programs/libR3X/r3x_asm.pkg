@@ -448,6 +448,9 @@ macro puship {
 macro ars {
 	db 0x89
 }
+macro break {
+	db 0x8A
+}
 macro loadrm size, reg1, memaddr {
 	if reg1 eq R0
 	else

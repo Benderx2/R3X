@@ -412,6 +412,10 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				fprintf(output, "ars\n");
 				i++;
 				break;
+			case R3X_BREAK:
+				fprintf(output "break\n");
+				i++;
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;

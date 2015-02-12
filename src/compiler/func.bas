@@ -1,6 +1,8 @@
 #! No global variables yet :(
 
 function x, 3
+	let i = add_f(add_f(2.4, mul_f(3.5, 4.6)), 5.6)
+	print "float i = "; %i
 	print "I'm a function take takes 3 args"
 	let a = $1
 	print "the number got in the first arg is: "; a

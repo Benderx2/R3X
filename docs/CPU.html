@@ -147,6 +147,7 @@ If BOOLEAN is true (any non-zero number), then VALUE 1 will be popped out, if BO
 <b>throw</b> - Throw an exception and set EXF to true, exception id must be pushed to stack (INVALID_ACCESS, INVALID_OPCODE, R_EXCEP)
 <b>catch</b> - Set exception handler, push the exception handler's address first, then the exception ID.
 <b>handle</b> - Set EXF to false.
+<b>break</b> - CPU Breakpoint instruction. (Usually used for invoking the debugger, after a specific instruction)
 <b>sete, setne, setg, setl</b> <i>register index</i>: Set a register to 0x0 if E/Or E is not/G/L is set
 <i>M </i><b>setge, setle</b>: <i>register index</i> Set if Equal or Greater/Lesser
 <b>exit</b> - Returns a CPU_EXIT_SIGNAL, and quits the program..

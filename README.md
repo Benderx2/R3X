@@ -62,4 +62,4 @@ Uh, they're R3X programs, all programs written for the R3X VM should have a '.ex
 Shared libraries have an '.ro', while native shared libraries have platform dependent extensions (.so or .dll)
 <br>
 <br>
-Current version is 0.4.6a BASICPie (unstable)<br>
+Current version is 0.4.6b BASICPie (unstable)<br>

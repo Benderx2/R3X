@@ -677,9 +677,10 @@ do_expression ()
   while (look == '+' || look == '-')
     {
       int op = look;
-      puts ("\tloadrr R9, R1");
+      puts ("\tpushar R1");
       match (look);
       do_term ();
+      puts ("\tpopar R2");
       if (op == '+')
 	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpop\n\tpop\n");
       else if (op == '-')
@@ -697,10 +698,10 @@ do_term ()
   while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
     {
       int op = look;
-      puts ("\tloadrr R10, R1");
+      puts ("\tpushar R1");
       match (look);
       do_factor ();
-      puts ("\tloadrr R2, R10");
+      puts ("\tpopar R2");
       if (op == '*')
 	puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\npop\n\t");
       else if (op == '/')
@@ -1158,7 +1159,7 @@ void generate_identifier(void) {
 			char do_op = next_potential_maccess_operator[0];
 			char op_sec = next_potential_maccess_operator[1];
 			match('(');
-			puts("\tpushr R9");
+			puts("\tpushar R9");
 			do_expression();
 			puts("\tloadrr R9, R1");
 			match(',');
@@ -1187,7 +1188,7 @@ void generate_identifier(void) {
 					error("Internal Compiler Error! Unable to resolve float operator!\n");
 					break;
 			}
-			puts("\tpopr R9\n");
+			puts("\tpopar R9\n");
 	  } else if(!strcmp(next_potential_maccess_operator, "conv_f")) {
 			match('(');
 			do_expression();
