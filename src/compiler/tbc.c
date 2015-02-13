@@ -695,27 +695,50 @@ do_term ()
 {
   bool return_val = false;
   do_factor ();
-  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
+  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%' || look == '<' || look == '>' || look == '~' || look == '!')
     {
       int op = look;
+      int op2 = 0;
+      if(op == '<' || op == '>') {
+		  get_char();
+		  op2 = look;
+	  }
       puts ("\tpushar R1");
       match (look);
       do_factor ();
       puts ("\tpopar R2");
-      if (op == '*')
-	puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\npop\n\t");
-      else if (op == '/')
-	puts ("\tpushr R2\n\tpushr R1\n\tdiv\n\tpopr R1\n\tpop\n\tpop");
-	  else if (op == '&')
-	puts ("\tpushr R2\n\tpushr R1\n\tand\n\tpopr R1\n\tpop\n\tpop");
-	  else if (op == '|')
-	puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpop\n\tpop");
-	  else if (op == '^')
-	puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpopn 2");
+      if (op == '*') {
+		puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\npop\n\t");
+	  }
+      else if (op == '/') {
+		puts ("\tpushr R2\n\tpushr R1\n\tdiv\n\tpopr R1\n\tpop\n\tpop");
+	  }
+	  else if (op == '&') {
+		puts ("\tpushr R2\n\tpushr R1\n\tand\n\tpopr R1\n\tpop\n\tpop");
+	  }
+	  else if (op == '|') {
+		puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpop\n\tpop");
+	  }
+	  else if (op == '^') {
+		puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpopn 2");
+	  }
 	  else if (op == '%'){
 		puts("pushr R2\n\tpushr R1\n\tmod\n\tpopr R1\n\tpopn 2");
+	  } else if (op == '<') {
+			if(op2 != '<') {
+				error("expected '<' but got %c\n", look);
+			}
+			puts("pushr R2\n\tpushr R1\n\tshl\n\tpopr R1\n\tpopn 2");
+	  } else if (op == '>') {
+			if(op2 != '>') {
+				error("expected '>' but got %c\n", look);
+			}
+			puts("pushr R2\n\tpushr R1\n\tshr\n\tpopr R1\n\tpopn 2");
+	  } else if(op == '~') {
+			puts("pushr R1\n\tneg\n\tpopr R1\n\tpop");
+	  } else if(op == '!') {
+			puts("pushr R1\n\tnot\n\tpopr R1\n\tpop");
 	  }
-		
     }
     return return_val;
 }

@@ -281,6 +281,8 @@ uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhand
 				 * 666+69
 				 * 666 = 6*3 = 18 / 3 = 3?!!?!?! illuminate cu*tfirmed?
 				 * 69 + 666 = 735 = 7+3+5 = 15 = 15 / 3 = 5 - 2 = 3. woah
+				 * Also,
+				 * (3+3)/2 = 3 = (3+3)/2 = 3...... . Illuminati supports recursion too.
 				 * 
 				 * take a random number, multiply it by 3, then by 4, then add 13 to it.
 				 * divide the number by 12 (illuminati 4x = 12), then subtract the remainder off,
@@ -289,7 +291,7 @@ uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhand
 				 * #mathzskillz #illuminatemath #fknidontknowshit #everything
 				 * 
 				 * I'm sorry if the above wasn't too scary to scare you off
-				 * It's designed as a scarecrow to preven people from reading ahead.
+				 * It's designed as a scarecrow to prevent people from reading ahead.
 				 * 
 				 * 
 				 * 
@@ -297,6 +299,13 @@ uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhand
 				 * .........but the below definitely will.
 				**/
 				if(!strcmp(functionhandle, (char*)((uintptr_t)((uintptr_t)(CPU->Memory) + lbstructs[libhandle]->loadaddr + BIG_ENDIAN_INT(lbstructs[libhandle]->functions[i].function_id))))) {
+					/**! Damn, son! Where'd you find this? **/
+					/**! Answer: Deep inside my heart, I know what I was capable of. I knew the possibilities, of what
+					 * I could acheive, I knew my destiny, and today I've found it. I've done what no C programmer could
+					 * do! I HAVE WRITTEN SHIT C CODE YOU SON OF A DOG. [no 'bitch' because it's considered unethical
+					 * as per today's standards to use such deregatory words against a lady. hence i thought it'd be more
+					 * appropriate to just tell shit about your dad, rather than your mom, because it's sexist and patriachial.]
+					**/
 					return lbstructs[libhandle]->loadaddr + lbstructs[libhandle]->functions[i].instruction_pointer;
 				}
 				/**!

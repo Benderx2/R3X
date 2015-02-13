@@ -8,9 +8,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/*#ifndef RX_PREFIX
+#error "No RX_PREFIX defined!"
+#endif*/
+
+void check_if_preprocessor_keyword(void);
 
 #define INCLUDE_DIRECTIVE "#include"
-char currentc = 0;
+
+char look = 0;
 char* InputFile = NULL;
 char* OutputFile = NULL;
 
@@ -28,13 +34,18 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "cannot open input/output files for writing\n");
 		exit(EXIT_FAILURE);
 	}
+	check_if_preprocessor_keyword();
+	check_if_preprocessor_keyword();
+	check_if_preprocessor_keyword();
+	check_if_preprocessor_keyword();
+	check_if_preprocessor_keyword();
 	return 0;
 }
 void get_char(void) {
-	currentc = fgetc(stdin);
+	look = fgetc(stdin);
 }
 void eat_blanks(void) {
-	while(currentc || '\t' && currentc || '\r' || currentc == ' ') {
+	while(look || '\t' && look || '\r' || look == ' ') {
 		get_char();
 	}
 }
@@ -68,5 +79,44 @@ void ParseArguments(int argc, char* argv[]) {
 	}
 	if (InputFile == NULL) {
 		fprintf(stderr, "Error: Input file not specified. Pass -h for help\n");
+	}
+}
+void check_if_preprocessor_keyword(void) {
+	if(feof(stdin)) {
+		return;
+	}
+	eat_blanks();
+	get_char();
+	//! Ignore strings.
+	if(look == '"') {
+		get_char();
+		while(look != '"') {
+			get_char();
+		}
+	}
+	if(look == '#') {
+		//! might be a preprocessor keyword..
+		get_char();
+		if(look == '!') {
+			//! Nah it's a comment... :P
+			while(look != '\n') {
+				get_char();
+			}
+			return;
+		} else {
+			char token[10];
+			token[0] = look;
+			for(unsigned int i = 1; i < sizeof(token) && isalpha(look); i++) {
+				token[i] = look;
+			}
+			if(!strcmp(token, "#include")) {
+				printf("lol");
+				exit(0);
+			}
+		}
+	} else {
+		while(look != ' ' && look != '\t' && look != '\r') {
+			get_char();
+		}
 	}
 }
