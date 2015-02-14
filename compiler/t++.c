@@ -38,7 +38,6 @@ int main(int argc, char** argv) {
 			GCCOptions = ConcatenateStrings(GCCOptions, ConcatenateStrings(" -I", IncludeDirs[i]));
 		}
 	}
-	printf("%s\n", GCCOptions);
 	char* TBCOptions = ConcatenateStrings(RX_PREFIX, ConcatenateStrings("/tbc > ", ConcatenateStrings(ASMOutputFile, ConcatenateStrings(" ", TBCOutputFile))));
 	char* FASMOptions = ConcatenateStrings(RX_PREFIX, ConcatenateStrings("/fasm ", ConcatenateStrings(ASMOutputFile, ConcatenateStrings(" ./", OutputFile))));
 	/*printf("ASMOutputFile: %s\nTBCOutputFile: %s\nGCCOptions: %s\nTBCOptions: %s\nFASMOptions: %s\n", ASMOutputFile, TBCOutputFile, GCCOptions, TBCOptions, FASMOptions);*/
