@@ -65,172 +65,6 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 		printf("0x%X, 0x%X, 0x%X, 0x%X\n", BIG_ENDIAN_INT(dyn_header->text_section) % SEGMENT_SIZE, BIG_ENDIAN_INT(dyn_header->text_size) % SEGMENT_SIZE, BIG_ENDIAN_INT(dyn_header->data_section) % SEGMENT_SIZE, (BIG_ENDIAN_INT(dyn_header->bss_section) + BIG_ENDIAN_INT(dyn_header->bss_size) - BIG_ENDIAN_INT(dyn_header->data_section)) % SEGMENT_SIZE);
 		exit(EXIT_FAILURE);
 	}
-	// Now modify the library since it assumes no loadpoint...
-	uint32_t i = BIG_ENDIAN_INT(dyn_header->text_section);
-	while(i <= BIG_ENDIAN_INT(dyn_header->text_section) + BIG_ENDIAN_INT(dyn_header->text_size)) 
-	{ 
-		switch(temp[i]) {
-			case R3X_CALL:
-			case R3X_JMP:
-			case R3X_JE:
-			case R3X_JL:
-			case R3X_JG:	
-			case R3X_JZ:
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_STOSD:
-				temp[i] = R3X_STOSD_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_LODSD:
-				temp[i] = R3X_LODSD_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_STOSW:
-				temp[i] = R3X_STOSW_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_STOSB:
-				temp[i] = R3X_STOSB_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_LODSB:
-				temp[i] = R3X_LODSB_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_LODSW:
-				temp[i] = R3X_LODSW_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_CMPSB:
-				temp[i] = R3X_CMPSB_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_CMPSD:
-				temp[i] = R3X_CMPSB_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_CMPSW:
-				temp[i] = R3X_CMPSW_RELOC;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;
-			case R3X_PUSH_RELOC:
-				temp[i] = R3X_PUSH;
-				i++;
-				*((uint32_t*)&temp[i]) = BIG_ENDIAN_INT(CPU->MemorySize + BIG_ENDIAN_INT(*((uint32_t*)&temp[i])));
-				i += 4;
-				break;	
-			case R3X_SLEEP:
-			case R3X_POP:		
-			case R3X_POPA:
-			case R3X_ADD:
-			case R3X_SUB:
-			case R3X_DIV:
-			case R3X_MUL:
-			case R3X_FADD:
-			case R3X_FSUB:
-			case R3X_FDIV:
-			case R3X_FMUL:
-			case R3X_CMP:
-			case R3X_DUP:
-			case R3X_LOADLIB:
-			case R3X_LIBEXEC:
-			case R3X_MEMCPY:
-			case R3X_RET:
-			case R3X_AND:
-			case R3X_XOR:
-			case R3X_OR:
-			case R3X_NOT:
-			case R3X_NEG:
-			case R3X_SHR:
-			case R3X_SHL:
-			case R3X_FSIN:
-			case R3X_FCOS:
-			case R3X_FTAN:
-			case R3X_ASIN:
-			case R3X_ACOS:
-			case R3X_ATAN:
-			case R3X_MOD:
-			case R3X_FMOD:
-			case R3X_ACONV:
-			case R3X_RCONV:
-			case R3X_ASINH:
-			case R3X_ACOSH:
-			case R3X_ATANH:
-			case R3X_FSINH:
-			case R3X_FCOSH:
-			case R3X_FTANH:
-			case R3X_FPOW:
-			case R3X_FLOOR:
-			case R3X_CEIL:
-			case R3X_ICONV:
-			case R3X_FCONV:
-			case R3X_EXIT:
-			case R3X_ROL:
-			case R3X_ROR:
-			case R3X_TERN:
-			case R3X_CATCH:
-			case R3X_THROW:
-			case R3X_HANDLE:
-			case R3X_PUSHF:
-			case R3X_POPF:
-			case R3X_PUSHIP:
-			case R3X_ARS:
-				i++;
-				break;
-			case R3X_PUSH:
-			case R3X_LOADS:
-			case R3X_STORES:
-			case R3X_PUSHA:
-			case R3X_POPN:
-			case R3X_JMPL:
-			case R3X_JEL:
-			case R3X_JLL:
-			case R3X_JZL:
-			case R3X_JGL:
-				i += 5;
-				break;
-			case R3X_LOADI:
-			case R3X_LOADR:
-				i += 6;
-				break;
-			case R3X_PUSHR:
-			case R3X_POPR:
-			case R3X_PUSHAR:
-			case R3X_POPAR:
-			case R3X_INT:
-			case R3X_SYSCALL:
-			case R3X_INCR:
-			case R3X_DECR:
-			case R3X_LOADSR:
-			case R3X_STORESR:
-			      i += 2;
-			      break;
-			default:
-				i++;
-				break;
-		}
-	}
 	if(number_of_used_structs >= total_number_of_structs) { 
 		lbstructs = nt_realloc(lbstructs, sizeof(libimport_struct*)*(total_number_of_structs+16));
 		total_number_of_structs += 16;
@@ -313,6 +147,15 @@ uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhand
 				**/
 			}
 		}
+	}
+	return 0;
+}
+uint32_t return_dynamic_load_addr(unsigned int libhandle) {
+	if(total_number_of_structs <= libhandle) {
+		return 0;
+	}
+	if(lbstructs[libhandle] != NULL) {
+		return lbstructs[libhandle]->loadaddr;
 	}
 	return 0;
 }

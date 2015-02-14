@@ -454,6 +454,11 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
 			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
 			break;
+		//! Relative call (CALLL)
+		case R3X_CALLL:
+			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
+			CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+			break;
 		case R3X_RET:
 			CPU->InstructionPointer = Stack.Pop(CPU->CallStack);
 			break;
@@ -673,6 +678,13 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW || GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			}
+			uint32_t d_addr = return_dynamic_load_addr(get_item_from_stack_top(2));
+			if(d_addr==0) {
+				printf("Invalid dynamic call, Unknown handle!\n");
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+				break;
+			}
+			CPU->Regs[20] = d_addr;
 			if(dynamic_call(CPU, get_item_from_stack_top(2), (char*)(CPU->Memory + get_item_from_stack_top(1)))==0)	{
 				printf("Invalid dynamic call, causing CPU_EXCEPTION_INVALIDACCESS.\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);

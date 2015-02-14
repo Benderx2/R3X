@@ -1,13 +1,22 @@
 include 'libR3X/dynR3X.pkg'
 ; NOTE: CODE MUST BE RELOCATABLE!
+; USE RELOCATABLE BRANCH INSTRUCTIONS!
+; jmpl, jzl, jll, jel, jgl, and calll. (an 'l' suffix)
+; Also, add the value of R20 (which is guarenteed to be the load address of the library)
+; before addressing local addresses.
 .text {
 function test_func
-	; For dynamically loaded libraries, DONT USE PUSH WHILE REFERRING TO ADDRESSES, use pushad (push relative address)
-	pushad str01
+	; Dynamically loaded libraries must 
+	; be relocatable that is, position independent.
+	loadr R1, str01
+	; Load address of library is in R20
+	addrr R1, R20
+	pushr R1
 	syscall SYSCALL_PUTS
 	pop
-	loadrm word, R1, word_data
-	pushr R1
+	loadr R0, word_data
+	addrr R0, R20
+	lodsw
 	pushr R1
 	syscall SYSCALL_PUTI
 	pop

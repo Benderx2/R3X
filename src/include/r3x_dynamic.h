@@ -59,7 +59,12 @@ typedef struct function_call_struct {
 	uint32_t loadaddr;
 	export_struct* functions;
 } libimport_struct;
+
 int load_lib_manager(void);
+
 int load_dynamic_library(char* name, r3x_cpu_t* CPU);
+
 uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhandle);
+
+uint32_t return_dynamic_load_addr(unsigned int libhandle);
 #endif

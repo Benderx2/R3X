@@ -554,6 +554,10 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				fprintf(output, "break\n");
 				i++;
 				break;
+			case R3X_CALLL:
+				fprintf(output, "calll %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				i += 5;
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;
