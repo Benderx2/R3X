@@ -19,10 +19,6 @@ _name_addr: db 'Default Shared Library', 0
 _pub_addr: db 'No publisher', 0
 _end_begin:
 times 4096-(_end_begin - _begin) db 0
-macro pushad val {
-	db 0x52
-	dd val
-}
 macro DECLARE_SECTION name {
         local m,c
         c equ 0
@@ -63,47 +59,6 @@ macro pushstring string {
 	pushaddr addr
 	.DATA \{ addr: db string, 0 \}
 } 
-macro stosd {
-	db 0x2E
-	dd 0
-}
-macro stosb {
-	db 0x2A
-	dd 0
-}
-macro lodsd {	
-	db 0x31
-	dd 0
-}
-macro lodsb {
-	db 0x29
-	dd 0
-}
-macro lodsw {
-	db 0x62
-	dd 0
-}
-macro cmpsw {
-	db 0x63
-	dd 0
-}
-macro stosw {
-	db 0x61
-	dd 0
-}
-macro load {
-	display "Error: Attempt to use instruction 'load' in dynamic library. Instruction Not supported"
-	err
-}
-macro store {
-	display "Error: Attempt to use instruction 'store' in dynamic library. Instruction Not supported"
-	err
-	
-}
-macro loadrr reg1, reg2 {
-	pushr reg2
-	popr reg1
-}
 macro loadrm size, reg1, memaddr {
 	if reg1 eq R0
 	else 
