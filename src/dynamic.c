@@ -139,8 +139,9 @@ uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhand
 					 * do! I HAVE WRITTEN SHIT C CODE YOU SON OF A DOG. [no 'bitch' because it's considered unethical
 					 * as per today's standards to use such deregatory words against a lady. hence i thought it'd be more
 					 * appropriate to just tell shit about your dad, rather than your mom, because it's sexist and patriachial.]
+					 * fuk my life.
 					**/
-					return lbstructs[libhandle]->loadaddr + lbstructs[libhandle]->functions[i].instruction_pointer;
+					return lbstructs[libhandle]->loadaddr + BIG_ENDIAN_INT(lbstructs[libhandle]->functions[i].instruction_pointer);
 				}
 				/**!
 				 * CALL 911 IMMEDIATELY PLZ.
