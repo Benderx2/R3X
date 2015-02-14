@@ -86,10 +86,10 @@ if [ "$USEOPTIMIZE" == "yes" ]
 fi
 if [ "$TARGET" == "x86_64" ]
 	then
-	 export ARCHFLAGS="-m64" 
-	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN" 
+	 export ARCHFLAGS="-m64"
+	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN"
      export ARCHID="-D LINUX_ARCH_X8664"
-	 export CC="gcc" 
+	 export CC="gcc"
 	 export AR="ar"
 	 export BINDIR="../bin64"
 elif [ "$TARGET" == "x86_64win" ]

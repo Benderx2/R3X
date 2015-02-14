@@ -68,6 +68,7 @@ const int SLEEP_MILLISECONDS = 1000;
 
 // Bools and global stuff
 bool exitcalled = false;
+bool incycle = false;
 bool is_read = true;
 char keycode = 0;
 
@@ -197,91 +198,221 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 **/
 static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 {
+	
+	#ifndef REX_OPTIMIZE
 	switch (CPU->Memory[CPU->InstructionPointer])
 	{
+	#else
+	#include <r3x_opcode_table.h>
+	goto *DispatchTable[CPU->Memory[CPU->InstructionPointer]];
+	#endif
 		// Sleep: Delays the CPU by a cycle. Also used by CPU to skip empty memory, as the opcode is 0x0
+		#ifndef REX_OPTIMIZE
 		case R3X_SLEEP:
+		#else 
+		INTERP_SLEEP:
+		#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+		#ifndef REX_OPTIMIZE
 			break;
+		#else 
+			return 0;
+		#endif
 		// Push: Push a 32-bit value to stack.
+		#ifndef REX_OPTIMIZE
 		case R3X_PUSH:
+		#else
+		INTERP_PUSH:
+		#endif
 			Stack.Push(CPU->Stack, return_32bit_int_from_ip(CPU));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+		#ifndef REX_OPTIMIZE
 			break;
+		#else 
+			return 0;
+		#endif
 		// Pop: Pop a 32-bit value from stack
+		#ifndef REX_OPTIMIZE
 		case R3X_POP:
+		#else
+		INTERP_POP:
+		#endif
 			Stack.Pop(CPU->Stack);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+		#ifndef REX_OPTIMIZE
 			break;
+		#else 
+			return 0;
+		#endif
 		// Pop number of integers from stack
+		#ifndef REX_OPTIMIZE
 		case R3X_POPN:
+		#else
+		INTERP_POPN:
+		#endif
 			for(unsigned int i = 0; i < return_32bit_int_from_ip(CPU); i++){
 				Stack.Pop(CPU->Stack);
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Push the FLAGS register on stack
+		#ifndef REX_OPTIMIZE
 		case R3X_PUSHF:
+		#else
+		INTERP_PUSHF:
+		#endif
 			push_flags(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Pop flags from stack
+		#ifndef REX_OPTIMIZE
 		case R3X_POPF:
+		#else 
+		INTERP_POPF:
+		#endif
 			pop_flags(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Duplicate the value on the top of stack
+		#ifndef REX_OPTIMIZE
 		case R3X_DUP:
+		#else
+		INTERP_DUP:
+		#endif
 			Stack.Push(CPU->Stack, get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Add: Add 2 values on stack.
+		#ifndef REX_OPTIMIZE
 		case R3X_ADD:
+		#else
+		INTERP_ADD:
+		#endif
 			Stack.Push(CPU->Stack, get_item_from_stack_top(1) + get_item_from_stack_top(2));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Subtract the second last value on stack by last.
+		#ifndef REX_OPTIMIZE
 		case R3X_SUB:
+		#else
+		INTERP_SUB:
+		#endif
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2) - Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Multiply 2 values on stack.
+		#ifndef REX_OPTIMIZE
 		case R3X_MUL:
+		#else
+		INTERP_MUL:
+		#endif
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2) * Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Divide the second last value by last.
+		#ifndef REX_OPTIMIZE
 		case R3X_DIV:
+		#else
+		INTERP_DIV:
+		#endif
 			if(get_item_from_stack_top(1) == 0) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_ARITHMETIC);
 			} else {
 				Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2) / Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Float equivalents of the above
+		#ifndef REX_OPTIMIZE
 		case R3X_FADD:
+		#else
+		INTERP_FADD:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2)) + return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FSUB:
+		#else
+		INTERP_FSUB:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2)) - return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FMUL:
+		#else
+		INTERP_FMUL:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2)) * return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FDIV:
+		#else
+		INTERP_FDIV:
+		#endif
 			if(return_float(get_item_from_stack_top(1)) == 0.0f) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_ARITHMETIC);
 			} else {
 				Stack.Push(CPU->Stack, return_int_from_float(return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2)) / return_float(Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1))));
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// sete/setne/setl/setg
+		#ifndef REX_OPTIMIZE
 		case R3X_SETE:
+		#else
+		INTERP_SETE:
+		#endif
 			if(CPU->EqualFlag==true) {
 				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
@@ -291,8 +422,16 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 				}
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_SETNE:
+		#else
+		INTERP_SETNE:
+		#endif
 			if(CPU->EqualFlag!=true) {
 				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
@@ -301,8 +440,16 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 				}
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_SETL:
+		#else
+		INTERP_SETL:
+		#endif
 			if(CPU->LesserFlag==true) {
 				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
@@ -311,8 +458,16 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 				}
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_SETG:
+		#else
+		INTERP_SETG:
+		#endif
 			if(CPU->GreaterFlag==true) {
 				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
@@ -321,27 +476,67 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 				}
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Compare 2 values on stack and set flags..
+		#ifndef REX_OPTIMIZE
 		case R3X_CMP:
+		#else
+		INTERP_CMP:
+		#endif
 			compare_and_set_flag_unsigned(CPU, get_item_from_stack_top(2), get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_CMPS:
+		#else
+		INTERP_CMPS:
+		#endif
 			compare_and_set_flag_signed(CPU, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 2), Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - 1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Call VM specific function
+		#ifndef REX_OPTIMIZE
 		case R3X_SYSCALL:
+		#else
+		INTERP_SYSCALL:
+		#endif
 			r3x_syscall(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Load a value from stack offset.
+		#ifndef REX_OPTIMIZE
 		case R3X_LOADS:
+		#else
+		INTERP_LOADS:
+		#endif
 			Stack.Push(CPU->Stack, Stack.GetItem(CPU->Stack, CPU->Stack->top_of_stack - return_32bit_int_from_ip(CPU)));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_LOADSR:
+		#else
+		INTERP_LOADSR:
+		#endif
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS){
 				Stack.Push(CPU->Stack, get_item_from_stack_top(CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]]));
 				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
@@ -349,15 +544,31 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Store a value to stack offset
+		#ifndef REX_OPTIMIZE
 		case R3X_STORES:
+		#else
+		INTERP_STORES:
+		#endif
 			if(Stack.SetItem(CPU->Stack, CPU->Stack->top_of_stack-return_32bit_int_from_ip(CPU), get_item_from_stack_top(1))==-1){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_STORESR:
+		#else
+		INTERP_STORESR:
+		#endif
 			// TODO: Stop using hacks!
 			get_item_from_stack_top(1);
 			uint32_t val = 0;
@@ -371,275 +582,470 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		/**!
 		 * Here starts the region where memory access instructions are used!
 		 *
 		 * It may change due to addition of virtual memory addressesing
 		 * **/
 		//! Jump, Jump If equal, Jump if lesser, jump if greater, jump if zero, call, ret (That is, all branch instructions)..
+		#ifndef REX_OPTIMIZE
 		case R3X_JMP:
+		#else
+		INTERP_JMP:
+		#endif
 			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_JE:
+		#else
+		INTERP_JE:
+		#endif
 			if (CPU->EqualFlag == true){
 				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
 			}
 			else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_JL:
+		#else
+		INTERP_JL:
+		#endif
 			if (CPU->LesserFlag == true){
 				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
 			}
 			else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_JG:
+		#else
+		INTERP_JG:
+		#endif
 			if (CPU->GreaterFlag == true){
 				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
 			}
 			else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_JZ:
+		#else
+		INTERP_JZ:
+		#endif
 			if (CPU->ZeroFlag == true){
 				CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
 			}
 			else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		//! Relative jumps
+		#ifndef REX_OPTIMIZE
 		case R3X_JMPL:
+		#else
+		INTERP_JMPL:
+		#endif
 			CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_JEL:
+		#else
+		INTERP_JEL:
+		#endif
 			if(CPU->EqualFlag == true){
 				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_JGL:
+		#else
+		INTERP_JGL:
+		#endif
 			if(CPU->GreaterFlag == true){
 				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_JLL:
+		#else
+		INTERP_JLL:
+		#endif
 			if(CPU->LesserFlag == true){
 				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_JZL:
+		#else
+		INTERP_JZL:
+		#endif
 			if(CPU->ZeroFlag == true){
 				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_PUSHIP:
+		#else
+		INTERP_PUSHIP:
+		#endif
 			Stack.Push(CPU->Stack, CPU->InstructionPointer);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		//! Call, ret and call stack operations
+		#ifndef REX_OPTIMIZE
 		case R3X_CALL:
+		#else
+		INTERP_CALL:
+		#endif
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
 			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		//! Relative call (CALLL)
+		#ifndef REX_OPTIMIZE
 		case R3X_CALLL:
+		#else
+		INTERP_CALLL:
+		#endif
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
 			CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_RET:
+		#else
+		INTERP_RET:
+		#endif
 			CPU->InstructionPointer = Stack.Pop(CPU->CallStack);
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		//! Load a value and push it to stack, whose address was pushed to stack (32-bit)
+		#ifndef REX_OPTIMIZE
 		case R3X_LOAD:
+		#else
+		INTERP_LOAD:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RONLY  || GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;			
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif		
 			}
 			Stack.Push(CPU->Stack, *(uint32_t*)(CPU->Memory + get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		//! Store a value which was pushed to stack to an address pushed second last.
+		#ifndef REX_OPTIMIZE
 		case R3X_STORE:
+		#else
+		INTERP_STORE:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif	
 			}
 			*((uint32_t*)&(CPU->Memory[get_item_from_stack_top(2)])) = get_item_from_stack_top(1);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		//! Memory access for registers...
+		#ifndef REX_OPTIMIZE
 		case R3X_LODSB:
+		#else
+		INTERP_LODSB:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif		
 			}
 			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_LODSW:
+		#else
+		INTERP_LODSW:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif		
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT16(*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_LODSD:
+		#else
+		INTERP_LODSD:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif		
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_STOSB:
+		#else
+		INTERP_STOSB:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif		
 			}
 			CPU->Memory[CPU->Regs[0]] = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_STOSW:
+		#else
+		INTERP_STOSW:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif	
 			}
 			*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT16(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_STOSD:
+		#else
+		INTERP_STOSD:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 			}
 			*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_CMPSB:
+		#else
+		INTERP_CMPSB:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 			}
 			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_CMPSW:
+		#else
+		INTERP_CMPSW:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif	
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint16_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_CMPSD:
+		#else
+		INTERP_CMPSD:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif	
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		//! Relocatable versions of those..
-		case R3X_STOSB_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+			#ifndef REX_OPTIMIZE
 				break;
-			}
-			CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)] = CPU->Regs[1];
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_STOSW_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
-			}
-			*((uint16_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = BIG_ENDIAN_INT16(CPU->Regs[1]);
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_STOSD_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
-			}
-			*((uint32_t*)(&CPU->Memory[CPU->Regs[0] + return_32bit_int_from_ip(CPU)])) = BIG_ENDIAN_INT(CPU->Regs[1]);
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_LODSD_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
-			}
-			CPU->Regs[1] = BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)])));
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_LODSW_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
-			}
-			CPU->Regs[1] = BIG_ENDIAN_INT16(*((uint16_t*)(&CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)])));
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_LODSB_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0] + return_32bit_int_from_ip(CPU)) != RX_RW) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
-			}
-			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]+return_32bit_int_from_ip(CPU)];
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_CMPSB_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RW && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RONLY) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
-			}
-			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_CMPSW_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RW && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RONLY) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
-			}
-			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint16_t)CPU->Regs[1]);
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
-		case R3X_CMPSD_RELOC:
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RW && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]+return_32bit_int_from_ip(CPU)) != RX_RONLY) {
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;
-			}
-			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]+return_32bit_int_from_ip(CPU)]), CPU->Regs[1]);
-			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
+			#else 
+				return 0;
+			#endif
 		//! fast memory copy
+		#ifndef REX_OPTIMIZE
 		case R3X_MEMCPY:
+		#else
+		INTERP_MEMCPY:
+		#endif
 			if((unsigned int)get_item_from_stack_top(3)+(unsigned int)get_item_from_stack_top(1) > CPU->MemorySize || (unsigned int)get_item_from_stack_top(2) + (unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-					break;			
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif			
 			}
 			memcpy(CPU->Memory + get_item_from_stack_top(3), CPU->Memory + get_item_from_stack_top(2), get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Native library support (calling native procedures from .so files)
+		#ifndef REX_OPTIMIZE
 		case R3X_LOADLIB:
+		#else
+		INTERP_LOADLIB:
+		#endif
 			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);		
-				break;	
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 			}
 			#ifdef REX_DYNAMIC
 				load_native_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU);
@@ -647,15 +1053,31 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Not compiled with native dynamic library support. Attempt to call LOADLIB, not supported\n");
 			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_LIBEXEC:
+		#else
+		INTERP_LIBEXEC:
+		#endif
 			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif		
 			}
 			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize) { 
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
-				break;		
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif		
 			}
 			#ifdef REX_DYNAMIC
 			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + get_item_from_stack_top(1)), returnhandle((char*)(CPU->Memory + get_item_from_stack_top(2)))));
@@ -663,18 +1085,34 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			printf("Not compiled with native dynamic library support. Attempt to call LIBEXEC, not supported\n");
 			#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		//! Program interruption
+		#ifndef REX_OPTIMIZE
 		case R3X_INT:
+		#else
+		INTERP_INT:
+		#endif
 			if(CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]] != 0) {
 				Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_DOUBLE);
 				CPU->InstructionPointer = CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]];
 			} else {	
 				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		//! Support for REX object files (*.ro)
+		#ifndef REX_OPTIMIZE
 		case R3X_CALLDYNAMIC:
+		#else
+		INTERP_CALLDYNAMIC:
+		#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW || GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			}
@@ -682,51 +1120,123 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			if(d_addr==0) {
 				printf("Invalid dynamic call, Unknown handle!\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
+			#ifndef REX_OPTIMIZE
 				break;
+			#else 
+				return 0;
+			#endif
 			}
 			CPU->Regs[20] = d_addr;
 			if(dynamic_call(CPU, get_item_from_stack_top(2), (char*)(CPU->Memory + get_item_from_stack_top(1)))==0)	{
 				printf("Invalid dynamic call, causing CPU_EXCEPTION_INVALIDACCESS.\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
-				break;			
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif	
 			}
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
 			CPU->InstructionPointer = dynamic_call(CPU, get_item_from_stack_top(2), (char*)(CPU->Memory + get_item_from_stack_top(1)));
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		/**!
 		 * This is the end of memory acessing instructions section
 		 * **/
 		// Bitwise operations
+		#ifndef REX_OPTIMIZE
 		case R3X_AND:
+		#else
+		INTERP_AND:
+		#endif
 			Stack.Push(CPU->Stack, get_item_from_stack_top(2) & get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_OR:
+		#else
+		INTERP_OR:
+		#endif
 			Stack.Push(CPU->Stack, get_item_from_stack_top(2) | get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_XOR:
+		#else
+		INTERP_XOR:
+		#endif
 			Stack.Push(CPU->Stack, (unsigned int)get_item_from_stack_top(2) ^ (unsigned int)get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_NOT: 
+		#else
+		INTERP_NOT:
+		#endif
 			Stack.Push(CPU->Stack, ~get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_NEG:
+		#else
+		INTERP_NEG:
+		#endif
 			Stack.Push(CPU->Stack, !get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Always set your right foot first soldier! #weirdsuperstitions
+		#ifndef REX_OPTIMIZE
 		case R3X_SHR:
+		#else
+		INTERP_SHR:
+		#endif
 			Stack.Push(CPU->Stack, (unsigned int)get_item_from_stack_top(2) >> (unsigned int)get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_SHL:
+		#else
+		INTERP_SHL:
+		#endif
 			Stack.Push(CPU->Stack, (unsigned int)get_item_from_stack_top(2) << (unsigned int)get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_TERN:
+		#else
+		INTERP_TERN:
+		#endif
 			if(get_item_from_stack_top(3)!=R3X_FALSE){
 				// If it's true pop out the first var
 				Stack.Pop(CPU->Stack);
@@ -735,29 +1245,77 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				Stack.Pop(CPU->Stack);
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ROR:
+		#else
+		INTERP_ROR:
+		#endif
 			Stack.Push(CPU->Stack, ROR_C(get_item_from_stack_top(2), get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ROL:
+		#else
+		INTERP_ROL:
+		#endif
 			Stack.Push(CPU->Stack, ROL_C(get_item_from_stack_top(2), get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ARS:
+		#else
+		INTERP_ARS:
+		#endif
 			Stack.Push(CPU->Stack, (uint64_t)r3x_ars(get_item_from_stack_top(2), get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_PUSHA:
+		#else
+		INTERP_PUSHA:
+		#endif
 			Stack.Push(CPU->CallStack, return_32bit_int_from_ip(CPU));
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_POPA:
+		#else
+		INTERP_POPA:
+		#endif
 			Stack.Pop(CPU->CallStack);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Register operations
+		#ifndef REX_OPTIMIZE
 		case R3X_LOADR:
+		#else
+		INTERP_LOADR:
+		#endif
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {	
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer])] = return_32bit_int_from_ip(CPU);
@@ -766,8 +1324,16 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_PUSHR:
+		#else
+		INTERP_PUSHR:
+		#endif
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				Stack.Push(CPU->Stack, CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])]);
 				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
@@ -776,18 +1342,34 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_POPR:
+		#else
+		INTERP_POPR:
+		#endif
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
-				int a = Stack.Pop(CPU->Stack);
+				uint64_t a = Stack.Pop(CPU->Stack);
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] = a;
 				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			} else {
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;	
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_INCR:
+		#else
+		INTERP_INCR:
+		#endif
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] += 1;
 				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
@@ -795,8 +1377,16 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_DECR:
+		#else
+		INTERP_DECR:
+		#endif
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] -= 1;
 				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
@@ -804,13 +1394,29 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_LOADI:
+		#else
+		INTERP_LOADI:
+		#endif
 			CPU->InstructionPointer++;
 			set_interrupt(CPU->Memory[CPU->InstructionPointer], CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_PUSHAR:
+		#else
+		INTERP_PUSHAR:
+		#endif
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				Stack.Push(CPU->CallStack, CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])]);
 				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
@@ -819,8 +1425,16 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
 			
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_POPAR:
+		#else
+		INTERP_POPAR:
+		#endif
 			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				int a = Stack.Pop(CPU->CallStack);
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer+1])] = a;
@@ -829,128 +1443,352 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Math Instructions
+		#ifndef REX_OPTIMIZE
 		case R3X_FSIN:
+		#else
+		INTERP_FSIN:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(sin(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FCOS:
+		#else
+		INTERP_FCOS:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(cos(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FTAN:
+		#else
+		INTERP_FTAN:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(tan(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ASIN:
+		#else
+		INTERP_ASIN:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(asin(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ACOS:
+		#else
+		INTERP_ACOS:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(acos(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ATAN:
+		#else
+		INTERP_ATAN:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(atan(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FSINH:
+		#else
+		INTERP_FSINH:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(sinh(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FCOSH:
+		#else
+		INTERP_FCOSH:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(cosh(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FTANH:
+		#else
+		INTERP_FTANH:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(tanh(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ASINH:
+		#else
+		INTERP_ASINH:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(asinh(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ACOSH:
+		#else
+		INTERP_ACOSH:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(acosh(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ATANH:
+		#else
+		INTERP_ATANH:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(atanh(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_CEIL:
+		#else
+		INTERP_CEIL:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(ceil(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FLOOR:
+		#else
+		INTERP_FLOOR:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(floor(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_ICONV:
+		#else
+		INTERP_ICONV:
+		#endif
 			Stack.Push(CPU->Stack, (uint32_t)(return_float(get_item_from_stack_top(1))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FCONV:
+		#else
+		INTERP_FCONV:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(get_item_from_stack_top(1))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FPOW:
+		#else
+		INTERP_FPOW:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(pow(return_float(get_item_from_stack_top(2)), return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FABS:
+		#else
+		INTERP_FABS:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(fabs(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FSQRT:
+		#else
+		INTERP_FSQRT:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(sqrt(return_float(get_item_from_stack_top(1)))));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
-		// Convert to angle 
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		// Convert to angle
+		#ifndef REX_OPTIMIZE
 		case R3X_ACONV:
+		#else
+		INTERP_ACONV:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(get_item_from_stack_top(1))*(180.0/M_PI)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Convert to radian
+		#ifndef REX_OPTIMIZE
 		case R3X_RCONV:
+		#else
+		INTERP_RCONV:
+		#endif
 			Stack.Push(CPU->Stack, return_int_from_float(return_float(get_item_from_stack_top(1))*(M_PI/180.0)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_MOD:
+		#else
+		INTERP_MOD:
+		#endif
 			if(get_item_from_stack_top(1) == 0) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_ARITHMETIC);
 			} else {
 				Stack.Push(CPU->Stack, get_item_from_stack_top(2) % get_item_from_stack_top(1));
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_FMOD:
+		#else
+		INTERP_FMOD:
+		#endif
 			if(return_float(get_item_from_stack_top(1)) == 0.0f) {
 				handle_cpu_exception(CPU, CPU_EXCEPTION_ARITHMETIC);
 			} else {
 				Stack.Push(CPU->Stack, return_int_from_float(fmod(return_float(get_item_from_stack_top(2)), return_float(get_item_from_stack_top(1)))));
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			}
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Epic-ass, first class, sexy error handling
+		#ifndef REX_OPTIMIZE
 		case R3X_CATCH:
+		#else
+		INTERP_CATCH:
+		#endif
 			set_exception_handlers(CPU, get_item_from_stack_top(1), get_item_from_stack_top(2));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_THROW:
+		#else
+		INTERP_THROW:
+		#endif
 			handle_cpu_exception(CPU, get_item_from_stack_top(1));
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_HANDLE:
+		#else
+		INTERP_HANDLE:
+		#endif
 			CPU->ExceptionFlag = false;
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
+		#ifndef REX_OPTIMIZE
 		case R3X_BREAK:
+		#else
+		INTERP_BREAK:
+		#endif
 			handle_cpu_exception(CPU, CPU_BREAK_POINT);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
-			break;
+			#ifndef REX_OPTIMIZE
+				break;
+			#else 
+				return 0;
+			#endif
 		// Exit application
+		#ifndef REX_OPTIMIZE
 		case R3X_EXIT:
+		#else
+		INTERP_EXIT:
+		#endif
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {
 				// Show exit status
 				printf("Program exitted with status: %lu\n", (uint64_t)get_item_from_stack_top(1));		
@@ -959,11 +1797,14 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			return CPU_EXIT_SIGNAL;
+	#ifndef REX_OPTIMIZE
 		default:
 			printf("Unknown Opcode: %x, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);
 			handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			break;
+	
 	}
+	#endif
 	return 0;
 }
 static inline uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
