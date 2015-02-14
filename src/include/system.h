@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <inttypes.h>
 #ifndef _WIN32
 #include <unistd.h>
 #else
@@ -20,6 +21,10 @@
 #ifdef REX_DYNAMIC
 #include <dlfcn.h>
 #include <execinfo.h>
+#endif
+#ifndef PRIu64
+#warning "PRIu64 undefined, defining built-in!"
+#define PRIu64 "llu"
 #endif
 typedef bool Boolean;
 //! System specific description of file descriptor and stuff

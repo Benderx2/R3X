@@ -82,6 +82,8 @@ void debugger(void) {
 			printf("disasm IP size -- Dissassemble code at instruction pointer 'IP' and size 'size'\n");
 			printf("readsym - Read program's symbol table\n");
 			printf("mmap -- Prints memory map\n");
+			printf("stacktrace n -- Displays n elements, starting from top of stack (Pass -scan-whole before 'n' in order to display stack from the very top.\n");
+			printf("callstacktrace n -- Display n elements, starting from top of callstack (Pass -scan-whole before 'n' in order to display stack from the very top)\n");
 			printf("quit -- Exits the VM and debugger\n");
 		}
 		else if(strncmp(input, "quit", 4) == 0) {
@@ -192,15 +194,49 @@ void debugger(void) {
 		} else if(strncmp(input, "mmap", 4) == 0){
 			DumpMemoryMap(r3_cpu->CPUMemoryBlocks);
 		} else if(strncmp(input, "stacktrace", 10) == 0) {
+			bool scan_whole = false;
 			(void)strtok(input, " ");
 			char* token1 = strtok(NULL, " ");
+			if(!strcmp(token1, "-scan-whole")) {
+				token1 = strtok(NULL, " ");
+				scan_whole = true;
+			}
 			if(token1 == NULL) {
 				printf("Error: Expected argument: Integer.\n");
 			} else {
 				unsigned int number_of_elements = atoi(token1);
-				unsigned int current_stack_top = r3_cpu->Stack->top_of_stack-1;
+				unsigned int current_stack_top = 0;
+				if(scan_whole==true) {
+					current_stack_top = r3_cpu->Stack->stack_count;
+				} else {
+					current_stack_top = r3_cpu->Stack->top_of_stack-1;
+				}
 				while(number_of_elements != 0 && current_stack_top != 0) {
-						printf("[%u] %u\n", current_stack_top, (uint64_t)Stack.GetItem(r3_cpu->Stack, current_stack_top));
+						printf("[%u] %" PRIu64 "\n", current_stack_top, (uint64_t)Stack.GetItem(r3_cpu->Stack, current_stack_top));
+						current_stack_top--;
+						number_of_elements--;
+					}
+				}
+		} else if(strncmp(input, "callstacktrace", 14) == 0) {
+			bool scan_whole = false;
+			(void)strtok(input, " ");
+			char* token1 = strtok(NULL, " ");
+			if(!strcmp(token1, "-scan-whole")) {
+				token1 = strtok(NULL, " ");
+				scan_whole = true;
+			}
+			if(token1 == NULL) {
+				printf("Error: Expected argument: Integer.\n");
+			} else {
+				unsigned int number_of_elements = atoi(token1);
+				unsigned int current_stack_top = 0;
+				if(scan_whole==true) {
+					current_stack_top = r3_cpu->CallStack->stack_count;
+				} else {
+					current_stack_top = r3_cpu->CallStack->top_of_stack-1;
+				}
+				while(number_of_elements != 0 && current_stack_top != 0) {
+						printf("[%u] %" PRIu64 "\n", current_stack_top, (uint64_t)Stack.GetItem(r3_cpu->CallStack, current_stack_top));
 						current_stack_top--;
 						number_of_elements--;
 					}

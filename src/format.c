@@ -97,52 +97,26 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	return mem2;
 }
 void read_symbol_table(r3x_header_t* header, uint8_t* Memory, uint32_t size, uint32_t IP) {
-	#ifndef R3X_BIG_ENDIAN
-	if(header->r3x_symbols > size)
-	#else
 	if(BIG_ENDIAN_INT(header->r3x_symbols) > size)
-	#endif 
 	{
 		printf("Error: Corrupted symbol header! Unable to read symbol table!\n");
 		return;
 	} else {
-		#ifndef R3X_BIG_ENDIAN
-		int number_of_symbols = header->r3x_symbolsize / sizeof(r3x_symbol_t);
-		r3x_symbol_t* mysymbols = (r3x_symbol_t*)&Memory[header->r3x_symbols];
-		#else
 		int number_of_symbols = BIG_ENDIAN_INT(header->r3x_symbolsize) / sizeof(r3x_symbol_t);
 		r3x_symbol_t* mysymbols = (r3x_symbol_t*)&Memory[BIG_ENDIAN_INT(header->r3x_symbols)];
-		#endif
 		for(int i = 0; i < number_of_symbols; i++) {
-			#ifndef R3X_BIG_ENDIAN
-			if(mysymbols[i].SymbolName > size)
-			#else 
 			if(BIG_ENDIAN_INT(mysymbols[i].SymbolName) > size)
-			#endif 
 			{
 				printf("Name: Invalid\n");
 			} else {
-				#ifndef R3X_BIG_ENDIAN
-				printf("Name: %s\n", (char*)&Memory[mysymbols[i].SymbolName]);
-				#else
 				printf("Name: %s\n", (char*)&Memory[BIG_ENDIAN_INT(mysymbols[i].SymbolName)]);
-				#endif
 			}
-			#ifndef R3X_BIG_ENDIAN
-			printf("Symbol start: 0x%X\n", mysymbols[i].SymbolStart);
-			printf("Symbol end: 0x%X\n", mysymbols[i].SymbolEnd);
-			#else
 			printf("Symbol start: 0x%X\n", BIG_ENDIAN_INT(mysymbols[i].SymbolStart));
 			printf("Symbol end: 0x%X\n", BIG_ENDIAN_INT(mysymbols[i].SymbolEnd));
-			#endif
 		}
 		for(int i = 0; i <number_of_symbols; i++) {
 			if(mysymbols[i].SymbolStart < IP && mysymbols[i].SymbolEnd > IP) {
-					#ifndef R3X_BIG_ENDIAN
-					if(mysymbols[i].SymbolName > size) 
-					#else
 					if(BIG_ENDIAN_INT(mysymbols[i].SymbolName) > size)
-					#endif
 					{
 						printf("Corrupt symbol name.\n");
 						return;
