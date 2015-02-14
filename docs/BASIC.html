@@ -14,31 +14,29 @@ body {
 <h2>BASIC</h2>
 An implementation of TinyBASIC is the only HLL language which is ported to R3X VM.
 <h3>Let's begin with a "Hello, World!"</h3>
-First compile the compiler using the GNU Compiler Toolchain. If your system has the required tools, then it's simply a <br>
+First compile the compiler using the GNU Compiler Toolchain (YOU WILL NEED IT WHILE RUNNING TOO!). If your system has the required tools, then it's simply a <br>
 <pre>
-gcc tbc.c -o tbc
+	export PREFIX="&lt;path where you want the executable to be stored&gt;"
+	./buildutils.sh
 </pre>
+Then you can export it in your PATH like this:<br>
+<pre>
+	export PATH=$PATH:$PREFIX
+</pre>
+NOTE: TinyBASIC compiler for R3X uses GCC as it's preprocessor, you will need the gcc toolchain in order to compile R3X programs!<br>
 Let's begin with some code? Shall we? :)
 <pre>
 function main, 0
-	#! This is a comment
-	#! Print Hello, world to screen
+	/* This is a comment */
+	/* Print Hello, world to screen */
 	print "Hello, World!"
-	#! Exit.
+	/* Exit */
 	end
 endf
 </pre>
-Using a text editor, save this file as "hello.bas", and run tbc, with the following:<br>
-tbc hello.bas > hello.asm<br>
-Now it should generate an assembler file, however if you use FASM to compile it, it gives an error:<br>
-<pre>
-fasm: 'include/libR3X.pkg' not found.
-</pre>
-You need the "libR3X.pkg" and the "r3x_asm.pkg", in an "include" directory, which should be where you generate your programs.<br>
-Then use:<br>
-<pre>fasm hello.asm</pre>
-This should generate a "hello.exe" file, run the program using:<br>
-<pre>
+Using a text editor, save this file as "hello.bas", and run t++, with the following:<br>
+t++ -s hello.bas -o hello.asm<br>
+Now it should generate an assembler file, however if you use FASM to compi
 rxvm -exe ./hello.exe
 </pre>
 You should see the words "Hello, World!" on the output screen. If you press a key, then the program will exit.<br>
@@ -66,9 +64,9 @@ int8_ptr(addr) - 8-bit memory access
 </pre>
 To set a location in memory, you can make use of the "let" keyword:
 <pre>
-	#! Set a 32-bit value at memory location 0x1000 
+	// Set a 32-bit value at memory location 0x1000 
 	let int32_ptr(0x1000) = 0xFFFFFFFF
-	#! Set a 16-bit value at memory location pointed by "buffer+5"
+	// Set a 16-bit value at memory location pointed by "buffer+5"
 	let x = 65535
 	let int16_ptr(buffer+5) = x
 	...
@@ -94,7 +92,7 @@ You can also "gosub", if you want recursion, note that you would need to return 
 	...
 	do stuff
 	...
-	#! This will be explained in detail under "functions"
+	// This will be explained in detail under "functions"
 	return 0 
 ...
 gosub label
@@ -112,7 +110,7 @@ The "if" keyword compares two expressions and then performs a statment, (usually
 	if a &gt; 5 goto yes
 	if a &lt;= 5 goto yes
 	if a &gt;= 5 goto yes
-	#! Labels are scope-specific
+	// Labels are scope-specific
 :yes
 ...
 </pre>
@@ -163,13 +161,13 @@ TinyBASIC++ provides 4 internal functions for a program to use.<br>
 	The "print" function outputs a string / integer to stdout. The usage is shown below:<br>
 <pre>
 	...
-	#! Print a literal string
+	// Print a literal string
 	print "hello"
-	#! Print a string stored in a pointer
+	// Print a string stored in a pointer
 	print $variable
-	#! Print an integer
+	// Print an integer
 	print my_int
-	#! Print a string + integer
+	// Print a string + integer
 	print "hello: "; my_int1, my_int2+1, my_int3*3 ...
 </pre>
 <h4>input</h4>
@@ -206,7 +204,7 @@ If you want to refer to a variable's address, you can do:
 function myfunc, 0
 	...
 	let var = 5
-	#! Address of variable = v[function name].[variable name]
+	// Address of variable = v[function name].[variable name]
 	asm "loadr R0, vmyfunc.var"
 </pre>
 Labels can be used in a similar way:<br>
@@ -215,7 +213,7 @@ function myfunc, 0
 	...
 :label
 	...
-	#! Address of label = l[function name].[variable name]
+	// Address of label = l[function name].[variable name]
 	asm "loadr R0, lmyfunc.label"
 </pre>
 <h3>Floating Point Numbers</h3>
@@ -252,3 +250,24 @@ Low precedence:
 + - Plus
 - - minus
 </pre>
+<h3>Preprocessor</h3>
+t++ calls GCC first to do the preprocessing (using options -E and -P), which means you can use all C preprocessor features!<br>
+Including another file is done like: <br>
+<pre>
+	#include "somefile.h"
+</pre>
+Definitions can be done like: <br>
+<pre>
+	#define MYVAR 1
+	...
+	/** And then can be used like **/
+	let x = MYVAR
+</pre>
+You can also define expressions: <br>
+<pre>
+	#define ADD_1(x) (x+1)
+	...
+	let q = ADD_1(q)
+</pre>
+
+

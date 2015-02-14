@@ -40,7 +40,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <ctype.h>
 #include <errno.h>
 #include <assert.h>
-
+/*#ifndef RX_PREFIX
+#error "No RX_PREFIX defined!"
+#endif*/
 #ifdef __GNUC__
 # define PRINTF(f, va) __attribute__ ((__format__ (__printf__, f, va)))
 #else
@@ -699,9 +701,15 @@ do_term ()
     {
       int op = look;
       int op2 = 0;
-      if(op == '<' || op == '>') {
+      if(op == '<' || op == '>' || op == '!') {
 		  get_char();
 		  op2 = look;
+		  if(op2 == '=') {
+			//! uh, it's probably a comparision operator!
+			ungetc(look, stdin);
+			look = op;
+			break;
+		  }
 	  }
       puts ("\tpushar R1");
       match (look);

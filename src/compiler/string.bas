@@ -11,7 +11,7 @@ function strcmp, 2
 	let str01 = $1
 	let str02 = $2
 	let i = 0
-	#! If they are if different length, they are obviously not equal
+	// If they are if different length, they are obviously not equal
 	if @strlen(str01) != @strlen(str02) return 1
 	while i <= @strlen(str01)
 		if int8_ptr(str01+i) != int8_ptr(str02+i) return 1

@@ -1,4 +1,4 @@
-#! No global variables yet :(
+/* No global variables yet :( */
 
 function x, 3
 	let i = add_f(add_f(2.4, mul_f(3.5, 4.6)), 5.6)
@@ -22,7 +22,7 @@ function subtract2numbers, 2
 endf
 function misc, 0
 	print "f in this scope is"; f
-	#! Dont FORGET TO RETURN! else cause undefined behaviour lol
+	/* Dont FORGET TO RETURN! else cause undefined behaviour lol */
 	return 0
 endf
 function main, 0

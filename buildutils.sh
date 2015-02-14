@@ -1,16 +1,16 @@
 # Build utilites for R3X
 cd disasm
 ./build.sh
-mv ./readrex ../binutils
-mv ./rexdump ../binutils
+mv ./readrex $PREFIX
+mv ./rexdump $PREFIX
 cd ..
 cd src/compiler
 gcc tbc.c -o tbc
-gcc t++.c -o t++
-mv ./tbc ../../binutils
-mv ./t++ ../../binutils
+gcc -std=gnu99 t++.c -o t++ -D RX_PREFIX="\"$PREFIX\""
+mv ./tbc $PREFIX
+mv ./t++ $PREFIX 
 cd ..
 cd programs
-cp -r ./libR3X/ ../../binutils
+cp -r ./libR3X/ $PREFIX
 cd ..
 cd ..

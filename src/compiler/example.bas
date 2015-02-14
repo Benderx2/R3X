@@ -1,5 +1,5 @@
 function main, 0
-	#! Fibonacci generator
+	// Fibonacci generator
 	let I = 1
 	let X = 1
 	let Y = 0

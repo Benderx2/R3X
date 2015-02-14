@@ -11,7 +11,7 @@ function main, 0
 	print "Div: "; Z
 	let A = 50 & 2
 	let Q = 50<<2
-	#! Always add a '1' before a neg (~) or a not (!) !
+	// Always add a '1' before a neg (~) or a not (!) !
 	let C = 1!Q
 	print "Or: "; A
 	print "Q, C = "; Q, C
