@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015 Benderx2, 
+Copyright (c) 2015 Benderx2,
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -356,7 +356,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			}
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
-			break;	
+			break;
 		case R3X_STORESR:
 			// TODO: Stop using hacks!
 			get_item_from_stack_top(1);
@@ -371,10 +371,10 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			break;	
+			break;
 		/**!
 		 * Here starts the region where memory access instructions are used!
-		 * 
+		 *
 		 * It may change due to addition of virtual memory addressesing
 		 * **/
 		//! Jump, Jump If equal, Jump if lesser, jump if greater, jump if zero, call, ret (That is, all branch instructions)..

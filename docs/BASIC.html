@@ -237,13 +237,13 @@ See float.bas for example usage.<br>
 These are the following operators present in the language:<br>
 <pre>
 Highest precedence:
-&gt;&gt; - Right shift 
-&lt;&lt; - Left shift
+right_shift(number, bits) - Right shift 
+left_shitf(number, bits) - Left shift
 & - Bitwise AND
 | - Bitwise OR
 ^ - Bitwise XOR
-1~ - Bitwise NOT (Neg)
-1! - Logical NOT (Not)
+neg(expr) - Bitwise NOT (~)
+not(expr) - Logical NOT (!)
 Higher precedence:
 * - Multiply
 / - Divide

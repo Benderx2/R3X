@@ -50,7 +50,7 @@ void* load_native_library(char* name, r3x_cpu_t* CPU)
 	printf("Finding Start....\n");
 	if(Start == NULL)
 	{
-		printf("ERROR: Start function not found!\n");
+		printf("ERROR: Start function not found in native library! Exitting..\n");
 		exit(EXIT_FAILURE);
 	}
 	else {

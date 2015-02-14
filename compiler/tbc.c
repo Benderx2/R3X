@@ -512,7 +512,7 @@ char* return_next_int_name()
 {
 	char* returnval = return_next_tok();
 	//! Don't mess with keywords!
-	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f"))) {
+	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg"))) {
 		return returnval;
 	}
 	if(current_function_name != NULL) {
@@ -697,20 +697,9 @@ do_term ()
 {
   bool return_val = false;
   do_factor ();
-  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%' || look == '<' || look == '>' || look == '~' || look == '!')
+  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
     {
       int op = look;
-      int op2 = 0;
-      if(op == '<' || op == '>' || op == '!') {
-		  get_char();
-		  op2 = look;
-		  if(op2 == '=') {
-			//! uh, it's probably a comparision operator!
-			ungetc(look, stdin);
-			look = op;
-			break;
-		  }
-	  }
       puts ("\tpushar R1");
       match (look);
       do_factor ();
@@ -732,21 +721,7 @@ do_term ()
 	  }
 	  else if (op == '%'){
 		puts("pushr R2\n\tpushr R1\n\tmod\n\tpopr R1\n\tpopn 2");
-	  } else if (op == '<') {
-			if(op2 != '<') {
-				error("expected '<' but got %c\n", look);
-			}
-			puts("pushr R2\n\tpushr R1\n\tshl\n\tpopr R1\n\tpopn 2");
-	  } else if (op == '>') {
-			if(op2 != '>') {
-				error("expected '>' but got %c\n", look);
-			}
-			puts("pushr R2\n\tpushr R1\n\tshr\n\tpopr R1\n\tpopn 2");
-	  } else if(op == '~') {
-			puts("pushr R1\n\tneg\n\tpopr R1\n\tpop");
-	  } else if(op == '!') {
-			puts("pushr R1\n\tnot\n\tpopr R1\n\tpop");
-	  }
+	  } 
     }
     return return_val;
 }
@@ -1230,7 +1205,32 @@ void generate_identifier(void) {
 			do_expression();
 			puts("\tpushr R1\n\ticonv\n\tpopr R1\n\tpop");
 			match(')');
-	  }
+	  } else if(!strcmp(next_potential_maccess_operator, "left_shift") || !strcmp(next_potential_maccess_operator, "right_shift")) {
+			match('(');
+			do_expression();
+			printf("\tpushar R9\n\tloadrr R9, R1\n");
+			match(',');
+			do_expression();
+			match(')');
+			printf("\tpushr R9\n");
+			printf("\tpushr R1\n");
+			if(!strcmp(next_potential_maccess_operator, "left_shift")) {
+				printf("\tshl\n");
+			} else {
+				printf("\tshr\n");
+			}
+			printf("\tpopr R1\n");
+			printf("\tpopn 2\n");
+	   } else if(!strcmp(next_potential_maccess_operator, "not")||!strcmp(next_potential_maccess_operator, "neg")) {
+			match('(');
+			do_expression();
+			match(')');
+			if(!strcmp(next_potential_maccess_operator, "neg")) {
+				puts("pushr R1\n\tneg\n\tpopr R1\n\tpop");
+			} else {
+				puts("pushr R1\n\tnot\n\tpopr R1\n\tpop");
+			}
+	   }
 	   else {
 			printf ("\tloadrm dword, R1, v%s\n", next_potential_maccess_operator);
 	  }
