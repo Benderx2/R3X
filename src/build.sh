@@ -53,7 +53,7 @@ else
 	export USEOPTIMIZE="yes"
 fi
 # Change this to your preferred level of optimization
-export OFLAGS="-O3 -fomit-frame-pointer -falign-functions -falign-loops -fconserve-stack -funsafe-math-optimizations -funsafe-loop-optimizations"
+export OFLAGS="-O3 -fomit-frame-pointer -falign-functions -falign-loops -funsafe-math-optimizations -funsafe-loop-optimizations"
 # Change to empty if you don't want debugging information with the binary
 export DFLAGS=""
 #export DFLAGS="-g -D R_DEBUG"

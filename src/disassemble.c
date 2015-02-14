@@ -413,7 +413,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				i++;
 				break;
 			case R3X_BREAK:
-				fprintf(output "break\n");
+				fprintf(output, "break\n");
 				i++;
 				break;
 			default:
