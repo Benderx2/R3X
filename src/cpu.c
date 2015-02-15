@@ -164,6 +164,13 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 				break;
 			}
 			if(r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID) != -1) {
+				/**
+				 * Is broken. Need to find another way of speeding up execution :P
+				 * **/
+				r3x_emulate_instruction(CPU);
+				r3x_emulate_instruction(CPU);
+				r3x_emulate_instruction(CPU);
+				r3x_emulate_instruction(CPU);
 				r3x_emulate_instruction(CPU);
 				r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			}
@@ -198,7 +205,9 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 **/
 static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 {
-	
+	if(exitcalled == true) {
+	    return;
+	}
 	#ifndef REX_OPTIMIZE
 	switch (CPU->Memory[CPU->InstructionPointer])
 	{
@@ -1789,6 +1798,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_EXIT:
 		#endif
+		if(exitcalled == false && CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]!=NULL) {
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {
 				// Show exit status
 				printf("Program exitted with status: %lu\n", (uint64_t)get_item_from_stack_top(1));		
@@ -1796,6 +1806,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				exitcalled = true;
 			}
 			r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
+		}
 			#ifndef REX_OPTIMIZE
 			break;
 			#else

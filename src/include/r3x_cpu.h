@@ -75,6 +75,7 @@ typedef struct r3x_job {
 	int JobID;
 	bool ismain;
 	bool paused;
+	bool Alive;
 } r3x_job_t;
 typedef struct r3x_global_domain {
 	r3x_job_t** Jobs;

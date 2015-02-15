@@ -62,6 +62,7 @@ unsigned int r3x_dispatch_job(int InstructionPointer, int CycleUpdate, r3x_globa
 			Domain->Jobs[i]->ismain = ismain;		
 			Domain->Jobs[i]->JobID = i;
 			Domain->Jobs[i]->paused = false;
+			Domain->Jobs[i]->Alive = true;
 			Domain->NumberOfActiveJobs++;
 			return i;
 		}	
@@ -96,7 +97,7 @@ int r3x_load_job_state(r3x_cpu_t* CPU, r3x_global_domain_t* Domain, unsigned int
 	}
 	return -1;
 }
-void r3x_save_job_state(r3x_cpu_t* CPU, r3x_global_domain_t* Domain, unsigned int JobID) { 
+void r3x_save_job_state(r3x_cpu_t* CPU, r3x_global_domain_t* Domain, unsigned int JobID) {
 	if((unsigned int)JobID >= Domain->TotalNumberOfJobs) { 
 		return;	
 	}
@@ -123,7 +124,7 @@ void r3x_exit_job(r3x_global_domain_t* Domain, int JobID) {
 	}
 	if(Domain->Jobs[JobID] != NULL) { 
 		Stack.DestroyStack(Domain->Jobs[JobID]->Stack);
-		Stack.DestroyStack(Domain->Jobs[JobID]->CallStack); 
+		Stack.DestroyStack(Domain->Jobs[JobID]->CallStack);
 		nt_free(Domain->Jobs[JobID]);
 		Domain->Jobs[JobID] = NULL;
 		Domain->NumberOfActiveJobs--;
