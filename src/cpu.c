@@ -205,7 +205,7 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 **/
 static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 {
-	if(exitcalled == true) {
+	if(exitcalled == true || CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID] == NULL) {
 	    return;
 	}
 	#ifndef REX_OPTIMIZE
