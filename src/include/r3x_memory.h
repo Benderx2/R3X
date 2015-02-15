@@ -24,7 +24,13 @@ r3x_memory_blocks* BuildMemoryBlock(unsigned int);
 r3x_memory_blocks* RebuildMemoryBlock(r3x_memory_blocks*, unsigned int);
 int MemoryMap(r3x_memory_blocks*, RX_MM_TYPE, unsigned int, unsigned int);
 int MemoryUnmap(r3x_memory_blocks*, unsigned int, unsigned int);
-RX_MM_TYPE GetBlockTypefromAddress(r3x_memory_blocks*, unsigned int);
 r3x_mem_block* ReturnMemorySegment(r3x_memory_blocks*, unsigned int);
+static inline RX_MM_TYPE GetBlockTypefromAddress(r3x_memory_blocks* MemBlock, unsigned int Addr) {
+	unsigned int PageIndex = ((((Addr & 0xFFFFF000)) / SEGMENT_SIZE));
+	if(PageIndex > MemBlock->NumberOfBlocks){
+		return RX_NOEXIST;
+	}
+	return MemBlock->MemoryBlocks[PageIndex].Type;
+}
 int DumpMemoryMap(r3x_memory_blocks* MemBlock);
 #endif

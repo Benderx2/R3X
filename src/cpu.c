@@ -116,7 +116,7 @@ static inline bool     test_bit32(uint32_t, int);
 
 
 // CPU Emulation Funciton
-static inline int r3x_emulate_instruction(r3x_cpu_t*);
+static inline void r3x_emulate_instruction(r3x_cpu_t*);
 void* CPUDispatchThread(void*);
 
 // Keyboard Thread
@@ -196,7 +196,7 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
 /**
  * r3x_emulate_instruction - Emulate a single instruction, and update the CPU variable.
 **/
-static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
+static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 {
 	
 	#ifndef REX_OPTIMIZE
@@ -216,7 +216,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#ifndef REX_OPTIMIZE
 			break;
 		#else 
-			return 0;
+			return;
 		#endif
 		// Push: Push a 32-bit value to stack.
 		#ifndef REX_OPTIMIZE
@@ -229,7 +229,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#ifndef REX_OPTIMIZE
 			break;
 		#else 
-			return 0;
+			return;
 		#endif
 		// Pop: Pop a 32-bit value from stack
 		#ifndef REX_OPTIMIZE
@@ -242,7 +242,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#ifndef REX_OPTIMIZE
 			break;
 		#else 
-			return 0;
+			return;
 		#endif
 		// Pop number of integers from stack
 		#ifndef REX_OPTIMIZE
@@ -257,7 +257,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Push the FLAGS register on stack
 		#ifndef REX_OPTIMIZE
@@ -270,7 +270,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Pop flags from stack
 		#ifndef REX_OPTIMIZE
@@ -283,7 +283,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Duplicate the value on the top of stack
 		#ifndef REX_OPTIMIZE
@@ -296,7 +296,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Add: Add 2 values on stack.
 		#ifndef REX_OPTIMIZE
@@ -309,7 +309,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Subtract the second last value on stack by last.
 		#ifndef REX_OPTIMIZE
@@ -322,7 +322,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Multiply 2 values on stack.
 		#ifndef REX_OPTIMIZE
@@ -335,7 +335,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Divide the second last value by last.
 		#ifndef REX_OPTIMIZE
@@ -352,7 +352,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Float equivalents of the above
 		#ifndef REX_OPTIMIZE
@@ -365,7 +365,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FSUB:
@@ -377,7 +377,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FMUL:
@@ -389,7 +389,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FDIV:
@@ -405,7 +405,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// sete/setne/setl/setg
 		#ifndef REX_OPTIMIZE
@@ -425,7 +425,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_SETNE:
@@ -443,7 +443,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_SETL:
@@ -461,7 +461,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_SETG:
@@ -479,7 +479,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Compare 2 values on stack and set flags..
 		#ifndef REX_OPTIMIZE
@@ -492,7 +492,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_CMPS:
@@ -504,7 +504,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Call VM specific function
 		#ifndef REX_OPTIMIZE
@@ -517,7 +517,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Load a value from stack offset.
 		#ifndef REX_OPTIMIZE
@@ -530,7 +530,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_LOADSR:
@@ -547,7 +547,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Store a value to stack offset
 		#ifndef REX_OPTIMIZE
@@ -562,7 +562,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_STORESR:
@@ -585,7 +585,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		/**!
 		 * Here starts the region where memory access instructions are used!
@@ -602,7 +602,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_JE:
@@ -618,7 +618,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_JL:
@@ -634,7 +634,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_JG:
@@ -650,7 +650,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_JZ:
@@ -666,7 +666,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! Relative jumps
 		#ifndef REX_OPTIMIZE
@@ -678,7 +678,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_JEL:
@@ -693,7 +693,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_JGL:
@@ -708,7 +708,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_JLL:
@@ -723,7 +723,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_JZL:
@@ -738,7 +738,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_PUSHIP:
@@ -750,7 +750,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! Call, ret and call stack operations
 		#ifndef REX_OPTIMIZE
@@ -763,7 +763,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! Relative call (CALLL)
 		#ifndef REX_OPTIMIZE
@@ -776,7 +776,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_RET:
@@ -787,7 +787,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! Load a value and push it to stack, whose address was pushed to stack (32-bit)
 		#ifndef REX_OPTIMIZE
@@ -800,7 +800,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif		
 			}
 			Stack.Push(CPU->Stack, *(uint32_t*)(CPU->Memory + get_item_from_stack_top(1)));
@@ -808,7 +808,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! Store a value which was pushed to stack to an address pushed second last.
 		#ifndef REX_OPTIMIZE
@@ -821,7 +821,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif	
 			}
 			*((uint32_t*)&(CPU->Memory[get_item_from_stack_top(2)])) = get_item_from_stack_top(1);
@@ -829,7 +829,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! Memory access for registers...
 		#ifndef REX_OPTIMIZE
@@ -842,7 +842,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif		
 			}
 			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]];
@@ -850,7 +850,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_LODSW:
@@ -862,7 +862,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif		
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT16(*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])));
@@ -870,7 +870,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_LODSD:
@@ -882,7 +882,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif		
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])));
@@ -890,7 +890,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_STOSB:
@@ -902,7 +902,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif		
 			}
 			CPU->Memory[CPU->Regs[0]] = CPU->Regs[1];
@@ -910,7 +910,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_STOSW:
@@ -922,7 +922,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif	
 			}
 			*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT16(CPU->Regs[1]);
@@ -930,7 +930,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_STOSD:
@@ -942,7 +942,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 			}
 			*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT(CPU->Regs[1]);
@@ -950,7 +950,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_CMPSB:
@@ -962,7 +962,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 			}
 			compare_and_set_flag_unsigned(CPU, CPU->Memory[CPU->Regs[3]], (uint8_t)CPU->Regs[1]);
@@ -970,7 +970,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_CMPSW:
@@ -982,7 +982,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif	
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint16_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
@@ -990,7 +990,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_CMPSD:
@@ -1002,7 +1002,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif	
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
@@ -1010,7 +1010,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! fast memory copy
 		#ifndef REX_OPTIMIZE
@@ -1023,7 +1023,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif			
 			}
 			memcpy(CPU->Memory + get_item_from_stack_top(3), CPU->Memory + get_item_from_stack_top(2), get_item_from_stack_top(1));
@@ -1031,7 +1031,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Native library support (calling native procedures from .so files)
 		#ifndef REX_OPTIMIZE
@@ -1044,7 +1044,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 			}
 			#ifdef REX_DYNAMIC
@@ -1056,7 +1056,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_LIBEXEC:
@@ -1068,7 +1068,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif		
 			}
 			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize) { 
@@ -1076,7 +1076,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif		
 			}
 			#ifdef REX_DYNAMIC
@@ -1088,7 +1088,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! Program interruption
 		#ifndef REX_OPTIMIZE
@@ -1105,7 +1105,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		//! Support for REX object files (*.ro)
 		#ifndef REX_OPTIMIZE
@@ -1123,7 +1123,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 			}
 			CPU->Regs[20] = d_addr;
@@ -1133,7 +1133,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif	
 			}
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
@@ -1141,7 +1141,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		/**!
 		 * This is the end of memory acessing instructions section
@@ -1157,7 +1157,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_OR:
@@ -1169,7 +1169,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_XOR:
@@ -1181,7 +1181,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_NOT: 
@@ -1193,7 +1193,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_NEG:
@@ -1205,7 +1205,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Always set your right foot first soldier! #weirdsuperstitions
 		#ifndef REX_OPTIMIZE
@@ -1218,7 +1218,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_SHL:
@@ -1230,7 +1230,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_TERN:
@@ -1248,7 +1248,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ROR:
@@ -1260,7 +1260,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ROL:
@@ -1272,7 +1272,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ARS:
@@ -1284,7 +1284,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_PUSHA:
@@ -1296,7 +1296,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_POPA:
@@ -1308,7 +1308,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Register operations
 		#ifndef REX_OPTIMIZE
@@ -1327,7 +1327,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_PUSHR:
@@ -1345,7 +1345,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_POPR:
@@ -1363,7 +1363,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_INCR:
@@ -1380,7 +1380,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_DECR:
@@ -1397,7 +1397,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_LOADI:
@@ -1410,7 +1410,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_PUSHAR:
@@ -1428,7 +1428,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_POPAR:
@@ -1446,7 +1446,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Math Instructions
 		#ifndef REX_OPTIMIZE
@@ -1459,7 +1459,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FCOS:
@@ -1471,7 +1471,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FTAN:
@@ -1483,7 +1483,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ASIN:
@@ -1495,7 +1495,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ACOS:
@@ -1507,7 +1507,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ATAN:
@@ -1519,7 +1519,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FSINH:
@@ -1531,7 +1531,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FCOSH:
@@ -1543,7 +1543,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FTANH:
@@ -1555,7 +1555,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ASINH:
@@ -1567,7 +1567,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ACOSH:
@@ -1579,7 +1579,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ATANH:
@@ -1591,7 +1591,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_CEIL:
@@ -1603,7 +1603,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FLOOR:
@@ -1615,7 +1615,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_ICONV:
@@ -1627,7 +1627,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FCONV:
@@ -1639,7 +1639,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FPOW:
@@ -1651,7 +1651,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FABS:
@@ -1663,7 +1663,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FSQRT:
@@ -1675,7 +1675,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Convert to angle
 		#ifndef REX_OPTIMIZE
@@ -1688,7 +1688,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Convert to radian
 		#ifndef REX_OPTIMIZE
@@ -1701,7 +1701,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_MOD:
@@ -1717,7 +1717,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_FMOD:
@@ -1733,7 +1733,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Epic-ass, first class, sexy error handling
 		#ifndef REX_OPTIMIZE
@@ -1746,7 +1746,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_THROW:
@@ -1757,7 +1757,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_HANDLE:
@@ -1769,7 +1769,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_BREAK:
@@ -1781,7 +1781,7 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
-				return 0;
+				return;
 			#endif
 		// Exit application
 		#ifndef REX_OPTIMIZE
@@ -1796,7 +1796,11 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				exitcalled = true;
 			}
 			r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
-			return CPU_EXIT_SIGNAL;
+			#ifndef REX_OPTIMIZE
+			break;
+			#else
+			return;
+			#endif
 	#ifndef REX_OPTIMIZE
 		default:
 			printf("Unknown Opcode: %x, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);
@@ -1805,7 +1809,6 @@ static inline int r3x_emulate_instruction(register r3x_cpu_t* CPU)
 	
 	}
 	#endif
-	return 0;
 }
 static inline uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t d)
 {

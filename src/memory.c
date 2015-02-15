@@ -96,13 +96,6 @@ int MemoryUnmap(r3x_memory_blocks* MemBlock, unsigned int Start, unsigned int En
 	MemBlock->MemoryBlocks[PageIndex].Type = RX_NOEXIST;
 	return 0;
 }
-RX_MM_TYPE GetBlockTypefromAddress(r3x_memory_blocks* MemBlock, unsigned int Addr){
-	unsigned int PageIndex = ((((Addr & 0xFFFFF000)) / SEGMENT_SIZE));
-	if(PageIndex > MemBlock->NumberOfBlocks){
-		return RX_NOEXIST;
-	}
-	return MemBlock->MemoryBlocks[PageIndex].Type;
-}
 r3x_mem_block* ReturnMemorySegment(r3x_memory_blocks* MemBlock, unsigned int Addr){
 	unsigned int PageIndex = ((((Addr & 0xFFFFF000)) / SEGMENT_SIZE));
 	if(PageIndex > MemBlock->NumberOfBlocks){
