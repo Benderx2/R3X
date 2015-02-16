@@ -185,14 +185,16 @@ static void  do_expression PARAMS ((void));
 static bool  do_term       PARAMS ((void));
 static bool  do_factor     PARAMS ((void));
 static void  do_string     PARAMS ((void));
-static void  do_asm		PARAMS ((void));
-static void  do_while		PARAMS ((void));
-static void  do_endw		PARAMS ((void));
-static void  do_alloc		PARAMS ((void));
+static void  do_asm	   PARAMS ((void));
+static void  do_while	   PARAMS ((void));
+static void  do_endw	   PARAMS ((void));
+static void  do_alloc	   PARAMS ((void));
 static void  add_variable  PARAMS ((char*));
 static void  do_func       PARAMS ((void));
+static void  do_struct	   PARAMS ((void));
 static void  do_endf		PARAMS ((void));
 static void  do_function_call PARAMS((void));
+static RX_STRUCT_TYPE  do_typecast   PARAMS ((int));
 static void  generate_identifier PARAMS((void));
 static char*  return_next_int_name PARAMS((void));
 char* 		  return_str	PARAMS ((void));
@@ -200,6 +202,8 @@ char*        return_next_tok(void);
 static function_type* return_function_type_if_function_exists PARAMS((char*));
 static void AddStruct(char* Name, unsigned int NumberOfMembers);
 static struct_type* return_struct_type_if_struct_exists(char* StructName);
+static RX_STRUCT_TYPE return_type_if_struct_member_exists(char* StructName, char* MemberName);
+static unsigned int return_member_offset(char* StructName, char* MemberName);
 /*!
  * Standard C main function
  * */
@@ -295,11 +299,12 @@ return_function_type_if_function_exists(char* function_name) {
 	return NULL;
 }
 static void AddStruct(char* Name, unsigned int NumberOfMembers) {
+	structs_table->CurrentIndex++;
 	if(Name==NULL) {
 		error("Name of struct is: (null)\n");
 	}
 	struct_type* temp = return_struct_type_if_struct_exists(Name);
-	if(temp==NULL) {
+	if(temp!=NULL) {
 		error("struct %s redefined.\n", Name);
 	}
 	if(structs_table->NumberOfStructs < structs_table->CurrentIndex-1) {
@@ -309,13 +314,16 @@ static void AddStruct(char* Name, unsigned int NumberOfMembers) {
 	structs_table->Structs[structs_table->CurrentIndex].Name = Name;
 	structs_table->Structs[structs_table->CurrentIndex].NumberOfMembers = NumberOfMembers;
 	structs_table->Structs[structs_table->CurrentIndex].SubMembers = xmalloc(NumberOfMembers*sizeof(sub_members));
-	structs_table->CurrentIndex++;
 }
 static void AddStructMember(char* Name, RX_STRUCT_TYPE Type, unsigned int Index) {
-	/** **/
-	(void)Name;
-	(void)Type;
-	(void)Index;
+	/** 
+	 * Add a member to struct
+	**/
+	if(Index >= structs_table->Structs[structs_table->CurrentIndex].NumberOfMembers) {
+	    error("More definitions than expected in struct: %s\n", structs_table->Structs[structs_table->CurrentIndex].Name);
+	}
+	structs_table->Structs[structs_table->CurrentIndex].SubMembers[Index].Type = Type;
+	structs_table->Structs[structs_table->CurrentIndex].SubMembers[Index].Name = Name;
 }
 static struct_type* return_struct_type_if_struct_exists(char* StructName) {
 	unsigned int i = 0;
@@ -327,7 +335,63 @@ static struct_type* return_struct_type_if_struct_exists(char* StructName) {
 		}
 	}
 	return NULL;
-} 
+}
+static RX_STRUCT_TYPE return_type_if_struct_member_exists(char* StructName, char* MemberName) {
+    struct_type* StructType = return_struct_type_if_struct_exists(StructName);
+    if(StructType == NULL) {
+      error("Struct %s doesn't exist!\n", StructName);
+    }
+    unsigned int i = 0;
+    for(i = 0; i < StructType->NumberOfMembers; i++) {
+      if(!strcmp(StructType->SubMembers[i].Name, MemberName)) {
+	return StructType->SubMembers[i].Type;
+      }
+    }
+    error("struct member %s, doesn't exist in struct %s\n", MemberName, StructName);
+    //! just here to skip warnings, code below wont be executed.
+    return RX_INT8;
+}
+static unsigned int return_member_offset(char* StructName, char* MemberName) {
+    struct_type* StructType = return_struct_type_if_struct_exists(StructName);
+    if(StructType == NULL) {
+      error("Struct %s doesn't exist!\n", StructName);
+    }
+    unsigned int i = 0;
+    unsigned int OffSet = 0;
+    for(i = 0; i < StructType->NumberOfMembers; i++) {
+      if(!strcmp(StructType->SubMembers[i].Name, MemberName)) {
+	return OffSet;
+      }
+      if(StructType->SubMembers[i].Type == RX_INT8) {
+	OffSet += 1;
+      } else if(StructType->SubMembers[i].Type == RX_INT32) {
+	OffSet += 4;
+      } else if(StructType->SubMembers[i].Type == RX_INT16) {
+	OffSet += 2;
+      }
+    }
+    error("struct member %s, doesn't exist in struct %s\n", MemberName, StructName);
+    //! just here to skip warnings, code below wont be executed.
+    return 0;
+}
+static unsigned int return_sizeof_struct(char* StructName) {
+  struct_type* StructType = return_struct_type_if_struct_exists(StructName);
+    if(StructType == NULL) {
+      error("Struct %s doesn't exist!\n", StructName);
+    }
+    unsigned int i = 0;
+    unsigned int OffSet = 0;
+    for(i = 0; i < StructType->NumberOfMembers; i++) {
+      if(StructType->SubMembers[i].Type == RX_INT8) {
+	OffSet += 1;
+      } else if(StructType->SubMembers[i].Type == RX_INT32) {
+	OffSet += 4;
+      } else if(StructType->SubMembers[i].Type == RX_INT16) {
+	OffSet += 2;
+      }
+    }
+    return OffSet;
+}
 /*!
  * Frees memory allocated previously.
  * */
@@ -512,7 +576,7 @@ char* return_next_int_name()
 {
 	char* returnval = return_next_tok();
 	//! Don't mess with keywords!
-	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg"))) {
+	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg")) || (!strcmp(returnval, "sizeof"))) {
 		return returnval;
 	}
 	if(current_function_name != NULL) {
@@ -736,6 +800,9 @@ do_factor ()
       match ('(');
       do_expression ();
       match (')');
+    } else if(look == '<') {
+      match('<');
+      do_typecast(0);
     }
   else if (isalpha (look))
     {
@@ -1088,6 +1155,8 @@ get_keyword ()
 	i = T_FUNC;
   else if (!strcmp(token, "endf"))
 	i = T_ENDF;
+  else if(!strcmp(token, "struct"))
+	i = T_STRUCT;
   else
     error ("expected keyword got '%s'", token);
   eat_blanks ();
@@ -1230,6 +1299,13 @@ void generate_identifier(void) {
 			} else {
 				puts("pushr R1\n\tnot\n\tpopr R1\n\tpop");
 			}
+	   } else if(!strcmp(next_potential_maccess_operator, "sizeof")) {
+		 match('(');
+		 eat_blanks();
+		 char* struct_name = return_next_tok();
+		 match(')');
+		 unsigned int size = return_sizeof_struct(struct_name);
+		 printf("\tloadr R1, %u\n", size);
 	   }
 	   else {
 			printf ("\tloadrm dword, R1, v%s\n", next_potential_maccess_operator);
@@ -1271,8 +1347,59 @@ do_statement ()
     case T_ALLOC:  do_alloc(); break;
     case T_FUNC:   do_func(); break;
     case T_ENDF:   do_endf(); break;
+    case T_STRUCT: do_struct(); break;
     default:       assert (0);   break;
     }
+}
+static void 
+do_struct()
+{
+  eat_blanks();
+  char* new_struct_name = return_next_tok();
+  match(',');
+  unsigned int struct_members = get_num();
+  if(struct_members==0) {
+    error("number of struct members is 0\n");
+  }
+  eat_blanks();
+  match('\n');
+  line++;
+  AddStruct(new_struct_name, struct_members);
+  unsigned int Index = 0;
+  char * member_type = NULL;
+  char* member_name = NULL;
+  while(true) {
+    member_type = return_next_tok();
+    if(!strcmp(member_type, "int8")) {
+      eat_blanks();
+      member_name = return_next_tok();
+      match('\n');
+      AddStructMember(member_name, RX_INT8, Index);
+      Index++;
+      line++;
+    } else if(!strcmp(member_type, "int16")) {
+      eat_blanks();
+      member_name = return_next_tok();
+      match('\n');
+      AddStructMember(member_name, RX_INT16, Index);
+      Index++;
+      line++;
+    } else if(!strcmp(member_type, "int32")) {
+      eat_blanks();
+      member_name = return_next_tok();
+      match('\n');
+      line++;
+      AddStructMember(member_name, RX_INT32, Index);
+      Index++;
+    } else if(!strcmp(member_type, "ends")) {
+      if(Index < struct_members) {
+	error("Lesser members in struct, than declared!\n");
+      }
+      break;
+    } else {
+      error("unknown keyword within struct: %s\n", member_type);
+    }
+  }
 }
 /*! 
  * Called when a compiler sees a 'print' keyword.
@@ -1624,6 +1751,31 @@ do_return ()
 static void
 do_let ()
 {
+	eat_blanks();
+	if(look=='<') {
+	  get_char();
+	  RX_STRUCT_TYPE expr_type = do_typecast(1);
+	  puts("\tpushar R0");
+	  eat_blanks();
+	  match('=');
+	  do_expression();
+	  puts("\tpopar R0");
+	  switch(expr_type) {
+	    case RX_INT8:
+		puts("stosb");
+		break;
+	    case RX_INT16:
+		puts("stosw");
+		break;
+	    case RX_INT32:
+		puts("stosd");
+		break;
+	    default:
+		error("INTERNAL COMPILER ERROR: Unable to resolve structure type!\n");
+		break;
+	  }
+	  return;
+	}
 	char* name = return_next_int_name ();
 	if(!strcmp(name, "int32_ptr") || (!strcmp(name, "int8_ptr")) || !(strcmp(name, "int16_ptr"))) {
 		char maccess_operator = name[3];
@@ -1652,7 +1804,7 @@ do_let ()
 	else {
 		match('=');
 		do_expression ();
-		printf ("\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
+		printf ("\tloadr R0, v%s\n\tstosd", name);
 	}
  }
 /*!
@@ -1727,5 +1879,47 @@ do_function_call() {
 	printf("\tloadrr R1, R7\n");
 	stuff_pushed_to_stack = 0;
 	
+}
+static RX_STRUCT_TYPE
+do_typecast(int signal) {
+  RX_STRUCT_TYPE mytype;
+  eat_blanks();
+  char* type_cast_type = return_next_tok();
+  if(strcmp(type_cast_type, "struct")) {
+    error("unknown typecast! %s\n", type_cast_type);
+  }
+  eat_blanks();
+  char* get_type_dest = return_next_tok();
+  if(return_struct_type_if_struct_exists(get_type_dest)==NULL) {
+    error("struct %s undefined\n", get_type_dest);
+  }
+  eat_blanks();
+  match('>');
+  eat_blanks();
+  do_expression();
+  eat_blanks();
+  if(look=='.') {
+    get_char();
+    char* struct_submember = return_next_tok();
+    mytype = return_type_if_struct_member_exists(get_type_dest, struct_submember);
+    unsigned int offset = return_member_offset(get_type_dest, struct_submember);
+    puts("\tloadrr R0, R1");
+    printf("\taddr R0, %u\n", offset);
+    if(signal == 0) {
+	if(mytype == RX_INT8) {
+	  puts("\tlodsb");
+	 } else if(mytype == RX_INT16) {
+	    puts("\tlodsw");
+	 } else {
+	    puts("\tlodsd");
+	 }
+      } else {
+	return mytype;
+      }
+    }
+    else {
+      ungetc(look, stdin);
+    }
+    return mytype;
 }
 /* vim:set ts=8 sts=2 sw=2 noet: */

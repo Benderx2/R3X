@@ -157,6 +157,27 @@ intend to return anything use:<br>
 	...
 	return 0
 </pre>
+<h3>Structures</h3>
+Structures are like "patterns" in memory.<br>
+In TBC++, structures are declared like this:<br>
+<pre>
+struct mystruct, [number of members]
+	int8/int16/int32 membername
+	...
+ends
+</pre>
+You can then use the sizeof keyword to get the size of the structure and allocate memory for it.<br>
+<pre>
+alloc mystruct01 = sizeof(mystruct)
+</pre>
+Then you can access it using the 'typecast' (&lt;&gt;) operator.<br>
+<pre>
+let a = &lt;struct mystruct&gt;mystruct01.[member name]
+</pre>
+You can also use the 'let' keyword to assign a value to a member.<br>
+<pre>
+let &lt;struct mystruct&gt;mystruct01.[member name] = expression (1+2, a+b, a+3 etc.)
+</pre>
 <h3>Internal functions</h3>
 TinyBASIC++ provides 4 internal functions for a program to use.<br>
 <h4>print</h4>

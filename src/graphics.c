@@ -79,9 +79,9 @@ Graphics_t* InitGraphics(void)
 	graphics->Height = ScreenHeight; 
 	graphics->Depth = graphics->VideoInfo->vfmt->BitsPerPixel;
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
    	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	graphics->SDLFlags = SDL_OPENGL;
 	if((graphics-> Screen = SDL_SetVideoMode(graphics->Width, graphics->Height, graphics->Depth, graphics->SDLFlags)) == 0){
