@@ -79,6 +79,7 @@ enum
   T_ENDF,
   T_STRUCT,
   T_ENDSTRUCT,
+  T_GLOBAL,
   T_END
 };
 
@@ -192,6 +193,7 @@ static void  do_alloc	   PARAMS ((void));
 static void  add_variable  PARAMS ((char*));
 static void  do_func       PARAMS ((void));
 static void  do_struct	   PARAMS ((void));
+static void  do_global	   PARAMS ((void));
 static void  do_endf		PARAMS ((void));
 static void  do_function_call PARAMS((void));
 static RX_STRUCT_TYPE  do_typecast   PARAMS ((int));
@@ -586,7 +588,9 @@ char* return_next_int_name()
 		strcat(new_val, returnval);
 		returnval = new_val;
 	}
-	add_variable(returnval);
+	if(check_if_variable_exists(returnval)==false) {
+	  add_variable(returnval);
+	}
 	eat_blanks();
 	return returnval;
 }
@@ -1157,6 +1161,8 @@ get_keyword ()
 	i = T_ENDF;
   else if(!strcmp(token, "struct"))
 	i = T_STRUCT;
+  else if(!strcmp(token, "global"))
+	i = T_GLOBAL;
   else
     error ("expected keyword got '%s'", token);
   eat_blanks ();
@@ -1348,8 +1354,15 @@ do_statement ()
     case T_FUNC:   do_func(); break;
     case T_ENDF:   do_endf(); break;
     case T_STRUCT: do_struct(); break;
+    case T_GLOBAL: do_global(); break;
     default:       assert (0);   break;
     }
+}
+static void
+do_global()
+{
+  eat_blanks();
+  add_variable(return_next_tok());
 }
 static void 
 do_struct()
@@ -1885,7 +1898,19 @@ do_typecast(int signal) {
   RX_STRUCT_TYPE mytype;
   eat_blanks();
   char* type_cast_type = return_next_tok();
-  if(strcmp(type_cast_type, "struct")) {
+  if(!strcmp(type_cast_type, "global")) {
+    //! this is a global typecast.
+    eat_blanks();
+    match('>');
+    eat_blanks();
+    char* var_name = return_next_tok();
+    add_variable(var_name);
+    printf("\tloadr R0, v%s\n", var_name);
+    if(signal == 0) {
+      printf("\tlodsd\n");
+    }
+    return RX_INT32;
+  } else if(strcmp(type_cast_type, "struct")) {
     error("unknown typecast! %s\n", type_cast_type);
   }
   eat_blanks();

@@ -50,7 +50,23 @@ let int = 27+3
 let str = "Hello, World!"
 ...
 </pre>
-Note that there is no such thing as a global variable, and when you refer to the variable, you're referring to something current scope.<br>
+Global variables can defined like this:<br>
+<pre>
+global myvar
+..
+</pre>
+NOTE: global variables can't be assigned to while declaration, you can assign them inside a function like this:<br>
+<pre>
+..
+let &lt;global&gt;myvar = 0
+</pre>
+You can also use them in expressions like this<br>
+<pre>
+..
+/** without the &lt;global&gt; prefix, all variables are assumed to be local...
+let x = 1+a*&lt;global&gt;globalvar
+...
+</pre>
 <h3>Memory Allocation</h3>
 Memory allocation is supported through the "alloc" variable, use it like this:
 <pre>
