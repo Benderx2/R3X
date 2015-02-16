@@ -175,6 +175,7 @@ $AS programs/jmp.il
 $AS programs/hello.il
 $AS programs/asshole.il
 mkdir -p $BINDIR
+mkdir -p $BINDIR/bios
 # now transfer it 
 mv rxvm $BINDIR/
 mv mylib.so $BINDIR/
@@ -192,6 +193,7 @@ mv programs/jmp.exe $BINDIR/
 mv programs/hello.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
+mv ./128x128.png $BINDIR/bios 
 # remove all object files
 rm *.o
 # Remove static libs
