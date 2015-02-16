@@ -174,6 +174,7 @@ $AS programs/nativelib.il
 $AS programs/jmp.il
 $AS programs/hello.il
 $AS programs/asshole.il
+mkdir -p $BINDIR
 # now transfer it 
 mv rxvm $BINDIR/
 mv mylib.so $BINDIR/
