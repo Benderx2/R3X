@@ -53,6 +53,7 @@ define R17 17
 define R18 18
 define R19 19
 define R20 20
+define BP 21
 macro push op {
 	db 0x01
 	dd op

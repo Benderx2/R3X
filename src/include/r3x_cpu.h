@@ -58,13 +58,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define R_SHUTDOWN 1
 #define R_KEYPRESS 2  
 #define R_TIMER 3
-#define MAX_NUMBER_OF_REGISTERS 20
+#define MAX_NUMBER_OF_REGISTERS 21
 #define TOTAL_EXCEPTIONS 3
+#define BP_REG 21
 typedef struct r3x_job {
 	uint32_t InstructionPointer;
 	vstack_t* Stack;
 	vstack_t* CallStack;
-	uint32_t Regs[21];
+	uint32_t Regs[MAX_NUMBER_OF_REGISTERS+1];
 	uint32_t ExceptionHandlers[4];
 	bool EqualFlag;
 	bool GreaterFlag;
@@ -95,7 +96,7 @@ typedef struct r3x_cpu {
 	bool ZeroFlag;
 	bool ExceptionFlag;
 	uint32_t FLAGS;
-	uint64_t Regs[21];
+	uint64_t Regs[MAX_NUMBER_OF_REGISTERS+1];
 	uint32_t ExceptionHandlers[4];
 	// Global -- Thread Independent.
 	r3x_memory_blocks* CPUMemoryBlocks;

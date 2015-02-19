@@ -96,6 +96,24 @@ macro function name {
 	\}
 	#name:
 }
+macro declare_bss_entry entry_name {
+	local symnameaddr
+	.data \{
+		symnameaddr:
+		db 'BSS Entry (4-bytes): '
+		db `entry_name#, 0
+	\}
+	.bss \{
+		#entry_name: 
+		rd 1
+		entry_name#_end_bss: 
+	\}
+	.symbols \{
+		dd symnameaddr
+		dd entry_name#
+		dd entry_name#_end_bss
+	\}
+}
 macro endfunction name {
  	name#_end:
 }

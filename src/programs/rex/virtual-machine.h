@@ -54,7 +54,7 @@ typedef struct r3x_job {
 	vstack_t* Stack;
 	vstack_t* CallStack;
 	vstack_t* FreeAddressStack;
-	uint32_t Regs[21];
+	uint32_t Regs[22];
 	uint32_t ExceptionHandlers[4];
 	bool EqualFlag;
 	bool GreaterFlag;

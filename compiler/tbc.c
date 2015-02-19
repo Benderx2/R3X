@@ -149,11 +149,13 @@ static char* 		current_function_name = NULL;
 static char **     strings       = NULL;
 static unsigned int 		current_variable_index = 0;
 static unsigned int		total_variables = 0;
-static char** 				variables_used = NULL;
+static char** 			variables_used = NULL;
 static int         string_count  = 0;
 static const char *program_name  = "<?>";
 static const char *input_name    = NULL;
 static const char *output_name   = NULL;
+static char* compiler_init_code = NULL;
+
 static void  shutdown      PARAMS ((void));
 static void *xmalloc       PARAMS ((size_t size));
 static void *xrealloc      PARAMS ((void *original, size_t size));
@@ -195,17 +197,31 @@ static void  do_func       PARAMS ((void));
 static void  do_struct	   PARAMS ((void));
 static void  do_global	   PARAMS ((void));
 static void  do_endf		PARAMS ((void));
+
 static void  do_function_call PARAMS((void));
+
 static RX_STRUCT_TYPE  do_typecast   PARAMS ((int));
+
 static void  generate_identifier PARAMS((void));
+
 static char*  return_next_int_name PARAMS((void));
-char* 		  return_str	PARAMS ((void));
-char*        return_next_tok(void);
+
+char* return_str PARAMS ((void));
+
+char* return_next_tok(void);
+
 static function_type* return_function_type_if_function_exists PARAMS((char*));
+
 static void AddStruct(char* Name, unsigned int NumberOfMembers);
+
 static struct_type* return_struct_type_if_struct_exists(char* StructName);
+
 static RX_STRUCT_TYPE return_type_if_struct_member_exists(char* StructName, char* MemberName);
+
 static unsigned int return_member_offset(char* StructName, char* MemberName);
+
+static void write_init_code	 PARAMS ((const char *format, ...)) PRINTF (1, 2);
+
 /*!
  * Standard C main function
  * */
@@ -1063,16 +1079,17 @@ finish ()
   puts ("\tpop");
   puts ("\tret");
   
+  puts("; __internal_init = compiler specific program initialization");
+  puts("__internal_init:");
+  puts("\tret");
+  
   puts ("");
   puts ("}");
-  puts (".bss {");
-  puts ("");
   for (i = 0; i < total_variables; ++i) {
 	    if(variables_used[i] != NULL) {
-			printf("\tv%s: rd 1\n", variables_used[i]);
+			printf("\tdeclare_bss_entry v%s\n", variables_used[i]);
 		}
   }
-  puts ("}");
   puts (".data {");
   puts ("");
 
@@ -1102,6 +1119,20 @@ error (format)
   fputs ("\n", stderr);
 
   exit (EXIT_FAILURE);
+}
+static void 
+write_init_code(format)
+  const char* format;
+  /* ... */
+{
+  va_list args;
+  va_start(args, format);
+  unsigned int number_of_bytes_to_print = vsnprintf(NULL, 0, format, args);
+  char* temp = xmalloc(number_of_bytes_to_print+1);
+  vsnprintf(temp, number_of_bytes_to_print, format, args);
+  compiler_init_code = xrealloc(compiler_init_code, strlen(compiler_init_code)+strlen(temp)+1);
+  strcat(compiler_init_code, temp);
+  xfree(temp);
 }
 /*!
  * Gets a keyword, errors out if no keyword is found
@@ -1199,8 +1230,6 @@ do_line ()
       ungetc (look, stdin);
       look = 'r';
     }
-
-  printf ("\n\t; debug line %i\n", line);
 
   do_statement ();
 
@@ -1817,7 +1846,7 @@ do_let ()
 	else {
 		match('=');
 		do_expression ();
-		printf ("\tloadr R0, v%s\n\tstosd", name);
+		printf ("\tloadr R0, v%s\n\tstosd\n", name);
 	}
  }
 /*!
@@ -1845,6 +1874,10 @@ do_func() {
 	unsigned int arguments = get_num();
 	add_to_function_table(function_name, arguments);
 	printf("function %s\n", function_name);
+	if(!strcmp(function_name, "main")) {
+	  //! add some codez to mainz.
+	  printf("\tcall __internal_init\n");
+	}
 	current_function_name = function_name;
 }
 static void
