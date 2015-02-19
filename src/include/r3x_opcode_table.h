@@ -110,7 +110,8 @@ static void* DispatchTable[] = {
 	/**R3X_REX64_INS02**/
 	[R3X_ARS] = &&INTERP_ARS,
 	[R3X_BREAK] = &&INTERP_BREAK,
-	[R3X_CALLL] = &&INTERP_CALLL
+	[R3X_CALLL] = &&INTERP_CALLL,
+	[RFC_PREFIX] = &&INTERP_RFC
 };
 #endif
 #endif

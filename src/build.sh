@@ -143,7 +143,7 @@ then
 else
 	export LFLAGS="-lm"
 fi
-export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o"
+export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o rfc.o"
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
@@ -174,6 +174,7 @@ $AS programs/nativelib.il
 $AS programs/jmp.il
 $AS programs/hello.il
 $AS programs/asshole.il
+$AS programs/rfc.il
 mkdir -p $BINDIR
 mkdir -p $BINDIR/bios
 # now transfer it 
@@ -192,6 +193,7 @@ mv programs/jmp.exe $BINDIR/
 mv programs/hello.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
+mv programs/rfc.exe $BINDIR/
 cp ./128x128.png $BINDIR/bios 
 # remove all object files
 rm *.o

@@ -643,6 +643,20 @@ For a description of what these instructions do, refer to the CPU manual.<br>
   <td>0x8A</td>
   <td>No arguments</td>
   </tr>
-</table> 
+</table>
+<h3>REX64 Instructions:</h3><br>
+All REX64 Instructions are prefixed with '0x8C' (aka R64 PREFIX). Next comes the opcode, and then the operands.<br>
+As of now, there are 2 REX64 Instructions available:<br>
+<pre>
+loadr64 - Load Register with 64-bit immediate.
+|PREFIX|OPCODE|OPERAND(S)|
+|0x8C  |0x0000|64-bit immediate|
+push64 - Push a 64-bit immediate on stack<br>
+|PREFIX|OPCODE|OPERANDS(S)|
+|0x8C  |0x0001|64-bit immediate|
+
+All registers are guarenteed to have a minimum size of 64-bits, and all operations (add, sub, mul etc.) will
+work as expected even on 64-bit integers.
+</pre>
 </font>
 </html>

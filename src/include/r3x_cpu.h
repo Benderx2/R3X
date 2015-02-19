@@ -49,6 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CPU_INCREMENT_WITH_32_OP 5
 #define CPU_INCREMENT_WITH_32_OP_2 9
 #define CPU_INCREMENT_WITH_32_OP_3 13
+#define CPU_INCREMENT_WITH_64_OP 9
 #define CPU_EXCEPTION_INVALIDACCESS 0
 #define CPU_EXCEPTION_INVALIDOPCODE 1
 #define CPU_EXCEPTION_EXCEPTION 2
@@ -114,5 +115,10 @@ typedef struct r3x_cpu {
 } r3x_cpu_t;
 #include <r3x_dispatcher.h>
 extern r3x_cpu_t* r3_cpu;
+
+void handle_cpu_exception(r3x_cpu_t*, unsigned int);
+
 int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header);
+
+uint64_t rfc_emulate_instruction(r3x_cpu_t* CPU);
 #endif

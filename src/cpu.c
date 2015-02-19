@@ -99,7 +99,6 @@ static inline void pop_flags(r3x_cpu_t*);
 static inline void compare_and_set_flag_signed(r3x_cpu_t*, int, int);
 static inline void compare_and_set_flag_unsigned(r3x_cpu_t*, unsigned int, unsigned int);
 static inline void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU);
-void handle_cpu_exception(r3x_cpu_t*, unsigned int);
 void set_exception_handlers(r3x_cpu_t*, unsigned int, uint32_t);
 static inline void r3x_syscall(r3x_cpu_t* CPU);
 static inline int64_t r3x_ars(int64_t x, int64_t n);
@@ -1792,6 +1791,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			#else 
 				return;
 			#endif
+		/** RFC Prefix **/
+		#ifndef REX_OPTIMIZE
+		case RFC_PREFIX:
+		#else
+		INTERP_RFC:
+		#endif
+		    CPU->InstructionPointer++;
+		    rfc_emulate_instruction(CPU);
+		  #ifndef REX_OPTIMIZE
+		      break;
+		  #else
+		      return;
+		  #endif
 		// Exit application
 		#ifndef REX_OPTIMIZE
 		case R3X_EXIT:
@@ -1955,7 +1967,7 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				break;
 			case SYSCALL_PUTI:
 				 memset(buffer, 0, 33);
-				 printfstring(buffer, "%u ", (unsigned int)get_item_from_stack_top(1));
+				 printfstring(buffer, "%" PRIu64 " ", (uint64_t)get_item_from_stack_top(1));
 				 #ifdef REX_GRAPHICS
 				 vm_puts(CPU->Graphics->font, buffer, CPU->Graphics);
 				 #else

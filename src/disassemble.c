@@ -420,6 +420,22 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				fprintf(output, "calll %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
+			case RFC_PREFIX:
+				i += 1;
+				switch(input[i]){ 
+				  case RFC_LOADR64:
+				      fprintf(output, "loadr64 R%u, %" PRIu64 "\n", (unsigned int)input[i+1], BYTE_SWAP((*((uint64_t*)&input[i+1]))));
+				      i += 10;
+				      break;
+				  case RFC_PUSH64:
+				      fprintf(output, "push64 %" PRIu64 "\n", BYTE_SWAP((*((uint64_t*)&input[i+1]))));
+				      i += 9;
+				  default:
+				      fprintf(output, "unknown instruction prefixed with 0x8C (RFC PREFIX)\n");
+				      i++;
+				      break;
+				}
+				break;
 			default:
 				fprintf(output, "; Opcode Not recognized\n db %u\n", (uint8_t)input[i]);
 				i++;

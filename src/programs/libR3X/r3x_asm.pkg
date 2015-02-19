@@ -472,6 +472,17 @@ macro addrr reg, reg2 {
 	popr reg
 	popn 2
 }
+macro loadr64 reg, imm {
+	db 0x8C
+	db 0x0
+	db reg
+	dq imm
+}
+macro push64 imm {
+	db 0x8C
+	db 0x1
+	dq imm
+}
 macro loadrm size, reg1, memaddr {
 	if reg1 eq R0
 	else
