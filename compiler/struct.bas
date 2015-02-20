@@ -8,7 +8,7 @@ struct mystruct02, 3
 	int32 member3
 ends
 function main, 0
-	alloc myvar = sizeof(mystruct02)
+	let myvar = alloc(sizeof(mystruct02))
 	let <struct mystruct02>myvar.member1 = 0x34
 	let <struct mystruct02>myvar.member2 = 32768
 	let <struct mystruct02>myvar.member3 = 0xDEADBEEF

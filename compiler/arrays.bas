@@ -3,7 +3,7 @@ function main, 0
 	goto mylabel
 :mylabel
 // Allocate 4 bytes for S.
-	alloc buffer = 4
+	let buffer = alloc(4)
 	let B=100
 // int32_ptr = 32-bit array access, int16_ptr = 16-bit array access, int8_ptr = 8-bit array access
 // 122233 = Decimal 0xFFF2FFF = Hex, 0b10101111 = Binary, 0o23339 = Octal

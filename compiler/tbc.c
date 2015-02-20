@@ -62,7 +62,6 @@ enum
 {
   T_NULL = 0,
   T_PRINT,
-  T_ALLOC,
   T_IF,
   T_GOTO,
   T_INPUT,
@@ -197,7 +196,7 @@ static void  do_func       PARAMS ((void));
 static void  do_struct	   PARAMS ((void));
 static void  do_global	   PARAMS ((void));
 static void  do_endf		PARAMS ((void));
-
+char* return_next_int_name_and_add (void);
 static void  do_function_call PARAMS((void));
 
 static RX_STRUCT_TYPE  do_typecast   PARAMS ((int));
@@ -594,7 +593,27 @@ char* return_next_int_name()
 {
 	char* returnval = return_next_tok();
 	//! Don't mess with keywords!
-	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg")) || (!strcmp(returnval, "sizeof"))) {
+	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg")) || (!strcmp(returnval, "sizeof")) || !strcmp(returnval, "alloc")) {
+		return returnval;
+	}
+	if(current_function_name != NULL) {
+		char* new_val = xmalloc(strlen(returnval)+strlen(current_function_name)+3);
+		strcpy(new_val, current_function_name);
+		new_val[strlen(new_val)] = '.';
+		strcat(new_val, returnval);
+		returnval = new_val;
+	}
+	if(check_if_variable_exists(returnval)==false) {
+	  error("Variable %s not declared!\n", returnval);
+	}
+	eat_blanks();
+	return returnval;
+}
+char* return_next_int_name_and_add()
+{
+	char* returnval = return_next_tok();
+	//! Don't mess with keywords!
+	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg")) || (!strcmp(returnval, "sizeof")) || !strcmp(returnval, "alloc")) {
 		return returnval;
 	}
 	if(current_function_name != NULL) {
@@ -1184,8 +1203,6 @@ get_keyword ()
 	i = T_WHILE;
   else if(!strcmp(token, "endw"))
 	i = T_ENDW;
-  else if (!strcmp(token, "alloc"))
-	i = T_ALLOC;
   else if (!strcmp(token, "function"))
 	i = T_FUNC;
   else if (!strcmp(token, "endf"))
@@ -1341,6 +1358,8 @@ void generate_identifier(void) {
 		 match(')');
 		 unsigned int size = return_sizeof_struct(struct_name);
 		 printf("\tloadr R1, %u\n", size);
+	   } else if(!strcmp(next_potential_maccess_operator, "alloc")) {
+		  do_alloc();
 	   }
 	   else {
 			printf ("\tloadrm dword, R1, v%s\n", next_potential_maccess_operator);
@@ -1379,7 +1398,6 @@ do_statement ()
     case T_ASM:    do_asm(); break;
     case T_WHILE:  do_while(); break;
     case T_ENDW:   do_endw(); break;
-    case T_ALLOC:  do_alloc(); break;
     case T_FUNC:   do_func(); break;
     case T_ENDF:   do_endf(); break;
     case T_STRUCT: do_struct(); break;
@@ -1523,10 +1541,11 @@ do_input ()
 static void
 do_alloc()
 {
-  char* name = return_next_int_name ();
-  match ('=');
-  do_expression ();
-  printf ("\tpushr R0\n\tpushr R1\n\tcall alloc_n\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", name);
+  eat_blanks();
+  match('(');
+  do_expression();
+  match(')');
+  printf ("\tcall alloc_n\n");
 }
 /*!
  * Inline assembler support
@@ -1818,7 +1837,7 @@ do_let ()
 	  }
 	  return;
 	}
-	char* name = return_next_int_name ();
+	char* name = return_next_int_name_and_add ();
 	if(!strcmp(name, "int32_ptr") || (!strcmp(name, "int8_ptr")) || !(strcmp(name, "int16_ptr"))) {
 		char maccess_operator = name[3];
 		match('(');

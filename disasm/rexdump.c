@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include "../src/include/r3x_opcodes.h"
 #define R3X_HEADER_2033 0xBA5EBA11
 typedef struct r3x_header {

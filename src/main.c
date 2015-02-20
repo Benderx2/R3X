@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015 Benderx2, 
+Copyright (c) 2015 Benderx2,
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -129,12 +129,12 @@ int main(int argc, char* argv[])
 	r3x_load_bios(r3_cpu);
 	r3x_cpu_loop(r3_cpu, r3_header);
 	free(ApplicationPath); // Allocated using strdup
-	// Free all 
+	// Free all
 	nt_freeall();
 	// Exit
-	exit(0);
+	return 0;
 }
-void quitSDL(void) { 
+void quitSDL(void) {
 	#ifdef REX_GRAPHICS
 	SDL_Quit();
 	#else
@@ -146,7 +146,7 @@ void GetApplicationPath(void) {
 	#ifndef FILENAME_MAX
 	#warning "Assuming max filename as 1024 bytes"
 	char buf[1024];
-	#else 
+	#else
 	char buf[FILENAME_MAX];
 	#endif
 	memset(buf, 0, sizeof(buf));

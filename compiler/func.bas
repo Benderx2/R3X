@@ -21,6 +21,7 @@ function subtract2numbers, 2
 	return a
 endf
 function misc, 0
+	let f = 0
 	print "value of global variable"; <global>myglobal
 	print "f in this scope is"; f
 	/* Dont FORGET TO RETURN! else cause undefined behaviour lol */
@@ -28,7 +29,6 @@ function misc, 0
 endf
 function main, 0
 	let <global>myglobal = 5
-	print "result of strlen = "; lol
 	let xxx = 0
 	let y_z = 0
 	let f = 1
