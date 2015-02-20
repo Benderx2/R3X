@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
 	char* ASMOutputFile = ConcatenateStrings(RX_PREFIX, ConcatenateStrings("/", asmfile));
 	char* TBCOutputFile = ConcatenateStrings(RX_PREFIX, "/_temp.bas");
 	char* GCCOptions = ConcatenateStrings("gcc -E -P -o ", ConcatenateStrings(TBCOutputFile, ConcatenateStrings(" - < ", InputFile)));
+	char* CgenOptions = ConcatenateStrings(RX_PREFIX, ConcatenateStrings("/cgen", ConcatenateStrings(" -exe ", ConcatenateStrings("./", OutputFile)))); 
 	for(unsigned int i = 0; i < NumberOfIncludeDirs; i++) {
 		if(IncludeDirs[i]!=NULL) {
 			GCCOptions = ConcatenateStrings(GCCOptions, ConcatenateStrings(" -I", IncludeDirs[i]));
@@ -44,6 +45,7 @@ int main(int argc, char** argv) {
 	system(GCCOptions);
 	system(TBCOptions);
 	system(FASMOptions);
+	system(CgenOptions);
 	/**!
 		Remove temp files
 	**/

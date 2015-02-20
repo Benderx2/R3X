@@ -18,6 +18,8 @@ dd 0x0
 dd _end_bss - _begin
 dd REX_EXENAME
 dd REX_PUBNAME
+; Checksum, should be filled by linker. 0x0 if no checksum is present.
+dd 0x0
 REX_EXENAME: db 'Default REX Executable', 0
 REX_PUBNAME: db '<No publisher>', 0
 _end_begin:

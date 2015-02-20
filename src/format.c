@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_cpu.h>
 #include <r3x_format.h>
+#include <r3x_checksum_generator.h>
 #include <nt_malloc.h>
 #include <big_endian.h>
 uint32_t text_begin, text_size, data_begin, data_size;
@@ -48,13 +49,13 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	// seek to end of file
 	fseek(fp, 0L, SEEK_END);
 	// get file size
-	int size = ftell(fp);
+	unsigned int size = ftell(fp);
 	// allocate memory
 	uint8_t* mem1 = nt_malloc(size);
 	// seek reset
 	fseek(fp, 0L, SEEK_SET);
 	// read all bytes
-	int sizeread = fread(mem1, sizeof(uint8_t), size, fp);
+	unsigned int sizeread = fread(mem1, sizeof(uint8_t), size, fp);
 	if(sizeread != size) { 
 		printf("fread failure. Expected %u bytes but read %u bytes\n", size, sizeread);
 		exit(1);
@@ -91,8 +92,26 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	nt_free(mem1);
 	fclose(fp); // Free the file no need..
 	header = (r3x_header_t*)&mem2[PROG_EXEC_POINT];
+	if(header->checksum == 0) {
+	  printf("WARNING: File checksum is 0. Should I continue? [Y/N] (NOTE: The executable might have been tampered with either accidently or malciously!!!): ");
+	  char a = fgetc(stdin);
+	  if(a!='y' && a != 'Y') {
+	    exit(EXIT_FAILURE);
+	  }
+	} else {
+	  uint32_t checksum = header->checksum;
+	  //! Set header->checksum to 0 (The checksum was created when it had this field as 0)
+	  header->checksum = 0;
+	  uint32_t get_checksum = GenerateChecksumCRC32(&mem2[PROG_EXEC_POINT], size);
+	  if(get_checksum!=checksum) {
+	      printf("ERROR: Checksum doesn't match! Got: %u, Expected: %u. File Corruption.\n", get_checksum, checksum);
+	      exit(0);
+	  }
+	  //! Reset the field.
+	  header->checksum = checksum;
+	}
 	printf("Executable Name: %s\n", (char*)&mem2[BIG_ENDIAN_INT(header->nameaddr)]);
-	printf("Publisher Name: %s\n", (char*)&mem2[BIG_ENDIAN_INT(header->pulibsheraddr)]); 
+	printf("Publisher Name: %s\n", (char*)&mem2[BIG_ENDIAN_INT(header->pulibsheraddr)]);
 	// return the buffer
 	return mem2;
 }

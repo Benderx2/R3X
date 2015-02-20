@@ -48,6 +48,7 @@ typedef struct r3x_header {
 	uint32_t total_size;
 	uint32_t nameaddr;
 	uint32_t pulibsheraddr;
+	uint32_t checksum;
 } r3x_header_t;
 typedef struct r3x_symbol {
 	uint32_t SymbolName;

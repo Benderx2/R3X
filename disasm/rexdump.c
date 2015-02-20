@@ -52,9 +52,11 @@ typedef struct r3x_header {
 	uint32_t total_size;
 	uint32_t nameaddr;
 	uint32_t pulibsheraddr;
+	uint32_t checksum;
 } r3x_header_t;
 #define PROG_EXEC_POINT 0x100000
 #define BYTE_SWAP(x) (uint32_t)(x)
+#define BYTE_SWAP_64(x) (uint64_t)(x)
 
 char* InputFile = NULL;
 char* OutputFile = NULL;
@@ -563,11 +565,11 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				i += 1;
 				switch(input[i]){ 
 				  case RFC_LOADR64:
-				      fprintf(output, "loadr64 R%u, %" PRIu64 "\n", (unsigned int)input[i+1], BYTE_SWAP((*((uint64_t*)&input[i+2]))));
+				      fprintf(output, "loadr64 R%u, %" PRIu64 "\n", (unsigned int)input[i+1], BYTE_SWAP_64((*((uint64_t*)&input[i+2]))));
 				      i += 9;
 				      break;
 				  case RFC_PUSH64:
-				      fprintf(output, "push64 %" PRIu64 "\n", BYTE_SWAP((*((uint64_t*)&input[i+1]))));
+				      fprintf(output, "push64 %" PRIu64 "\n", BYTE_SWAP_64((*((uint64_t*)&input[i+1]))));
 				      i += 9;
 				  default:
 				      fprintf(output, "unknown instruction prefixed with 0x8C (RFC PREFIX)\n");

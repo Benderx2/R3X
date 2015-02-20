@@ -3,6 +3,7 @@ cd disasm
 ./build.sh
 mv ./readrex $PREFIX
 mv ./rexdump $PREFIX
+mv ./cgen $PREFIX
 cd ..
 cd compiler
 gcc tbc.c -o tbc
