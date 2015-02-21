@@ -41,11 +41,7 @@ See "docs/Building.html", for a list of options which can be given to "rxvm".
 
 <h1>Writing programs for R3X</h1>
 
-You can use FASM (flat assembler), for writing assembly code, no, it's not x86, you have to include the assembly header in 
-"src/programs/include/libR3X.pkg", which defines macros for instructions. You can then use R3X instructions, which will be
-compiled to R3X bytecode. For instructions supported see "docs/CPU.html and docs/Opcodes.html".<br>
-...<br>
-Or you can use the tinyBASIC compiler to generate R3X assembly code and then compile it using fasm. (you'll need the assembly header).
+You can use Flat Assembler (there are examples in the src/programs directory), or use the t++ programming language to write code for R3X. (See: docs/T++.html)
 
 <h1>Possible set of features?</h1>
 * File I/O
