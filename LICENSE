@@ -26,3 +26,9 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+NOTE:
+
+The files src/win32/dlfcn.c and src/include/win32/dlfcn.h have been taken from 
+github.com/dlfcn-win32/dlfcn-win32
+
+The file src/inclue/win32/dbghelp.h has been taken from mingw64's headers.
