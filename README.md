@@ -3,10 +3,10 @@ R3X
 ![Alt text](http://i.imgur.com/Klw1O26.png)<br>
 Official repository for the R3X (REX) virtual machine. See docs/REX.html for more details.<br>
 ![Alt text](http://i.imgur.com/c97xG9g.png "R3X Running on Linux64 with example program and debugger")
-![Alt text](http://i.imgur.com/wcPCVSP.png "R3X running a program written in rbasic")
+![Alt text](http://i.imgur.com/wcPCVSP.png "R3X running a program written in t++")
 <h1>What is R3X?</h1>
-R3X is a runtime environment for portable applications. It is similar to JVM (Java Virtual Machine) or the more famous .NET CLR (Common Language Runtime)
-it has currently been ported to x86, x86-64, PPC, and ARM architectures and runs on Linux as well as Windows.<br>
+R3X is a runtime environment for portable applications. It is similar to JVM (Java Virtual Machine) or the .NET CLR (Common Language Runtime).
+It has currently been ported to x86, x86-64, PPC, and ARM architectures and runs on Linux as well as Windows.<br>
 <br>
 
 R3X programs are compiled to an architecture independent format, which can be run using the VM 
