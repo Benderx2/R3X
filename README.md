@@ -16,9 +16,9 @@ The runtime also comes with an inbuilt debugger, which has an integrated disasse
 and a lot of nifty features. <br>
 
 <h1>What languages are supported by the runtime? </h1>
-The runtime currently has it's own programming language called "T++", (see the /compiler directory), the compiler is in a usable state<br>
-and can compile useful programs.<br>
-Of course, an LLVM backend is being developed for R3X, which will make it possible for the clang toolchain to generate code for the runtime.<br>
+The runtime currently has it's own programming language called "T++", (see the /compiler directory), the compiler is in a usable state
+and can compile useful programs. Of course, an LLVM backend is being developed for R3X, which will make it 
+possible for the clang toolchain to generate code for the runtime.
 
 <h1>Does the runtime use tricks to speed up code (architecture specific code generator? optimizer? etc..)</h1>
 Unfortunately, R3X code is totally interpreted, but yes, a just-in-time compiler for x86_64 is under development.<br>
@@ -57,5 +57,6 @@ Or you can use the tinyBASIC compiler to generate R3X assembly code and then com
 * A relatively well-featured toolchain (disassembler, executable reader, compiler)
 * A server-client-like implementation. (The server has the ability to run client VMs concurrently)
 ... and lots to come!
-<br>
-Current version is 0.4.6b BASICPie (unstable)<br>
+
+
+<b>Current version:</b> 0.4.6b BASICPie (unstable)<br>
