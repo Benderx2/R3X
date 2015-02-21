@@ -54,6 +54,7 @@ typedef struct export_struct {
 	uint32_t instruction_pointer;
 } export_struct;
 typedef struct function_call_struct {
+	char* Name;
 	uint32_t libid;
 	uint32_t function_count;
 	uint32_t loadaddr;
@@ -61,6 +62,8 @@ typedef struct function_call_struct {
 } libimport_struct;
 
 int load_lib_manager(void);
+
+void load_dependencies(r3x_cpu_t* CPU);
 
 int load_dynamic_library(char* name, r3x_cpu_t* CPU);
 

@@ -20,6 +20,8 @@ dd REX_EXENAME
 dd REX_PUBNAME
 ; Checksum, should be filled by linker. 0x0 if no checksum is present.
 dd 0x0
+dd _import
+dd _end_import - _import
 REX_EXENAME: db 'Default REX Executable', 0
 REX_PUBNAME: db '<No publisher>', 0
 _end_begin:
@@ -59,6 +61,7 @@ DECLARE_SECTION text
 DECLARE_SECTION data
 DECLARE_SECTION bss
 DECLARE_SECTION symbols
+DECLARE_SECTION import
 macro end {
 	db 'TEXT'
 align 4096
@@ -80,6 +83,10 @@ _end_data:
 _symbol_table:
 	STORE_SECTION_symbols
 _symbol_table_end:
+	db 'IMPT'
+_import:
+	STORE_SECTION_import
+_end_import:
 	db '$BSS'
 _bss:
 	STORE_SECTION_bss
@@ -118,6 +125,32 @@ macro declare_bss_entry entry_name {
 }
 macro endfunction name {
  	name#_end:
+}
+macro extern name, libname {
+	local nameaddr, libaddr
+	.data \{
+		nameaddr: db `name#, 0
+		libaddr: db libname, 0
+	\}
+	.import \{
+		dd libaddr
+		dd nameaddr
+		name#_import_symbol: dd 0x0
+		name#_lib_load_addr: dd 0x0
+	\}
+}
+macro externcall name {
+	local return_func
+	pushr R0
+	pushr R20
+	loadrm dword, R20, name#_lib_load_addr
+	loadrm dword, R0, name#_import_symbol
+	pusha return_func
+	pushar R0
+	ret
+return_func:
+	popr R0
+	popr R20
 }
 macro pushstring string {
 	local addr

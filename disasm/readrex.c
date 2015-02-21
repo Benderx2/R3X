@@ -20,6 +20,8 @@ typedef struct r3x_header {
 	uint32_t nameaddr;
 	uint32_t pulibsheraddr;
 	uint32_t checksum;
+	uint32_t import;
+	uint32_t import_size;
 } r3x_header_t;
 typedef struct r3x_symbol {
 	uint32_t SymbolName;
@@ -45,7 +47,12 @@ typedef struct export_struct {
 	uint32_t function_id;
 	uint32_t instruction_pointer;
 } export_struct;
-
+typedef struct {
+	uint32_t LibName;
+	uint32_t SymbolName;
+	uint32_t CallerAddr;
+	uint32_t LibLoadAddr;
+} r3x_import_t;
 #define EXEC_HEADER 0xBA5EBA11
 #define PROG_EXEC_POINT 0x100000
 #define DLL_HEADER 0xDEADBEEF
@@ -96,6 +103,8 @@ int main(int argc, char* argv[]){
 		printf("Size of .data: %u\n", myheader->r3x_data_size);
 		printf("Location of .bss: %u\n", myheader->r3x_bss);
 		printf("Size of .bss: %u\n", myheader->r3x_bss_size);
+		printf("Location of .import: %u\n", myheader->import);
+		printf("Size of .import: %u\n", myheader->import_size);
 		if(myheader->nameaddr - PROG_EXEC_POINT > size || myheader->pulibsheraddr - PROG_EXEC_POINT > size) {
 			printf("Invalid publisher/executable information\n");
 		} else {
@@ -106,6 +115,24 @@ int main(int argc, char* argv[]){
 			printf("Invalid symbol table\n");
 		} else {
 			read_symbol_table(myheader, InputBuffer, size, 0);
+		}
+		if(myheader->import - PROG_EXEC_POINT > size) {
+		  printf("Invalid .import table\n");
+		} else {
+		  r3x_header_t* Header = myheader;
+		  if(Header->import_size == 0) {
+		  } else {
+		  uint32_t NumberOfImports = Header->import_size / sizeof(r3x_import_t);
+		  r3x_import_t* Imports = (r3x_import_t*)&InputBuffer[Header->import - PROG_EXEC_POINT];
+		  printf(".import:\n");
+		  for(unsigned int i = 0; i < NumberOfImports; i++) {
+			if(Imports[i].SymbolName - PROG_EXEC_POINT > size || Imports[i].LibName - PROG_EXEC_POINT > size) {
+			    printf("Corrupted .import table!\n");
+			    exit(0);
+			}
+			printf("%u: %s from %s\n", i, (char*)((uintptr_t)((uintptr_t)InputBuffer + Imports[i].SymbolName - PROG_EXEC_POINT)), (char*)((uintptr_t)((uintptr_t)InputBuffer + Imports[i].LibName - PROG_EXEC_POINT)));
+		    }
+		  }
 		}
 	} else if(*((uint32_t*)&InputBuffer[0]) == DLL_HEADER) {
 		printf("Type: Dynamic Shared Library\n");

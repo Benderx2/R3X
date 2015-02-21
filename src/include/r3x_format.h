@@ -49,12 +49,20 @@ typedef struct r3x_header {
 	uint32_t nameaddr;
 	uint32_t pulibsheraddr;
 	uint32_t checksum;
+	uint32_t r3x_imports;
+	uint32_t r3x_importsize;
 } r3x_header_t;
 typedef struct r3x_symbol {
 	uint32_t SymbolName;
 	uint32_t SymbolStart;
 	uint32_t SymbolEnd;
 } r3x_symbol_t;
+typedef struct {
+	uint32_t LibName;
+	uint32_t SymbolName;
+	uint32_t CallerAddr;
+	uint32_t LibLoadAddr;
+} r3x_import_t;
 #define PROG_EXEC_POINT 0x100000// under 1 MB = System reserved.
 uint8_t* r3x_load_executable(char* name, r3x_header_t* header);
 void read_symbol_table(r3x_header_t* header, uint8_t* Memory, uint32_t size, uint32_t IP);

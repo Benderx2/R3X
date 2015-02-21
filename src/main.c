@@ -116,17 +116,19 @@ int main(int argc, char* argv[])
 	r3_cpu->HeapAddr = r3_cpu->MemorySize;
 	r3_cpu->use_frequency = true;
 	r3_cpu->CPUFrequency = ChosenCPUFrequency;
+	if(ChosenCPUFrequency==0.0f){
+		r3_cpu->CPUFrequency = 0;
+		r3_cpu->use_frequency = false;
+	}
+	r3x_load_bios(r3_cpu);
 	//! Map the executable regions
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_EXEC, 0, SEGMENT_SIZE);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_EXEC, text_begin, text_begin + text_size);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RW, data_begin, data_begin + data_size);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RW, data_begin + data_size, data_begin+data_size+SEGMENT_SIZE);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RONLY, PROG_EXEC_POINT, PROG_EXEC_POINT + SEGMENT_SIZE);
-	if(ChosenCPUFrequency==0.0f){
-		r3_cpu->CPUFrequency = 0;
-		r3_cpu->use_frequency = false;
-	}
-	r3x_load_bios(r3_cpu);
+	load_dependencies(r3_cpu);
+	r3_header = (r3x_header_t*)&(r3_cpu->Memory[PROG_EXEC_POINT]);
 	r3x_cpu_loop(r3_cpu, r3_header);
 	free(ApplicationPath); // Allocated using strdup
 	// Free all

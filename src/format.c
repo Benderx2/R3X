@@ -29,6 +29,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_cpu.h>
 #include <r3x_format.h>
+#include <r3x_dynamic.h>
 #include <r3x_checksum_generator.h>
 #include <nt_malloc.h>
 #include <big_endian.h>
@@ -114,6 +115,32 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	printf("Publisher Name: %s\n", (char*)&mem2[BIG_ENDIAN_INT(header->pulibsheraddr)]);
 	// return the buffer
 	return mem2;
+}
+void load_dependencies(r3x_cpu_t* CPU) {
+  r3x_header_t* Header = (r3x_header_t*)&CPU->Memory[PROG_EXEC_POINT];
+  if(Header->r3x_importsize == 0) {
+    return;
+  }
+  uint32_t NumberOfImports = Header->r3x_importsize / sizeof(r3x_import_t);
+  r3x_import_t* Imports = (r3x_import_t*)(CPU->Memory + BIG_ENDIAN_INT(Header->r3x_imports));
+  for(unsigned int i = 0; i < NumberOfImports; i++) {
+    if(BIG_ENDIAN_INT(Imports[i].SymbolName) > CPU->MemorySize || BIG_ENDIAN_INT(Imports[i].LibName) > CPU->MemorySize) {
+	fprintf(stderr, "Error: Corrupted import section\n");
+	exit(0);
+    }
+    printf("import_sec: %s\n", (char*)((uintptr_t)CPU->Memory + BIG_ENDIAN_INT(Imports[i].SymbolName)));
+    int handle = load_dynamic_library((char*)((uintptr_t)CPU->Memory + BIG_ENDIAN_INT(Imports[i].LibName)), CPU);
+    //! load_dynamic_library WILL reallocate the buffer! We would need to
+    //! reinitialize these pointers
+    Header = (r3x_header_t*)&CPU->Memory[PROG_EXEC_POINT];
+    Imports = (r3x_import_t*)(CPU->Memory + BIG_ENDIAN_INT(Header->r3x_imports));
+    Imports[i].CallerAddr = dynamic_call(CPU, handle, (char*)((uintptr_t)(CPU->Memory + BIG_ENDIAN_INT(Imports[i].SymbolName))));
+    Imports[i].LibLoadAddr = return_dynamic_load_addr(handle);
+    if(Imports[i].CallerAddr == 0) {
+      fprintf(stderr, "Error: Corrupt import section\n");
+      exit(0);
+    }
+  }
 }
 void read_symbol_table(r3x_header_t* header, uint8_t* Memory, uint32_t size, uint32_t IP) {
 	if(BIG_ENDIAN_INT(header->r3x_symbols) > size)

@@ -175,6 +175,7 @@ $AS programs/jmp.il
 $AS programs/hello.il
 $AS programs/asshole.il
 $AS programs/rfc.il
+$AS programs/dyanmiclib.il
 mkdir -p $BINDIR
 mkdir -p $BINDIR/bios
 # now transfer it 
@@ -194,6 +195,7 @@ mv programs/hello.exe $BINDIR/
 mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 mv programs/rfc.exe $BINDIR/
+mv programs/dynamiclib.exe $BINDIR/
 cp ./128x128.png $BINDIR/bios 
 # remove all object files
 rm *.o

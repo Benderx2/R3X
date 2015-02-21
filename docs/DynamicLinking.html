@@ -64,8 +64,8 @@ end
 Your code must be position-independent as shown above! As you see, R20 is the "physical" address where your<br>
 library is loaded, you should add R20 to all internal address references before doing a load/store operation, <br>
 as shown above.<br>
-
-<h2>Loading a dynamic library</h2>
+<h2>OPTION 1: Manually load the library and execute it:</h2>
+<h3>Loading a dynamic library</h3>
 Loading a dynamic library is simple, simply do: 
 pushstring "lib.ro"
 syscall SYSCALL_LOADDYNAMIC
@@ -78,3 +78,14 @@ push [library handle] -- Handle that you got from the above syscall
 pushstring [function name] -- "test_func" for the above example.
 calldynamic
 </pre>
+
+<h3>OPTION 2: Use the import functionality</h3>
+Another way to do it is like this:
+<pre>
+extern test_func, "lib.ro"
+
+...
+	externcall test_func
+...
+</pre>
+The library will be loaded automatically by the VM, and you won't have to store and do crazy things manually!<br>

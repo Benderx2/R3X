@@ -39,6 +39,13 @@ int load_lib_manager(void) {
 	return 0;
 }
 int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
+	for(unsigned int i = 0; i < total_number_of_structs; i++) {
+	  if(lbstructs[i]!=NULL) {
+	    if(!strcmp(lbstructs[i]->Name, name)) {
+	      return i;
+	    }
+	  }
+	}
 	uint32_t loadaddr = CPU->MemorySize;
 	FILE* dynamic_lib_file = fopen(name, "r");
 	if(dynamic_lib_file == NULL) {	
@@ -83,6 +90,7 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 	for(unsigned int i = 0; i < total_number_of_structs; i++) { 
 		if(lbstructs[i] == NULL)  {
 			lbstructs[i] = nt_malloc(sizeof(libimport_struct));
+			lbstructs[i]->Name = name;
 			lbstructs[i]->loadaddr = loadaddr;
 			dyn_header = (r3x_dynamic_header_t*)&CPU->Memory[loadaddr];
 			lbstructs[i]->libid = i;
