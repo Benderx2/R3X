@@ -81,7 +81,7 @@ void ParseArguments(int argc, char* argv[]) {
 				OutputFile = argv[i+1];
 			}
 		} else if(!strcmp(argv[i], "-h")) {
-			printf("t++ - TinyBASIC++ frontend for R3X\n");
+			printf("t++ - T++ frontend for R3X\n");
 			printf("Options:\n");
 			printf("-s: Source file\n");
 			printf("-o: Output file\n");

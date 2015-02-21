@@ -10,8 +10,8 @@ body {
 <font color=#FFFFFF face="Verdana"> 
 <h1>REX Virtual Machine Documentation</h1>
 <h1>THIS DOCUMENT IS BEING WORKED ON!</h1>
-<h2>BASIC</h2>
-An implementation of TinyBASIC is the only HLL language which is ported to R3X VM.
+<h2>T++</h2>
+T++ is a high-level programming language designed for the R3X system.<br>
 <h3>Let's begin with a "Hello, World!"</h3>
 First compile the compiler using the GNU Compiler Toolchain (YOU WILL NEED IT WHILE RUNNING TOO!). If your system has the required tools, then it's simply a <br>
 <pre>
@@ -24,7 +24,7 @@ Then you can export it in your PATH like this:<br>
 <pre>
 	export PATH=$PATH:$PREFIX
 </pre>
-NOTE: TinyBASIC compiler for R3X uses GCC as it's preprocessor, you will need the gcc toolchain in order to compile R3X programs!<br>
+NOTE: the T++ compiler for R3X uses GCC as it's preprocessor, you will need the gcc toolchain in order to compile R3X programs!<br>
 Let's begin with some code? Shall we? :)
 <pre>
 function main, 0
@@ -42,7 +42,7 @@ rxvm -exe ./hello.exe
 </pre>
 You should see the words "Hello, World!" on the output screen. If you press a key, then the program will exit.<br>
 <h3>Variable Assigment</h3>
-TinyBASIC++ is a typeless language, meaning one variable is not limited to one type.<br>
+T++ is a typeless language, meaning one variable is not limited to one type.<br>
 All variables are assigned with the "let" keyword. The first "let" keyword is supposed to initialize the variable.
 <pre>
 let int = 27+3
@@ -117,7 +117,7 @@ gosub label
 code after this will run as expected
 </pre>
 NOTE: Labels cannot be used in expressions!
-Control flow in TinyBASIC++ is achieved through 2 keywords: "IF" and "WHILE"<br>
+Control flow in T++ is achieved through 2 keywords: "IF" and "WHILE"<br>
 The "if" keyword compares two expressions and then performs a statment, (usually a goto to a label)<br>
 <pre>
 ...
@@ -194,7 +194,7 @@ You can also use the 'let' keyword to assign a value to a member.<br>
 let &lt;struct mystruct&gt;mystruct01.[member name] = expression (1+2, a+b, a+3 etc.)
 </pre>
 <h3>Internal functions</h3>
-TinyBASIC++ provides 4 internal functions for a program to use.<br>
+T++ provides 4 internal functions for a program to use.<br>
 <h4>print</h4>
 	The "print" function outputs a string / integer to stdout. The usage is shown below:<br>
 <pre>

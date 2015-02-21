@@ -1,5 +1,6 @@
 /*
  * Partly rewritten and extended for R3X systems by Benderx2.
+ * T++ Compiler.
  * Licensed as below.
  * WHATS NEW:
  * -Added new operatos - &, ^, |

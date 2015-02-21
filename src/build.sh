@@ -141,9 +141,12 @@ if [ "$TARGET" -ne "x86_64win" ]
 then
 	export LFLAGS="-lc -lm"
 else
+	$CC -c win32/dlfcn.c -o dlfcn.o -I./include
+	export LINKER_FILES="dlfcn.o"
+	export DYNAMICFLAGS=""
 	export LFLAGS="-lm"
 fi
-export LINKER_FILES="cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o rfc.o"
+export LINKER_FILES="$LINKER_FILES cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o rfc.o"
 # Compile libntmalloc
 $CC -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
@@ -158,7 +161,12 @@ done
 $CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS $DYNAMICFLAGS $OPTIMIZEFLAGS
 $CC -c -Wall -Werror -fpic ./programs/rex/stack.c -o vstack.o
 $CC -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o
+if [ "$TARGET" ne "x86_64win" ]
+then
 $CC -shared -o mylib.so ./mylib.o vstack.o -lc -lm -Wl,-no-whole-archive
+else
+$CC -shared -o mylib.so ./mylib.o vstack.o -lm -Wl,-no-whole-archive
+fi
 # compile programs
 $AS programs/r3x_ex.il 
 $AS programs/math.il 
@@ -175,7 +183,7 @@ $AS programs/jmp.il
 $AS programs/hello.il
 $AS programs/asshole.il
 $AS programs/rfc.il
-$AS programs/dyanmiclib.il
+$AS programs/dynamiclib.il
 mkdir -p $BINDIR
 mkdir -p $BINDIR/bios
 # now transfer it 

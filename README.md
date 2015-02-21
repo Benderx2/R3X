@@ -4,53 +4,40 @@ R3X
 Official repository for the R3X (REX) virtual machine. See docs/REX.html for more details.<br>
 ![Alt text](http://i.imgur.com/c97xG9g.png "R3X Running on Linux64 with example program and debugger")
 ![Alt text](http://i.imgur.com/wcPCVSP.png "R3X running a program written in rbasic")
-<h1>What is REX?</h1>
-R3X is a runtime environment for portable applications. It's similar to Java, just remove the JIT and the GC part. :P 
+<h1>What is R3X?</h1>
+R3X is a runtime environment for portable applications. It is similar to JVM (Java Virtual Machine) or the more famous .NET CLR (Common Language Runtime)
 it has currently been ported to x86, x86-64, PPC, and ARM architectures and runs on Linux as well as Windows.<br>
 <br>
 
-R3X programs are compiled to it's own bytecode, which can be run using the VM and are architecture independent. The main goal for R3X is to create an environment which offers maximum portability, while ensuring performance and features.
-R3X aims to provide a C-like enviroment, at the same time being highly portable and safe. It currently supports streams, exception handling, multithreading, dynamic memory allocation and dynamic linking
-The VM also comes with an inbuilt debugger. <br>
+R3X programs are compiled to an architecture independent format, which can be run using the VM 
+and are architecture independent. The main goal for R3X is to create an environment which offers maximum portability,
+while ensuring performance and features. It currently supports I/O, exception handling, multithreading, and dynamic linking.
+The runtime also comes with an inbuilt debugger, which has an integrated disassembler, stack tracing, 
+and a lot of nifty features. <br>
 
 <h1>What languages are supported by the runtime? </h1>
-<br>
-
-Currently the only supported language is a dialect of BASIC, which supports function calls, inline assembly, bitwise and integer arithmetic, and probably lots to come! Of course, an LLVM backend for R3X is being
-worked on, which will make it possible for the clang toolchain to generate code for R3X. <br>
+The runtime currently has it's own programming language called "T++", (see the /compiler directory), the compiler is in a usable state<br>
+and can compile useful programs.<br>
+Of course, an LLVM backend is being developed for R3X, which will make it possible for the clang toolchain to generate code for the runtime.<br>
 
 <h1>Does the runtime use tricks to speed up code (architecture specific code generator? optimizer? etc..)</h1>
-
 Unfortunately, R3X code is totally interpreted, but yes, a just-in-time compiler for x86_64 is under development.<br>
 
 <h1>Any possible documentation available?</h1>
-<br>
 All documentation is in HTML format under the docs/ directory.<br>
 
-<h1>How 2 Buildz?</h1>
-<br>
+<h1>Building</h1>
 Building the virtual machine can be done using a bash-compatible shell (bash on linux, and msys on Windows), for Linux systems simply run: <br> 
-`./build.sh arch=x86_64` (See docs/Building.html for building with a different architectures)<br>
+`./build.sh arch=x86_64` (See docs/Building.html for building with a different architectures)
 Unfortunately, Windows x86_64 is only supported as of now, recommended options to run ./build.sh are:<br>
-`./build.sh arch=x86_64win usegl=no usedynamic=no`<br>
-In order to use native libraries (usedynamic=yes) for Windows, add an implementation of "dlfcn.h" into your headers. An existing implementation can be found here: https://github.com/dlfcn-win32/dlfcn-win32
+`./build.sh arch=x86_64win usegl=no usedynamic=yes`<br>
 OpenGL support for Windows is currently untested.
 In order to build the utilities, run "buildutils.sh" given in the root directory of the project. This will build the compiler front end, the preprocessor, rexdump, and the disassembler and transfer them into
-the "binutils" direcotry
-<h1>How 2 Runz?</h1>
+the "binutils" directory.
+<h1>Running?</h1>
 See "docs/Building.html", for a list of options which can be given to "rxvm".
-<h1>Is OS X supported</h1>
-Uh, no :D. Not because I don't like OS X, but because I don't have an OS X machine to test stuff on. I'd be glad if somebody experienced with OS X APIs, could point out what might be needed to port to OS X.
-To know what porting the VM requires, please have a look at: "docs/Porting.html" for the parts of the VM that may need changes.
 
-<h1>Bugs n Contributing?</h1>
-For bugs, just push them to the issues section, and as for contribs... <br>
-lolwut? If you seriously want to contribute, please don't dump code, wait contributing is currently not supported.<br>
-
-<h1>Reason?</h1>
-R3X doesn't have a CLA (Contributor License Agreement), which defines your (the contributor) fucking limits.<br>
-
-<h1>k, how do I code for this virtual machine?</h1>
+<h1>Writing programs for R3X</h1>
 
 You can use FASM (flat assembler), for writing assembly code, no, it's not x86, you have to include the assembly header in 
 "src/programs/include/libR3X.pkg", which defines macros for instructions. You can then use R3X instructions, which will be
@@ -58,9 +45,17 @@ compiled to R3X bytecode. For instructions supported see "docs/CPU.html and docs
 ...<br>
 Or you can use the tinyBASIC compiler to generate R3X assembly code and then compile it using fasm. (you'll need the assembly header).
 
-<h1>What are those '.exe' files in the /bin*** directories?</h1>
-Uh, they're R3X programs, all programs written for the R3X VM should have a '.exe' (executable) extension by convention.<br>
-Shared libraries have an '.ro', while native shared libraries have platform dependent extensions (.so or .dll)
-<br>
+<h1>Possible set of features?</h1>
+* File I/O
+* Multithreading
+* Exceptions
+* Memory Protection
+* Dynamic Linking
+* Native Object Linking (Programs can call procedures in .so or .dll files)
+* High Level Programming language (T++)
+* Inbuilt debugger
+* A relatively well-featured toolchain (disassembler, executable reader, compiler)
+* A server-client-like implementation. (The server has the ability to run client VMs concurrently)
+... and lots to come!
 <br>
 Current version is 0.4.6b BASICPie (unstable)<br>

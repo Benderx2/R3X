@@ -19,8 +19,18 @@
 #include <math.h>
 #include <time.h>
 #ifdef REX_DYNAMIC
+#ifndef _WIN32
 #include <dlfcn.h>
+#else
+#include <win32/dlfcn.h>
+#endif
+#endif
+#ifdef R_DEBUG
+#ifndef _WIN32
 #include <execinfo.h>
+#else
+#include <win32/dbghelp.h>
+#endif
 #endif
 #ifndef PRIu64
 #warning "PRIu64 undefined, defining built-in!"

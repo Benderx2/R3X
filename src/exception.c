@@ -28,6 +28,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <r3x_exception.h>
+#include <r3x_stacktrace.h>
 #include <r3x_format.h>
 #include <r3x_disassemble.h>
 #include <r3x_dispatcher.h>
@@ -251,12 +252,9 @@ void debugger(void) {
 	}
 }
 void printstatus(void) {
-	#ifdef REX_DYNAMIC 
+	#ifdef R_DEBUG
 	printf("Preparing Debugging Info.\nProgram backtrace:\n");
-	void * buffer[255];
-	const int calls = backtrace(buffer,
-		sizeof(buffer) / sizeof(void *));
-	backtrace_symbols_fd(buffer, calls, 1);
+	print_backtrace();
 	#endif
 	assert(r3_cpu);
 	assert(r3_cpu->Stack);
