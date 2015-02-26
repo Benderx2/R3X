@@ -8,12 +8,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #ifndef RX_PREFIX
 #error "No RX_PREFIX defined!"
 #endif
 
 char* InputFile = NULL;
 char* OutputFile = NULL;
+bool AsmFlag = false;
 
 char** IncludeDirs = NULL;
 unsigned int NumberOfIncludeDirs = 0;
@@ -44,12 +46,16 @@ int main(int argc, char** argv) {
 	/*printf("ASMOutputFile: %s\nTBCOutputFile: %s\nGCCOptions: %s\nTBCOptions: %s\nFASMOptions: %s\n", ASMOutputFile, TBCOutputFile, GCCOptions, TBCOptions, FASMOptions);*/
 	system(GCCOptions);
 	system(TBCOptions);
-	system(FASMOptions);
-	system(CgenOptions);
+	if(AsmFlag == false) {
+		system(FASMOptions);
+		system(CgenOptions);
+	}
 	/**!
 		Remove temp files
 	**/
-	remove(ASMOutputFile);
+	if(AsmFlag == true) {
+		remove(ASMOutputFile);
+	}
 	remove(TBCOutputFile);
 	return 0;
 }
@@ -93,6 +99,8 @@ void ParseArguments(int argc, char* argv[]) {
 				exit(EXIT_FAILURE);
 			}
 			AddIncludeDir(argv[i+1]);
+		} else if(!strcmp(argv[i], "-asm")) {
+			AsmFlag = true;
 		}
 	}
 	if (OutputFile == NULL) {

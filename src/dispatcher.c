@@ -39,7 +39,7 @@ r3x_global_domain_t* r3x_init_domain(void) {
 	Domain->TotalNumberOfJobs = 16;
 	return Domain;
 }
-unsigned int r3x_dispatch_job(int InstructionPointer, int CycleUpdate, r3x_global_domain_t* Domain, bool ismain) {
+unsigned int r3x_dispatch_job(unsigned int InstructionPointer, int CycleUpdate, r3x_global_domain_t* Domain, bool ismain) {
 	if(Domain->NumberOfActiveJobs >= Domain->TotalNumberOfJobs-1) { 
 		Domain->Jobs = nt_realloc(Domain->Jobs, sizeof(r3x_job_t*) * (Domain->TotalNumberOfJobs + 16));
 		Domain->TotalNumberOfJobs += 16;
@@ -59,7 +59,7 @@ unsigned int r3x_dispatch_job(int InstructionPointer, int CycleUpdate, r3x_globa
 			Domain->Jobs[i]->ZeroFlag = false;
 			Domain->Jobs[i]->CycleUpdate = CycleUpdate;
 			Domain->Jobs[i]->InstructionPointer = InstructionPointer;
-			Domain->Jobs[i]->ismain = ismain;		
+			Domain->Jobs[i]->ismain = ismain;
 			Domain->Jobs[i]->JobID = i;
 			Domain->Jobs[i]->paused = false;
 			Domain->Jobs[i]->Alive = true;

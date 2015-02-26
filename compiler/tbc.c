@@ -857,7 +857,29 @@ do_factor ()
 	if(type==NULL) {
 		error("INTERNAL COMPILER ERROR!\n");
 	}
-	printf("\tloadr R8, %u\n", (type->number_of_arguments + stuff_pushed_to_stack + number_of_util_regs) - (get_num()-1));
+	do_expression();
+	printf("\tpushr R1\n");
+	printf("\tpush 1\n");
+	printf("\tsub\n");
+	printf("\tpopr R1\n");
+	printf("\tpopn 2\n");
+	printf("\tpush %u\n", type->number_of_arguments);
+	printf("\tpush %u\n", stuff_pushed_to_stack);
+	printf("\tadd\n");
+	printf("\tpopr R6\n");
+	printf("\tpopn 2\n");
+	printf("\tpushr R6\n");
+	printf("\tpush %u\n", number_of_util_regs);
+	printf("\tadd\n");
+	printf("\tpopr R6\n");
+	printf("\tpopn 2\n");
+	printf("\tpushr R6\n");
+	printf("\tpushr R1\n");
+	printf("\tsub\n");
+	printf("\tpopr R1\n");
+	printf("\tpopn 2\n");
+	//!printf("\tloadr R8, %u\n", (type->number_of_arguments + stuff_pushed_to_stack + number_of_util_regs) - (get_num()-1));
+	printf("\tloadrr R8, R1\n");
 	printf("\tloadsr R8\n");
 	printf("\tpopr R1\n");
   }

@@ -146,12 +146,14 @@ a "function main, 0" -- This is the "main" function and is called by libR3X afte
 Here's a simple example on how to use functions:
 <pre>
 function addtwonumbers, 2
-	let a = $1+$2
-	return a
+	let a = $1
+	let b = $2
+	return a + b
 endf
 </pre>
-The above code declares a function with 2 arguments as "add2numbers". It then uses a local variable called a to add it's first and second argument (referenced<br>
-by $1, and $2 respectively), to store the result of the addition. It then returns a.<br>
+The above code declares a function with 2 arguments as "add2numbers". It then uses a local variable called a and b to add it's first and second argument (referenced<br>
+by $1, and $2 respectively), to store the result of the addition. It then returns a+b.<br>
+NOTE: $1 + 2 is not same as let a = $1 let a = a + 2! "$1 + 2" means load the third argument (anything after a '$' is counted as a single expression!)<br>
 This can now be called like this, from another function:<br>
 <pre>
 	...

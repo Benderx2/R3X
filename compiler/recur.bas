@@ -1,6 +1,7 @@
 function factorial, 1
 	if $1 <= 1 goto func_return
-	return $1*@factorial($1-1)
+	let a = $1
+	return a*@factorial(a-1)
 :func_return
 	return 1
 endf
