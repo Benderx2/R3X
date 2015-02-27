@@ -1,4 +1,4 @@
-function main, 0
+function main(0)
 	print "If stuff"
 	// Allocate 256 bytes for buffer
 	let buffer = alloc(256)

@@ -1,4 +1,4 @@
-function main, 0
+function main(0)
 	print "floating point test"
 	// sorry bros and sis, due to this typelessness, you just fkn use different operators.
 	let A = mul_f(11.5, add_f(30.567, 23.01))

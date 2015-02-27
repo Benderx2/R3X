@@ -1,6 +1,6 @@
 /* this is a global variable */
 global myglobal
-function x, 3
+function x(3)
 	let i = add_f(add_f(2.4, mul_f(3.5, 4.6)), 5.6)
 	print "float i = "; %i
 	print "I'm a function take takes 3 args"
@@ -16,24 +16,24 @@ function x, 3
 	print "f in this scope is: "; f
 	return $3
 endf
-function add2numbers, 2
+function add2numbers(2)
 	let a = $1
 	let b = $2
 	return a + b
 endf
-function subtract2numbers, 2
+function subtract2numbers(2)
 	let a = $1
 	let b = $2
 	return a - b
 endf
-function misc, 0
+function misc(0)
 	let f = 0
 	print "value of global variable"; <global>myglobal
 	print "f in this scope is"; f
 	/* Dont FORGET TO RETURN! else cause undefined behaviour lol */
 	return 0
 endf
-function main, 0
+function main(0)
 	let <global>myglobal = 5
 	let xxx = 0
 	let y_z = 0
@@ -49,7 +49,7 @@ function main, 0
 	print "lol it's right"
 	print "f in this scope is: "; f
 	print "adding 2 numbers: 57 and 90"
-	let result = @add2numbers(57, 90)
+	let result = @add2numbers(57, (90+5))
 	print "result = "; result
 	print "subtracting 2 numbers: 30 and 10"
 	let result = @subtract2numbers(30, 10)

@@ -7,7 +7,7 @@ struct mystruct02, 3
 	int16 member2
 	int32 member3
 ends
-function main, 0
+function main(0)
 	let myvar = alloc(sizeof(mystruct02))
 	let <struct mystruct02>myvar.member1 = 0x34
 	let <struct mystruct02>myvar.member2 = 32768

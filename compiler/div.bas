@@ -1,4 +1,4 @@
-function main, 0
+function main(0)
 	print "Testing Division and bitwise"
 	goto mylabel
 	print "Testing division"

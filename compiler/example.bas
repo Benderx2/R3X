@@ -1,4 +1,4 @@
-function main, 0
+function main(0)
 	// Fibonacci generator
 	let I = 1
 	let X = 1

@@ -1,4 +1,4 @@
-function strlen, 1
+function strlen(1)
 	let i = 0
 	let s = $1
 	while int8_ptr(s+i) != 0
@@ -7,7 +7,7 @@ function strlen, 1
 	return i
 endf
 
-function strcmp, 2
+function strcmp(2)
 	let str01 = $1
 	let str02 = $2
 	let i = 0
@@ -19,7 +19,7 @@ function strcmp, 2
 	endw
 	return 0
 endf
-function main, 0
+function main(0)
 	let is_equal_or_not = @strcmp("hello", "hello")
 	if is_equal_or_not = 0 goto yay
 	print "string doesnt work"

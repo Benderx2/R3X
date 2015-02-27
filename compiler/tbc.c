@@ -788,9 +788,9 @@ do_expression ()
       do_term ();
       puts ("\tpopar R2");
       if (op == '+')
-	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpop\n\tpop\n");
+	puts ("\tpushr R1\n\tpushr R2\n\tadd\n\tpopr R1\n\tpopn 2\n");
       else if (op == '-')
-	puts ("\tpushr R2\n\tpushr R1\n\tsub\n\tpopr R1\n\tpop\n\tpop\n"); 
+	puts ("\tpushr R2\n\tpushr R1\n\tsub\n\tpopr R1\n\tpopn 2\n"); 
     }
 }
 /*!
@@ -809,16 +809,16 @@ do_term ()
       do_factor ();
       puts ("\tpopar R2");
       if (op == '*') {
-		puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpop\npop\n\t");
+		puts ("\tpushr R1\n\tpushr R2\n\tmul\n\tpopr R1\n\tpopn 2");
 	  }
       else if (op == '/') {
-		puts ("\tpushr R2\n\tpushr R1\n\tdiv\n\tpopr R1\n\tpop\n\tpop");
+		puts ("\tpushr R2\n\tpushr R1\n\tdiv\n\tpopr R1\n\tpopn 2");
 	  }
 	  else if (op == '&') {
-		puts ("\tpushr R2\n\tpushr R1\n\tand\n\tpopr R1\n\tpop\n\tpop");
+		puts ("\tpushr R2\n\tpushr R1\n\tand\n\tpopr R1\n\tpopn 2");
 	  }
 	  else if (op == '|') {
-		puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpop\n\tpop");
+		puts ("\tpushr R2\n\tpushr R1\n\tor\n\tpopr R1\n\tpopn 2");
 	  }
 	  else if (op == '^') {
 		puts ("\tpushr R2\n\tpushr R1\n\txor\n\tpopr R1\n\tpopn 2");
@@ -971,7 +971,7 @@ print_help ()
 static void
 print_version ()
 {
-  puts ("Tiny BASIC++ implementation of R3X (Forked from Luiji's tiny basic compiler)");
+  puts ("T++ implementation of R3X (Forked from Luiji's tiny basic compiler)");
   puts ("Copyright (C) 2012 Entertaining Software, Inc. (Orginal Copyright Notice)");
   puts ("License GPLv3+: GNU GPL version 3 or later \
 <http://gnu.org/licenses/gpl.html>");
@@ -1913,8 +1913,9 @@ static void
 do_func() {
 	eat_blanks();
 	char* function_name = return_next_tok();
-	match(',');
+	match('(');
 	unsigned int arguments = get_num();
+	match(')');
 	add_to_function_table(function_name, arguments);
 	printf("function %s\n", function_name);
 	if(!strcmp(function_name, "main")) {

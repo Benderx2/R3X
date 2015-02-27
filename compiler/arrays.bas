@@ -1,4 +1,4 @@
-function main, 0
+function main(0)
 	print "Array stuff"
 	goto mylabel
 :mylabel
