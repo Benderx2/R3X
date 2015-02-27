@@ -42,7 +42,7 @@ function main(0)
 	let c = 24
 	let retval = @x(100, 200, c * 5 + 2)
 	print "return value: "; retval
-	if retval = c*5+2 goto correct
+	if (retval = c*5+2) goto correct
 	print "lol, this failed."
 	end
 :correct

@@ -1587,7 +1587,7 @@ static void
 do_if ()
 {
   int op;
-
+  match('(');
   do_expression ();
   puts ("\tloadrr R4, R1");
 
@@ -1673,7 +1673,7 @@ do_if ()
     fputs ("l", stdout);
 
   printf (" i%i\n", line);
-
+  match(')');
   do_statement ();
 
   printf ("i%i:\n", line);
@@ -1696,6 +1696,7 @@ do_while()
   int op;
   printf("while%u:\n", whilelines);
   while_stack[currentwhile] = whilelines;
+  match('(');
   do_expression ();
   puts ("\tloadrr R4, R1");
 
@@ -1780,7 +1781,7 @@ do_while()
   else if (op == O_MORE_OR_EQUAL)
     fputs ("l", stdout);
   printf(" endwhile%u\n", whilelines);
-  
+  match(')');
   whilelines++;
   currentwhile--;
 }

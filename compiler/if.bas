@@ -3,7 +3,7 @@ function main(0)
 	// Allocate 256 bytes for buffer
 	let buffer = alloc(256)
 	let int16_ptr(buffer) = 0xFF44
-	if int8_ptr(buffer) = 0x44 goto yes
+	if (int8_ptr(buffer) = 0x44) goto yes
 	print "Uh, error!"
 	end
 :yes

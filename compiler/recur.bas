@@ -1,5 +1,5 @@
 function factorial(1)
-	if $1 <= 1 goto func_return
+	if ($1 <= 1) goto func_return
 	let a = $1
 	return a*@factorial(a-1)
 :func_return

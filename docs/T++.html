@@ -121,12 +121,12 @@ Control flow in T++ is achieved through 2 keywords: "IF" and "WHILE"<br>
 The "if" keyword compares two expressions and then performs a statment, (usually a goto to a label)<br>
 <pre>
 ...
-	if a = 5 goto yes
-	if a != 5 goto yes
-	if a &lt; 5 goto yes
-	if a &gt; 5 goto yes
-	if a &lt;= 5 goto yes
-	if a &gt;= 5 goto yes
+	if (a = 5) goto yes
+	if (a != 5) goto yes
+	if (a &lt; 5) goto yes
+	if (a &gt; 5) goto yes
+	if (a &lt;= 5) goto yes
+	if (a &gt;= 5) goto yes
 	// Labels are scope-specific
 :yes
 ...
@@ -134,7 +134,7 @@ The "if" keyword compares two expressions and then performs a statment, (usually
 The "while" keyword loops through the code between it and another keyword "endw" provided the condition is true [like if] (end while).<br>
 <pre>
 ...
-	while a &lt; 5
+	while (a &lt; 5)
 		...
 		let a = a + 1
 		...

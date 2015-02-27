@@ -12,7 +12,7 @@ function main(0)
 	let <struct mystruct02>myvar.member1 = 0x34
 	let <struct mystruct02>myvar.member2 = 32768
 	let <struct mystruct02>myvar.member3 = 0xDEADBEEF
-	if <struct mystruct>(exec_load_addr).header = 0xBA5EBA11 goto success
+	if (<struct mystruct>(exec_load_addr).header = 0xBA5EBA11) goto success
 	print "not loaded using compliant header"
 	end
 :success
