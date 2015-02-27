@@ -178,14 +178,14 @@ intend to return anything use:<br>
 Structures are like "patterns" in memory.<br>
 In TBC++, structures are declared like this:<br>
 <pre>
-struct mystruct, [number of members]
+struct mystruct([number of members])
 	int8/int16/int32 membername
 	...
 ends
 </pre>
 You can then use the sizeof keyword to get the size of the structure and allocate memory for it.<br>
 <pre>
-alloc mystruct01 = sizeof(mystruct)
+mystruct01 = alloc(sizeof(mystruct))
 </pre>
 Then you can access it using the 'typecast' (&lt;&gt;) operator.<br>
 <pre>
@@ -224,7 +224,7 @@ T++ provides 4 internal functions for a program to use.<br>
 	The "alloc" function allocates a region of memory, by size, and then puts the pointer into a variable<br>
 	<pre>
 	#! Allocate 256 bytes and assign pointer to x
-	alloc x = 256
+	x = alloc(256)
 	</pre>
 <h4>end</h4>
 	The "end" function simply quits the program.<br>

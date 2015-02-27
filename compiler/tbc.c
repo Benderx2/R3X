@@ -1440,8 +1440,9 @@ do_struct()
 {
   eat_blanks();
   char* new_struct_name = return_next_tok();
-  match(',');
+  match('(');
   unsigned int struct_members = get_num();
+  match(')');
   if(struct_members==0) {
     error("number of struct members is 0\n");
   }

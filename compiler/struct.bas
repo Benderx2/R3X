@@ -1,8 +1,8 @@
 #define exec_load_addr 0x100000
-struct mystruct, 1
+struct mystruct(1)
 	int32 header
 ends
-struct mystruct02, 3
+struct mystruct02(3)
 	int8 member1
 	int16 member2
 	int32 member3
