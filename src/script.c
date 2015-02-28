@@ -94,10 +94,34 @@ char* return_next_string(void) {
 	string[0] = 0;
 
 	for (get_char (); look != '"'; get_char ()) {
-		++string_size;
-		string = nt_realloc(string, string_size + 1);
-		string[string_size - 1] = look;
-		string[string_size] = 0;
+		if(look == '$') {
+			char* env_str = nt_malloc(1);
+			unsigned int size = 0;
+			get_char();
+			while(isalpha(look) || look == '_') {
+				size++;
+				env_str = nt_realloc(env_str, size+1);
+				env_str[size-1] = look;
+				env_str[size] = 0;
+				get_char();
+			}
+			char* my_env = getenv(env_str);
+			if(my_env == NULL) {
+				my_env = "UNKNOWN";
+			}
+			string_size += strlen(my_env);
+			string = nt_realloc(string, string_size+1);
+			strcpy(string, my_env);
+			nt_free(env_str);
+			if(look == '"') {
+				ungetc(look, input_file);
+			}
+		} else {
+			++string_size;
+			string = nt_realloc(string, string_size + 1);
+			string[string_size - 1] = look;
+			string[string_size] = 0;
+		}
     }
 
 	get_char ();
@@ -140,7 +164,7 @@ tokentype get_keyword(void) {
 	} else if(!strcmp(token, "end")) {
 		returnval = TOK_END;
 	} else {
-		fprintf(stderr, "<%u> script: Expected keyword got %s\n", token, line_num);
+		fprintf(stderr, "<%u> script: Expected keyword got %s\n", line_num, token);
 		exit(0);
 	}
 	expect(':');

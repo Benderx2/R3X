@@ -133,7 +133,7 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 	CPU->Regs[0] = header->r3x_init;
 	r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 	//! if less than 500, copy the length
-	if(strlen(Arguments < 500)) {
+	if(strlen(Arguments) < 500) {
 		memcpy((char*)&CPU->Memory[ARGUMENT_LOCATION], Arguments, strlen(Arguments));
 	} else {
 		//! else copy only 500 bytes.
