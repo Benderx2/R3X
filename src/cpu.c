@@ -71,6 +71,7 @@ bool exitcalled = false;
 bool incycle = false;
 bool is_read = true;
 char keycode = 0;
+uint32_t ProgramArguments = NULL;
 
 #ifdef REX_GRAPHICS
 SDL_Event key_event = {SDL_USEREVENT};
@@ -2048,18 +2049,20 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[get_item_from_stack_top(1)]));
 				break;
 			case SYSCALL_ALLOC: 
-				if((unsigned int)get_item_from_stack_top(1) > 4096) { 
+				/*if((unsigned int)get_item_from_stack_top(1) > 4096) { 
 					printf("Attempt to allocate memory more than 4096 bytes at once\n");
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
 					break;
-				}
+				}*/
 				Stack.Push(CPU->Stack, CPU->MemorySize);
-				CPU->MemorySize += SEGMENT_SIZE;
+				unsigned int NumberOfPages = (((unsigned int)get_item_from_stack_top(2) & 0xFFFFF000)+SEGMENT_SIZE) / SEGMENT_SIZE;
+				printf("Number of pages: %u\n", NumberOfPages);
+				CPU->MemorySize += SEGMENT_SIZE * NumberOfPages;
 				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
 				CPU->CPUMemoryBlocks = RebuildMemoryBlock(CPU->CPUMemoryBlocks, CPU->MemorySize);
-				MemoryMap(CPU->CPUMemoryBlocks, RX_RW, CPU->MemorySize - SEGMENT_SIZE, CPU->MemorySize);
+				MemoryMap(CPU->CPUMemoryBlocks, RX_RW, CPU->MemorySize - SEGMENT_SIZE*NumberOfPages, CPU->MemorySize);
 				break;
 			case SYSCALL_DISPATCH:
 				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize){
@@ -2122,6 +2125,8 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 			case SYSCALL_GETCLOCKSPERSEC:
 				Stack.Push(CPU->Stack, return_int_from_float((float)CLOCKS_PER_SEC));
 				break;
+			case SYSCALL_GETARGS:
+			
 			default:
 				printf("Invalid Argument passed to syscall\n");
 				break;
