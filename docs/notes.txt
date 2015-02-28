@@ -6,4 +6,12 @@ notes: random notes written by me for reference
 i'd like to implement garbage collection as soon as possible, but it's kinda challenging,
 because of the design of the virtual machine. firstly, the vm is very simple when it comes
 to the instruction set, everything on the stack is just an integer, there are no types or whatever.
-secondly,  
+
+but it would still be possible, if somehow i could update the vm about the state of variables etc.
+
+the plan would roughly be like:
+
+	--> allocate variable
+	--> call a specific "function" called gc_add
+	--> gc_add will add the variable and the pointer to the list
+	-->

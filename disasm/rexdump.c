@@ -62,7 +62,7 @@ char* InputFile = NULL;
 char* OutputFile = NULL;
 uint8_t* InputBuffer = NULL;
 unsigned int BufSize = 0;
-
+uint32_t TextStartAddr = 0;
 void PrintHelp(void);
 void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionheader);
 void ParseArguments(int argc, char* argv[]);
@@ -97,6 +97,7 @@ int main(int argc, char* argv[]){
 	if(myheader->header_id != R3X_HEADER_2033){
 		fprintf(stderr, "rexdump: Invalid header. Please note that 'rexdump' can ONLY be used for executables, not for shared libraries!\n");
 	}
+	TextStartAddr = myheader->r3x_init;
 	dissassemble((uint8_t*)InputBuffer + myheader->r3x_init - PROG_EXEC_POINT, (unsigned int)myheader->r3x_text_size, fpout, ".text {");
 	dissassemble((uint8_t*)InputBuffer + myheader->r3x_data - PROG_EXEC_POINT, (unsigned int)myheader->r3x_data_size, fpout, ".data {");
 	fclose(fpin);
@@ -148,6 +149,7 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 	unsigned int domain_num = 0;
 	fprintf(output, "%s\n", sectionheader);
 	while(i < size){
+	fprintf(output, "0x%X: (%u) ", i+TextStartAddr, i+TextStartAddr);
 	switch(input[i]) {
 			case R3X_CALL:
 				fprintf(output, "call 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
@@ -526,23 +528,23 @@ void dissassemble(uint8_t* input, unsigned int size, FILE* output, char* section
 				fprintf(output, "fsqrt\n");
 				break;
 			case R3X_JMPL:
-				fprintf(output, "jmpl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jmpl %d\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JLL:
-				fprintf(output, "jll %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jll %d\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JGL:
-				fprintf(output, "jgl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jgl %d\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JZL:
-				fprintf(output, "jzl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jzl %d\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JEL:
-				fprintf(output, "jel %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jel %d\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_PUSHIP:

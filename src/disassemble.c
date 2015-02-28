@@ -5,8 +5,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 	unsigned int domain_num = 0;
 	fprintf(output, "%s\n", sectionheader);
 	while(i < size){
-	printf("0x%X: ", j);
-	j++;
+	printf("0x%X: ", i);
 	switch(input[i]) {
 			case R3X_CALL:
 				fprintf(output, "call 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
@@ -385,23 +384,23 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				fprintf(output, "fsqrt\n");
 				break;
 			case R3X_JMPL:
-				fprintf(output, "jmpl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jmpl %d\n", BYTE_SWAP(*((int32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JLL:
-				fprintf(output, "jll %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jll %d\n", BYTE_SWAP(*((int32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JGL:
-				fprintf(output, "jgl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jgl %d\n", BYTE_SWAP(*((int32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JZL:
-				fprintf(output, "jzl %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jzl %d\n", BYTE_SWAP(*((int32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_JEL:
-				fprintf(output, "jel %u\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
+				fprintf(output, "jel %d\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
 				break;
 			case R3X_PUSHIP:

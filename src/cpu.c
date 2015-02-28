@@ -682,7 +682,11 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_JMPL:
 		#endif
-			CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+			if((int32_t)return_32bit_int_from_ip(CPU) > 0) {
+				CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+			} else {
+				CPU->InstructionPointer -= abs((int32_t)return_32bit_int_from_ip(CPU)+CPU_INCREMENT_WITH_32_OP);
+			}
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 
@@ -694,9 +698,13 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		INTERP_JEL:
 		#endif
 			if(CPU->EqualFlag == true){
-				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+				if((int32_t)return_32bit_int_from_ip(CPU) > 0) {
+					CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+				} else {
+					CPU->InstructionPointer -= (int32_t)return_32bit_int_from_ip(CPU);
+				}
 			} else {
-				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+				CPU->InstructionPointer -= abs((int32_t)return_32bit_int_from_ip(CPU)+CPU_INCREMENT_WITH_32_OP);
 			}
 			#ifndef REX_OPTIMIZE
 				break;
@@ -709,9 +717,13 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		INTERP_JGL:
 		#endif
 			if(CPU->GreaterFlag == true){
-				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+				if((int32_t)return_32bit_int_from_ip(CPU) > 0) {
+					CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+				} else {
+					CPU->InstructionPointer -= (int32_t)return_32bit_int_from_ip(CPU);
+				}
 			} else {
-				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+				CPU->InstructionPointer -= abs((int32_t)return_32bit_int_from_ip(CPU)+CPU_INCREMENT_WITH_32_OP);
 			}
 			#ifndef REX_OPTIMIZE
 				break;
@@ -724,9 +736,13 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		INTERP_JLL:
 		#endif
 			if(CPU->LesserFlag == true){
-				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+				if((int32_t)return_32bit_int_from_ip(CPU) > 0) {
+					CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+				} else {
+					CPU->InstructionPointer -= (int32_t)return_32bit_int_from_ip(CPU);
+				}
 			} else {
-				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
+				CPU->InstructionPointer -= abs((int32_t)return_32bit_int_from_ip(CPU)+CPU_INCREMENT_WITH_32_OP);
 			}
 			#ifndef REX_OPTIMIZE
 				break;
@@ -739,7 +755,11 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		INTERP_JZL:
 		#endif
 			if(CPU->ZeroFlag == true){
-				CPU->InstructionPointer += return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+				if((int32_t)return_32bit_int_from_ip(CPU) > 0) {
+					CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+				} else {
+					CPU->InstructionPointer -= abs((int32_t)return_32bit_int_from_ip(CPU)+CPU_INCREMENT_WITH_32_OP);
+				}
 			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			}
