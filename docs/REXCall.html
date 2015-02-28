@@ -1,0 +1,60 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<style>
+body {
+  background-image: url(data/background.jpg);
+  background-size: cover;
+}
+</style>
+<font color=#FFFFFF face="Verdana">  
+<h1>REX Virtual Machine Documentation</h1>
+<h2>REX Calling Convention</h2>
+The REX Calling convention is the standard convention by which REX programs are supposed to communicate<br>
+to external / internal methods. <br>
+
+For arguments the convention uses the data stack of a domain, the arguments are to be push in ascending order, <br>
+that is, the first argument is pushed first, the second is pushed second, and so on.<br>
+
+For this mechanism to work properly, the caller MUST know the total number of arguments to be given to the method.<br>
+
+Next, the caller must increment the stack pointer by 4, by pushing 4 registers to the data stack. They can be any 4 out of the 20 registers provided<br>
+This is used to preserve registers during the call.<br>
+
+The return value from the function is stored in R7.<br>
+An example is given below (in assembly):<br>
+<pre>
+	push 1
+	push 2
+	push 3
+	; Push 4 items to stack.
+	; They can be regs as well, if you want to save their values
+	push 0
+	push 0
+	push 0
+	push 0
+	
+	call add3numbers
+	
+	popn 4
+	; Pop out the number of args on stack
+	popn 3
+	...
+function add3numbers
+	; load first argument from stack
+	loadr R8, 4+3
+	loadsr R8
+	loadr R7, R8
+	; Load second argument from stack
+	loadr R8, 4+2
+	loadsr R8
+	addrr R7, R8
+	; Load third argument from stack
+	loadr R8, 4+1
+	loadsr R8
+	addr R7, R8
+	; Return
+	ret
+	...
+</pre>

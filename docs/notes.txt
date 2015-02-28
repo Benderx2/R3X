@@ -1,0 +1,9 @@
+notes: random notes written by me for reference
+
+
+1. garbage collection:
+
+i'd like to implement garbage collection as soon as possible, but it's kinda challenging,
+because of the design of the virtual machine. firstly, the vm is very simple when it comes
+to the instruction set, everything on the stack is just an integer, there are no types or whatever.
+secondly,  

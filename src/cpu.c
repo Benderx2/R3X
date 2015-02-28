@@ -423,7 +423,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#endif
 			if(CPU->EqualFlag==true) {
 				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
-					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
+					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 1;
 					CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 				} else {
 					printf("Invalid Register Index\n");
@@ -442,7 +442,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#endif
 			if(CPU->EqualFlag!=true) {
 				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
-					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
+					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 1;
 					CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 				} else {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
@@ -460,7 +460,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#endif
 			if(CPU->LesserFlag==true) {
 				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
-					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
+					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 1;
 					CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 				} else {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
@@ -478,7 +478,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#endif
 			if(CPU->GreaterFlag==true) {
 				if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
-					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 0;
+					CPU->Regs[CPU->Memory[CPU->InstructionPointer+1]] = 1;
 					CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 				} else {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
