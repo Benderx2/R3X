@@ -132,7 +132,13 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 	r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 	CPU->Regs[0] = header->r3x_init;
 	r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
-	memcpy((char*)&CPU->Memory[ARGUMENT_LOCATION], Arguments, 80);
+	//! if less than 500, copy the length
+	if(strlen(Arguments < 500)) {
+		memcpy((char*)&CPU->Memory[ARGUMENT_LOCATION], Arguments, strlen(Arguments));
+	} else {
+		//! else copy only 500 bytes.
+		memcpy((char*)&CPU->Memory[ARGUMENT_LOCATION], Arguments, 500);
+	}
 	// Initialise keyboard thread.
 	#ifdef REX_GRAPHICS
 	SDL_Thread *kthread = NULL;

@@ -148,7 +148,7 @@ else
 	export DYNAMICFLAGS="-ldl -rdynamic"
 	export LFLAGS="-lc -lm"
 fi
-export LINKER_FILES="$LINKER_FILES cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o rfc.o"
+export LINKER_FILES="$LINKER_FILES cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o rfc.o script.o"
 # Compile libntmalloc
 $CC $ARCHFLAGS -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o

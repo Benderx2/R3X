@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <inttypes.h>
+#include <ctype.h>
 #ifndef _WIN32
 #include <unistd.h>
 #else

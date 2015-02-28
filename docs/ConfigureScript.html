@@ -1,0 +1,56 @@
+<html>
+<div style="position: relative; left: 1150px; top: 0px;">
+<img src="data/logo.png" align="center">
+</div> 
+<style>
+body {
+  background-image: url(data/background.jpg);
+  background-size: cover;
+}
+</style>
+<font color=#FFFFFF face="Verdana"> 
+<h1>REX Virtual Machine Documentation</h1>
+<h2>REX Configure Script</h2>
+
+Other than passing arguments to the VM through the command line, one can also pass a "configure" script using the -rs<br>
+option.<br>
+
+<h3>Basic Syntax</h3>
+All configure types must follow this basic syntax:
+<pre>
+command: [value]
+</pre>
+
+<h3>List of commands</h3>
+<pre>executable: "[exename]"</pre>
+Specify executable name.
+<pre>args: "[args]"</pre>
+Specify arguments
+<pre>font_file: "[font name]"</pre>
+Specify font file name (Must be a PNG-Bitmap font: 128x128, 256x256, 512x512)
+<pre>font_height: [integer value]</pre>
+Specify font height
+<pre>font_width: [integer value]</pre>
+Specify font width
+<pre>font_scale: [float value]</pre>
+Specify font scale
+<pre>screen_width: [integer value]</pre>
+Specify screen width (in pixels)
+<pre>screen_height: [integer value]</pre>
+Specify screen height (in pixels)
+<pre>stack: [integer value]</pre>
+Specify max stack size
+<pre>end: </pre>
+End of Script
+
+<h3>An example script</h3>
+Below is an example of running args.exe with the appropriate options:
+<pre>
+executable: "args.exe"
+font_height: 16
+font_width: 16
+font_scale: 1.0f
+args: "hello, world!"
+end:
+</pre>
+(NOTE: The "end:" is not needed, but is recommended.)

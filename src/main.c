@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <nt_malloc.h>
 #include <r3x_dynamic.h>
 #include <big_endian.h>
+#include <r3x_script.h>
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
 #endif
@@ -54,6 +55,7 @@ unsigned int FontWidth = 8;
 double FontScale = 0.5f;
 char* FontFileName = NULL;
 char* ProgramArguments = NULL;
+char* ScriptName = NULL;
 // names for vars
 double ChosenCPUFrequency = 0;
 unsigned int max_stack = DEFAULT_MAX_STACK_SIZE;
@@ -74,11 +76,36 @@ int main(int argc, char* argv[])
 	#endif
 	load_lib_manager();
 	init_stream_manager();
-	if (argc < 2){
-		printf("main: Expected Argument : executable name!\n");
-		exit(EXIT_FAILURE);
-	}
 	ParseArguments(argc, argv);
+	char* default_fontname = malloc(strlen(ApplicationPath) + strlen(DefaultFontFileName)+1);
+	strcpy(default_fontname, ApplicationPath);
+	strcat(default_fontname, DefaultFontFileName);
+	if(ScriptName != NULL) {
+		ScriptState TempState;
+		TempState.ExeName = ExecutableName;
+		TempState.FontName = default_fontname;
+		TempState.FontHeight = FontHeight;
+		TempState.FontWidth = FontWidth;
+		TempState.FontScale = FontScale;
+		TempState.Frequency = ChosenCPUFrequency;
+		TempState.StackSize = max_stack;
+		TempState.ScreenHeight = ScreenHeight;
+		TempState.ScreenWidth = ScreenWidth;
+		TempState.Args = ProgramArguments;
+		
+		parse_script(ScriptName, &TempState);
+		
+		ExecutableName = TempState.ExeName;
+		ProgramArguments = TempState.Args;
+		default_fontname = TempState.FontName;
+		FontHeight = TempState.FontHeight;
+		FontWidth = TempState.FontWidth;
+		FontScale = TempState.FontScale;
+		ChosenCPUFrequency = TempState.Frequency;
+		max_stack = TempState.StackSize;
+		ScreenHeight = TempState.ScreenHeight;
+		ScreenWidth = TempState.ScreenWidth;
+	}
 	if(UseServer == true){
 		printf("VM is running under client mode\n");
 	}
@@ -89,6 +116,10 @@ int main(int argc, char* argv[])
 	#ifndef _WIN32
 	signal(SIGUSR1, SIGUSR1_handler);
 	#endif
+	if(ExecutableName == NULL) {
+		printf("Please provide the executable name using the \"-exe\" option\n");
+		exit(EXIT_FAILURE);
+	}
 	// Print version
 	printf("%s\n", R3X_SYSTEM_VERSION);
 	// Allocate memory for CPU structure
@@ -99,9 +130,6 @@ int main(int argc, char* argv[])
 	#ifdef REX_GRAPHICS
 	// Initialise Graphics Device and load default font.
 	r3_cpu->Graphics = InitGraphics();
-	char* default_fontname = malloc(strlen(ApplicationPath) + strlen(DefaultFontFileName)+1);
-	strcpy(default_fontname, ApplicationPath);
-	strcat(default_fontname, DefaultFontFileName);
 	r3_cpu->Graphics->font = loadfont(default_fontname);
 	#endif
 	// Run the BIOS
@@ -257,6 +285,12 @@ void ParseArguments(int argc, char* argv[]){
 				exit(EXIT_FAILURE);
 			}
 			ProgramArguments = argv[i+1];
+		} else if(!strcmp(argv[i], "-rs")) {
+			if(i+1 >= argc) {
+				printf("Error: -rs option, script name not specified\n");
+				exit(EXIT_FAILURE);
+			}
+			ScriptName = argv[i+1];
 		} else if(strncmp(argv[i], "-help", 5)==0||strncmp(argv[i], "--help", 6)==0){
 			PrintHelp();
 			exit(EXIT_SUCCESS);

@@ -6,6 +6,7 @@ include 'libR3X/libR3X.pkg'
 		Console.Write "Arugments Passed: "
 		syscall SYSCALL_GETARGS
 		syscall SYSCALL_PUTS
+		Console.WaitKey
 		System.Quit 0
 	endfunction main
 }
