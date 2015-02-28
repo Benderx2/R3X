@@ -118,7 +118,7 @@ extern r3x_cpu_t* r3_cpu;
 
 void handle_cpu_exception(r3x_cpu_t*, unsigned int);
 
-int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header);
+int r3x_cpu_loop(r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments);
 
 uint64_t rfc_emulate_instruction(r3x_cpu_t* CPU);
 #endif

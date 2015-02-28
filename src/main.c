@@ -53,6 +53,7 @@ unsigned int FontHeight = 8;
 unsigned int FontWidth = 8;
 double FontScale = 0.5f;
 char* FontFileName = NULL;
+char* ProgramArguments = NULL;
 // names for vars
 double ChosenCPUFrequency = 0;
 unsigned int max_stack = DEFAULT_MAX_STACK_SIZE;
@@ -123,13 +124,14 @@ int main(int argc, char* argv[])
 	r3x_load_bios(r3_cpu);
 	//! Map the executable regions
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_EXEC, 0, SEGMENT_SIZE);
+	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RW, 4096, SEGMENT_SIZE);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_EXEC, text_begin, text_begin + text_size);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RW, data_begin, data_begin + data_size);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RW, data_begin + data_size, data_begin+data_size+SEGMENT_SIZE);
 	MemoryMap(r3_cpu->CPUMemoryBlocks, RX_RONLY, PROG_EXEC_POINT, PROG_EXEC_POINT + SEGMENT_SIZE);
 	load_dependencies(r3_cpu);
 	r3_header = (r3x_header_t*)&(r3_cpu->Memory[PROG_EXEC_POINT]);
-	r3x_cpu_loop(r3_cpu, r3_header);
+	r3x_cpu_loop(r3_cpu, r3_header, ProgramArguments);
 	free(ApplicationPath); // Allocated using strdup
 	// Free all
 	nt_freeall();
@@ -249,10 +251,19 @@ void ParseArguments(int argc, char* argv[]){
 			FontScale = atof(argv[i+1]);
 		} else if(!strcmp(argv[i], "-s")){
 			UseServer = true;
+		} else if(!strcmp(argv[i], "-args")) {
+			if(i+1 >= argc) {
+				printf("Error: -args option, arguments not specified\n");
+				exit(EXIT_FAILURE);
+			}
+			ProgramArguments = argv[i+1];
 		} else if(strncmp(argv[i], "-help", 5)==0||strncmp(argv[i], "--help", 6)==0){
 			PrintHelp();
 			exit(EXIT_SUCCESS);
 		}
+	}
+	if(ProgramArguments == NULL) {
+		ProgramArguments = "NOARGS";
 	}
 }
 void PrintHelp(void) {

@@ -65,13 +65,12 @@ typedef union __float_typecast {
 
 // A few constants
 const int SLEEP_MILLISECONDS = 1000;
-
+const int ARGUMENT_LOCATION = 4096;
 // Bools and global stuff
 bool exitcalled = false;
 bool incycle = false;
 bool is_read = true;
 char keycode = 0;
-uint32_t ProgramArguments = NULL;
 
 #ifdef REX_GRAPHICS
 SDL_Event key_event = {SDL_USEREVENT};
@@ -126,13 +125,14 @@ int keyboard_thread(void* data);
  * r3x_cpu_loop - Calls r3x_emulate_instruction repeateadly until it reaches a non-exec region
  * or an exit instruction. 
 */
-int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header)
+int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 {
 	r3x_dispatch_job(BIOS_START, 1, CPU->RootDomain, true);
 	CPU->RootDomain->CurrentJobID = 0;
 	r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 	CPU->Regs[0] = header->r3x_init;
 	r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
+	memcpy((char*)&CPU->Memory[ARGUMENT_LOCATION], Arguments, 80);
 	// Initialise keyboard thread.
 	#ifdef REX_GRAPHICS
 	SDL_Thread *kthread = NULL;
@@ -2126,7 +2126,8 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				Stack.Push(CPU->Stack, return_int_from_float((float)CLOCKS_PER_SEC));
 				break;
 			case SYSCALL_GETARGS:
-			
+				Stack.Push(CPU->Stack, ARGUMENT_LOCATION);
+				break;
 			default:
 				printf("Invalid Argument passed to syscall\n");
 				break;

@@ -186,6 +186,7 @@ $AS programs/hello.il
 $AS programs/asshole.il
 $AS programs/rfc.il
 $AS programs/dynamiclib.il
+$AS programs/args.il
 mkdir -p $BINDIR
 mkdir -p $BINDIR/bios
 # now transfer it 
@@ -206,6 +207,7 @@ mv programs/simplelib.ro $BINDIR/
 mv programs/bios.bin $BINDIR/bios
 mv programs/rfc.exe $BINDIR/
 mv programs/dynamiclib.exe $BINDIR/
+mv programs/args.exe $BINDIR/
 cp ./128x128.png $BINDIR/bios 
 # remove all object files
 rm *.o
