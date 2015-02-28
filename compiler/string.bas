@@ -6,15 +6,25 @@ function strlen(1)
 	endw
 	return i
 endf
-
+function strcpy(2) 
+	let Source = $1
+	let Destination = $2
+	let i = 0
+	while(0 = 0)
+		if(int8_ptr(Source+i) = 0) goto finish
+		let int8_ptr(Destination+i) = int8_ptr(Source+i)
+		let i = i + 1
+	endw
+:finish
+	return 0
+endf
 function strcmp(2)
 	let str01 = $1
 	let str02 = $2
 	let i = 0
-	// If they are if different length, they are obviously not equal
 	if (@strlen(str01) != @strlen(str02)) return 1
-	while (i <= @strlen(str01))
-		if int8_ptr(str01+i) != int8_ptr(str02+i) return 1
+	while(i <= @strlen(str01))
+		if (int8_ptr(str01+i) != int8_ptr(str02+i)) return 1
 		let i = i + 1
 	endw
 	return 0
@@ -26,5 +36,10 @@ function main(0)
 	end
 :yay
 	print "string works"
+	let x = @strlen("hello")
+	let x = alloc(7)
+	@strcpy("hello", x)
+	print "strcpy: "; x
+	print $x
 	end
 endf

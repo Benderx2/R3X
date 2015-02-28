@@ -94,7 +94,9 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	fclose(fp); // Free the file no need..
 	header = (r3x_header_t*)&mem2[PROG_EXEC_POINT];
 	if(header->checksum == 0) {
-	  printf("WARNING: File checksum is 0. Should I continue? [Y/N] (NOTE: The executable might have been tampered with either accidently or malciously!!!): ");
+	  printf("Checksum not found, this means that the binary which you're trying to execute doesn't have a validation signature.\n");
+	  printf("This means that there is no way to check if the binary has been maliciously or accidently modified\n");
+	  printf("Do you want me to continue [Y/N]: ");
 	  char a = fgetc(stdin);
 	  if(a!='y' && a != 'Y') {
 	    exit(EXIT_FAILURE);

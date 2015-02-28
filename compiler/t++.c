@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
 	if(AsmFlag == true) {
 		remove(ASMOutputFile);
 	}
-	remove(TBCOutputFile);
+	//remove(TBCOutputFile);
 	return 0;
 }
 char* ConcatenateStrings(char *s1, char *s2)
