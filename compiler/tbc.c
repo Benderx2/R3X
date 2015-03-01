@@ -1393,7 +1393,8 @@ void generate_identifier(void) {
 				printf("\tloadr R1, _rexcall_%s\n", return_next_tok());
 				match(')');
 			} else {
-				printf("\tloadr R1, %s\n", return_next_int_name());
+				printf("\tloadr R1, v%s\n", return_next_int_name());
+				match(')');
 			}
 	   }
 	   else {

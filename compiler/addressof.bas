@@ -15,6 +15,7 @@ function main(0)
 	/* Call address a with 0 arguments */
 	@raw_call(a, 0)
 	let a = addressof(@y)
+	/* Call address a with 3 arguments */
 	let c = @raw_call(a, 2, 15, 27+22)
 	print "return value from y ="; c
 	end
