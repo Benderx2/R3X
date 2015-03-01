@@ -93,6 +93,17 @@ enum
   O_LESS_OR_EQUAL,
   O_MORE_OR_EQUAL
 };
+#define COMP_L 0
+#define COMP_G 1
+#define COMP_E 2
+#define COMP_NE 8
+#define COMP_LE 3
+#define COMP_GE 4
+#define OP_LAND 5
+#define OP_LOR 6
+#define OP_NONE 7
+#define OP_AND '&'
+#define OP_OR '|'
 typedef enum {
 	RX_INT8,
 	RX_INT16,
@@ -198,8 +209,12 @@ static void  do_func       PARAMS ((void));
 static void  do_struct	   PARAMS ((void));
 static void  do_global	   PARAMS ((void));
 static void  do_endf		PARAMS ((void));
+
 char* return_next_int_name_and_add (void);
+
 static void  do_function_call PARAMS((void));
+
+static int get_comparision_operator(void);
 
 static RX_STRUCT_TYPE  do_typecast   PARAMS ((int));
 
@@ -802,9 +817,16 @@ do_term ()
 {
   bool return_val = false;
   do_factor ();
-  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%')
+  while (look == '&' || look == '^' || look == '|' || look == '*' || look == '/' || look == '%' || look == '<' || look == '>' || look == '!' || look == ':')
     {
       int op = look;
+      int t_look = look;
+      if(look == '<' || look == '>' || look == '|' || look == '&' || look == ':' || look == '!') {
+			int newop = get_comparision_operator();
+			if(newop != 0) {
+				op = newop;
+			}
+	  }
       puts ("\tpushar R1");
       match (look);
       do_factor ();
@@ -826,9 +848,96 @@ do_term ()
 	  }
 	  else if (op == '%'){
 		puts("pushr R2\n\tpushr R1\n\tmod\n\tpopr R1\n\tpopn 2");
-	  } 
+	  } else if(op == COMP_E) {
+		puts("\tcmpr R2, R1");
+		puts("\tloadr R12, 0");
+		puts("\tsete R12");
+		puts("\tloadrr R1, R12");
+	  } else if(op == COMP_NE) {
+		puts("\tcmpr R2, R1");
+		puts("\tloadr R12, 0");
+		puts("\tsetne R12");
+		puts("\tloadrr R1, R12");
+	  } else if(op == COMP_GE) {
+		puts("\tcmpr R2, R1");
+		puts("\tloadr R12, 0");
+		puts("\tsetge R12");
+		puts("\tloadrr R1, R12");
+	  } else if(op == COMP_LE) {
+		puts("\tcmpr R2, R1");
+		puts("\tloadr R12, 0");
+		puts("\tsetle R12");
+		puts("\tloadrr R1, R12");
+	  } else if(op == COMP_L) {
+		puts("\tcmpr R2, R1");
+		puts("\tloadr R12, 0");
+		puts("\tsetl R12");
+		puts("\tloadrr R1, R12");
+	  } else if(op == COMP_G) {
+		puts("\tcmpr R2, R1");
+		puts("\tloadr R12, 0");
+		puts("\tsetg R12");
+		puts("\tloadrr R1, R12");
+	  } else if(op == OP_LAND) {
+		puts("\tpushr R1");
+		puts("\tpushr R2");
+		puts("\tland");
+		puts("\tpopr R1");
+		puts("\tpopn 2");
+	  } else if(op == OP_LOR) {
+		puts("\tpushr R1");
+		puts("\tpushr R2");
+		puts("\tlor");
+		puts("\tpopr R1");
+		puts("\tpopn 2");
+	  }
     }
     return return_val;
+}
+static int get_comparision_operator(void) {
+      int temp_look = look;
+      int ret_val = 0;
+      get_char();
+      switch(look) {
+			case '=':
+				if(temp_look == '<') {
+					ret_val = COMP_LE;
+				} else if(temp_look == '>') {
+					ret_val = COMP_GE;
+				} else if(temp_look == '!') {
+					ret_val = COMP_NE;
+				} else if(temp_look == ':') {
+					ret_val = COMP_E;
+				}
+				break;
+			case '|':
+				if(temp_look == '|') {
+					ret_val = OP_LOR;
+				} else {
+					error("Unknown op: %c, %c\n", look, temp_look);
+				}
+				break;
+			case '&':
+				if(temp_look == '&') {
+					ret_val = OP_LAND;
+				} else {
+					error("Unknown op: %c, %c\n", look, temp_look);
+				}
+				break;
+			default:
+				if(temp_look == '<') {
+					ret_val = COMP_L;
+				} else if(temp_look == '>') {
+					ret_val = COMP_G;
+				} else if(temp_look == '&') {
+					ret_val = OP_AND;
+				} else if(temp_look == '|') {
+					ret_val = OP_OR;
+				}
+				ungetc(look, stdin);
+				break;
+	  }
+	  return ret_val;
 }
 /*!
  * Factors an expression, parses parenetheses and memory access brackets.
@@ -1601,90 +1710,8 @@ do_if ()
   int op;
   match('(');
   do_expression ();
-  puts ("\tloadrr R4, R1");
-
-  if (look == '=')
-    {
-      match ('=');
-      if (look == '<')
-	{
-	  match ('<');
-	  op = O_LESS_OR_EQUAL;
-	}
-      else if (look == '>')
-	{
-	  match ('>');
-	  op = O_MORE_OR_EQUAL;
-	}
-      else
-	{
-	  op = O_EQUAL;
-	}
-    }
-  else if (look == '<')
-    {
-      match ('<');
-      if (look == '=')
-	{
-	  match ('=');
-	  op = O_LESS_OR_EQUAL;
-	}
-      else
-	{
-	  op = O_LESS;
-	}
-    }
-  else if(look == '!') {
-	match('!');
-	if(look == '=') {
-		match('=');
-		op = O_NOT_EQUAL;
-	} else {
-		error("Unknown operator!\n");
-	}
-  }
-  else if (look == '>')
-    {
-      match ('>');
-      if (look == '=')
-	{
-	  match ('=');
-	  op = O_MORE_OR_EQUAL;
-	}
-      else if (look == '<')
-	{
-	  match ('<');
-	  op = O_NOT_EQUAL;
-	}
-      else
-	{
-	  op = O_MORE;
-	}
-    }
-  else
-    {
-      error ("expected =, <>, ><, <=, =<, >= or => got '%c'", look);
-    }
-
-  do_expression ();
-
-  fputs ("\tcmpr R4, R1\n\tj", stdout);
-
-  /* note inversal of operators */
-  if (op == O_EQUAL)
-    fputs ("ne", stdout);
-  else if (op == O_NOT_EQUAL)
-    fputs ("e", stdout);
-  else if (op == O_LESS)
-    fputs ("ge", stdout);
-  else if (op == O_MORE)
-    fputs ("le", stdout);
-  else if (op == O_LESS_OR_EQUAL)
-    fputs ("g", stdout);
-  else if (op == O_MORE_OR_EQUAL)
-    fputs ("l", stdout);
-
-  printf (" i%i\n", line);
+  printf("\tcmpri R1, 0\n");
+  printf("\tje i%i\n", line);
   match(')');
   do_statement ();
 
@@ -1710,89 +1737,8 @@ do_while()
   while_stack[currentwhile] = whilelines;
   match('(');
   do_expression ();
-  puts ("\tloadrr R4, R1");
-
-  if (look == '=')
-    {
-      match ('=');
-      if (look == '<')
-	{
-	  match ('<');
-	  op = O_LESS_OR_EQUAL;
-	}
-      else if (look == '>')
-	{
-	  match ('>');
-	  op = O_MORE_OR_EQUAL;
-	}
-      else
-	{
-	  op = O_EQUAL;
-	}
-    }
-  else if (look == '<')
-    {
-      match ('<');
-      if (look == '=')
-	{
-	  match ('=');
-	  op = O_LESS_OR_EQUAL;
-	}
-      else
-	{
-	  op = O_LESS;
-	}
-    }
-  else if(look == '!') {
-	match('!');
-	if(look == '=') {
-		match('=');
-		op = O_NOT_EQUAL;
-	} else {
-		error("Unknown operator!\n");
-	}
-  }
-  else if (look == '>')
-    {
-      match ('>');
-      if (look == '=')
-	{
-	  match ('=');
-	  op = O_MORE_OR_EQUAL;
-	}
-      else if (look == '<')
-	{
-	  match ('<');
-	  op = O_NOT_EQUAL;
-	}
-      else
-	{
-	  op = O_MORE;
-	}
-    }
-  else
-    {
-      error ("expected =, !=, ><, <=, =<, >= or => got '%c'", look);
-    }
-
-  do_expression ();
-
-  fputs ("\tcmpr R4, R1\n\tj", stdout);
-
-  /* note inversal of operators */
-  if (op == O_EQUAL)
-    fputs ("ne", stdout);
-  else if (op == O_NOT_EQUAL)
-    fputs ("e", stdout);
-  else if (op == O_LESS)
-    fputs ("ge", stdout);
-  else if (op == O_MORE)
-    fputs ("le", stdout);
-  else if (op == O_LESS_OR_EQUAL)
-    fputs ("g", stdout);
-  else if (op == O_MORE_OR_EQUAL)
-    fputs ("l", stdout);
-  printf(" endwhile%u\n", whilelines);
+  printf("\tcmpri R1, 0\n");
+  printf("\tje endwhile%u\n", whilelines);
   match(')');
   whilelines++;
   currentwhile--;

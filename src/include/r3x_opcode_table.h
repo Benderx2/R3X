@@ -111,7 +111,9 @@ static void* DispatchTable[] = {
 	[R3X_ARS] = &&INTERP_ARS,
 	[R3X_BREAK] = &&INTERP_BREAK,
 	[R3X_CALLL] = &&INTERP_CALLL,
-	[RFC_PREFIX] = &&INTERP_RFC
+	[RFC_PREFIX] = &&INTERP_RFC,
+	[R3X_LOR] = &&INTERP_LOR,
+	[R3X_LAND] = &&INTERP_LAND
 };
 #endif
 #endif

@@ -10,8 +10,9 @@ function strcpy(2)
 	let Source = $1
 	let Destination = $2
 	let i = 0
-	while(0 = 0)
-		if(int8_ptr(Source+i) = 0) goto finish
+	while(1)
+		print "lulz"
+		if(int8_ptr(Source+i) := 0) goto finish
 		let int8_ptr(Destination+i) = int8_ptr(Source+i)
 		let i = i + 1
 	endw
@@ -24,15 +25,21 @@ function strcmp(2)
 	let i = 0
 	if (@strlen(str01) != @strlen(str02)) return 1
 	while(i <= @strlen(str01))
-		if (int8_ptr(str01+i) != int8_ptr(str02+i)) return 1
+		let a = int8_ptr(str01+i)
+		let b = int8_ptr(str02+i)
+		print a
+		print b
+		if ((int8_ptr(str01+i)) != (int8_ptr(str02+i))) return 1
 		let i = i + 1
 	endw
 	return 0
 endf
 function main(0)
+	let strlen_ = @strlen("hello")
+	print strlen_
 	let is_equal_or_not = @strcmp("hello", "hello")
-	if (is_equal_or_not = 0) goto yay
-	print "string doesnt work"
+	if (is_equal_or_not := 0) goto yay
+	print "string doesnt work"; is_equal_or_not
 	end
 :yay
 	print "string works"

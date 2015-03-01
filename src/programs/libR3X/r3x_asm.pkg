@@ -230,6 +230,13 @@ macro cmpr reg1, reg2 {
 	popr reg2
 	popr reg1
 }
+macro cmpri reg1, val {
+	pushr reg1
+	push val
+	cmp 
+	pop
+	popr reg1
+}
 macro int num {
 	db 0x34
 	db num
@@ -483,6 +490,12 @@ macro push64 imm {
 	db 0x8C
 	db 0x1
 	dq imm
+}
+macro lor {
+	db 0x8D
+}
+macro land {
+	db 0x8E
 }
 macro loadrm size, reg1, memaddr {
 	if reg1 eq R0

@@ -121,7 +121,7 @@ Control flow in T++ is achieved through 2 keywords: "IF" and "WHILE"<br>
 The "if" keyword compares two expressions and then performs a statment, (usually a goto to a label)<br>
 <pre>
 ...
-	if (a = 5) goto yes
+	if (a := 5) goto yes
 	if (a != 5) goto yes
 	if (a &lt; 5) goto yes
 	if (a &gt; 5) goto yes
@@ -154,6 +154,31 @@ endf
 The above code declares a function with 2 arguments as "add2numbers". It then uses a local variable called a and b to add it's first and second argument (referenced<br>
 by $1, and $2 respectively), to store the result of the addition. It then returns a+b.<br>
 NOTE: $1 + 2 is not same as let a = $1 let a = a + 2! "$1 + 2" means load the third argument (anything after a '$' is counted as a single expression!)<br>
+It is required to write a function in this format: <br>
+<pre>
+function function_name(no. of arguments)
+	let name_of_first_argument = $1
+	let name_of_second_argument = $2
+	...
+</pre>
+NOTE: DONT USE "ARGUMENTS" INSIDE EXPRESSIONS UNLESS YOU ARE ASSIGNING THE ARGUMENTS' VALUE TO A VARIABLE.<br>
+e.g. something like this:
+<pre>
+	while($1 &lt;= 15)
+		...
+	endw
+	...
+</pre>
+is undefined.<br>
+This must be used like:
+<pre>
+	...
+	let name_of_arg = $1
+	while(name_of_arg &lt;= 15)
+		...
+	endw
+	...
+</pre>
 This can now be called like this, from another function:<br>
 <pre>
 	...
@@ -310,6 +335,13 @@ Higher precedence:
 Low precedence:
 + - Plus
 - - minus
+!= - Not equal to
+&& - logical and
+|| - logical or
+!= - Not equal to?
+:= - Equal to?
+&gt;= - Greater than or equal
+&lt;= - Lesser than or equal
 </pre>
 <h3>Preprocessor</h3>
 t++ calls GCC first to do the preprocessing (using options -E and -P), which means you can use all C preprocessor features!<br>

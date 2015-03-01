@@ -436,6 +436,8 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 					printf("Invalid Register Index\n");
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 				}
+			} else {
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			}
 			#ifndef REX_OPTIMIZE
 				break;
@@ -454,6 +456,8 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				} else {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 				}
+			} else {
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			}
 			#ifndef REX_OPTIMIZE
 				break;
@@ -472,6 +476,8 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				} else {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 				}
+			} else {
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			}
 			#ifndef REX_OPTIMIZE
 				break;
@@ -490,6 +496,8 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				} else {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 				}
+			} else {
+				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			}
 			#ifndef REX_OPTIMIZE
 				break;
@@ -1831,6 +1839,38 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		  #else
 		      return;
 		  #endif
+		#ifndef REX_OPTIMIZE
+		case R3X_LOR:
+		#else
+		INTERP_LOR:
+		#endif
+			if(get_item_from_stack_top(1) == 1 || get_item_from_stack_top(2) == 1) {
+				Stack.Push(CPU->Stack, 1);
+			} else {
+				Stack.Push(CPU->Stack, 0);
+			}
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			#ifndef REX_OPTIMIZE
+			break;
+			#else
+			return;
+			#endif
+		#ifndef REX_OPTIMIZE
+		case R3X_LAND:
+		#else
+		INTERP_LAND:
+		#endif
+			if(get_item_from_stack_top(1) == 1 && get_item_from_stack_top(2) == 1) {
+				Stack.Push(CPU->Stack, 1);
+			} else {
+				Stack.Push(CPU->Stack, 0);
+			}
+			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
+			#ifndef REX_OPTIMIZE
+			break;
+			#else
+			return;
+			#endif
 		// Exit application
 		#ifndef REX_OPTIMIZE
 		case R3X_EXIT:
