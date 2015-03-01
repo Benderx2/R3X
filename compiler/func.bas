@@ -48,10 +48,11 @@ function main(0)
 :correct
 	print "lol it's right"
 	print "f in this scope is: "; f
-	print "adding 2 numbers: 57 and 90"
+	print "adding 2 numbers: 57 and 90+5"
 	let result = @add2numbers(57, (90+5))
 	print "result = "; result
 	print "subtracting 2 numbers: 30 and 10"
 	let result = @subtract2numbers(30, 10)
 	print "result = "; result
+	end
 endf

@@ -156,7 +156,7 @@ static const char *program_name  = "<?>";
 static const char *input_name    = NULL;
 static const char *output_name   = NULL;
 static char* compiler_init_code = NULL;
-
+static int label_num = 0;
 static void  shutdown      PARAMS ((void));
 static void *xmalloc       PARAMS ((size_t size));
 static void *xrealloc      PARAMS ((void *original, size_t size));
@@ -595,7 +595,7 @@ char* return_next_int_name()
 {
 	char* returnval = return_next_tok();
 	//! Don't mess with keywords!
-	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg")) || (!strcmp(returnval, "sizeof")) || !strcmp(returnval, "alloc")) {
+	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg")) || (!strcmp(returnval, "sizeof")) || !strcmp(returnval, "alloc") || !strcmp(returnval, "addressof")) {
 		return returnval;
 	}
 	if(current_function_name != NULL) {
@@ -615,7 +615,7 @@ char* return_next_int_name_and_add()
 {
 	char* returnval = return_next_tok();
 	//! Don't mess with keywords!
-	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg")) || (!strcmp(returnval, "sizeof")) || !strcmp(returnval, "alloc")) {
+	if(!strcmp(returnval, "int32_ptr") || (!strcmp(returnval, "int8_ptr")) || !(strcmp(returnval, "int16_ptr")) || (!strcmp(returnval, "mul_f")) || (!strcmp(returnval, "add_f")) || (!strcmp(returnval, "sub_f")) || (!strcmp(returnval, "div_f")) || (!strcmp(returnval, "conv_f")) || (!strcmp(returnval, "conv_i")) || (!strcmp(returnval, "mod_f")) || (!strcmp(returnval, "left_shift")) || (!strcmp(returnval, "right_shift")) || (!strcmp(returnval, "not")) || (!strcmp(returnval, "neg")) || (!strcmp(returnval, "sizeof")) || !strcmp(returnval, "alloc") || !strcmp(returnval, "addressof")) {
 		return returnval;
 	}
 	if(current_function_name != NULL) {
@@ -1015,7 +1015,8 @@ static void
 finish ()
 {
   int i;
-
+  puts("main: ");
+  puts("jmp _rexcall_main");
   puts ("");
   puts ("; exit to operating system");
   puts ("");
@@ -1385,6 +1386,15 @@ void generate_identifier(void) {
 		 printf("\tloadr R1, %u\n", size);
 	   } else if(!strcmp(next_potential_maccess_operator, "alloc")) {
 		  do_alloc();
+	   } else if(!strcmp(next_potential_maccess_operator, "addressof")) {
+			match('(');
+			if(look == '@') {
+				get_char();
+				printf("\tloadr R1, _rexcall_%s\n", return_next_tok());
+				match(')');
+			} else {
+				printf("\tloadr R1, %s\n", return_next_int_name());
+			}
 	   }
 	   else {
 			printf ("\tloadrm dword, R1, v%s\n", next_potential_maccess_operator);
@@ -1920,7 +1930,7 @@ do_func() {
 	unsigned int arguments = get_num();
 	match(')');
 	add_to_function_table(function_name, arguments);
-	printf("function %s\n", function_name);
+	printf("function _rexcall_%s\n", function_name);
 	if(!strcmp(function_name, "main")) {
 	  //! add some codez to mainz.
 	  printf("\tcall __internal_init\n");
@@ -1930,7 +1940,7 @@ do_func() {
 static void
 do_endf() {
 	if(current_function_name!=NULL) {
-		printf("endfunction %s\n", current_function_name);
+		printf("endfunction _rexcall_%s\n", current_function_name);
 		current_function_name = NULL;
 	} else {
 		error("endf before any function declaration!\n");
@@ -1940,6 +1950,45 @@ static void
 do_function_call() {
 	stuff_pushed_to_stack = 0;
 	char* function_name = return_next_tok();
+	if(!strcmp(function_name, "raw_call")) {
+		int current_label_name = label_num;
+		label_num++;
+		match('(');
+		do_expression();
+		printf("\tpusha _ret_lbl_%u\n", (unsigned int)current_label_name);
+		printf("\tpushar R1\n");
+		match(',');
+		unsigned int no_of_args = get_num();
+		if(no_of_args == 0) {
+			match(')');
+			printf("\tret\n");
+			printf("_ret_lbl_%u:\n", (unsigned int)current_label_name);
+			return;
+		} else {
+			//! get the comma!
+			match(',');
+			unsigned int i = 0;
+			while(i < no_of_args) {
+				do_expression();
+				if(i<no_of_args-1) {
+					match(',');
+				} else {
+					match(')');
+				}
+				puts("\tpushr R1");
+				stuff_pushed_to_stack++;
+				i++;
+			}
+			printf("\tpushr R4\n\tpushr R5\n\tpushr R9\n\tpushr R10\n");
+			printf("\tret\n");
+			printf("_ret_lbl_%u:\n", (unsigned int)current_label_name);
+			printf("\tpopr R10\n\tpopr R9\n\tpopr R5\n\tpopr R4\n");
+			printf("\tpopn %u\n", no_of_args);
+			printf("\tloadrr R1, R7\n");
+			stuff_pushed_to_stack = 0;
+			return;
+		}
+	}
 	function_type* type = return_function_type_if_function_exists(function_name);
 	if(type==NULL) {
 		error("function: %s not declared!\n", function_name);
@@ -1966,7 +2015,7 @@ do_function_call() {
 	//! Save util registers
 	printf("; Save utility registers\n");
 	printf("\tpushr R4\n\tpushr R5\n\tpushr R9\n\tpushr R10\n");
-	printf("\tcall %s\n", function_name);
+	printf("\tcall _rexcall_%s\n", function_name);
 	printf("\tpopr R10\n\tpopr R9\n\tpopr R5\n\tpopr R4\n");
 	printf("\tpopn %u\n", type->number_of_arguments);
 	printf("\tloadrr R1, R7\n");

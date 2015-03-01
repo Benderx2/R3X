@@ -256,6 +256,27 @@ function myfunc, 0
 	// Address of label = l[function name].[variable name]
 	asm "loadr R0, lmyfunc.label"
 </pre>
+<h3>"addresof" and "raw_call"</h3>
+The "addressof" operator gives an address of a <b>local</b> variable or function in memory.<br>
+Usage:<br>
+<pre>
+function x(0)
+	...
+endf
+	...
+	let a = addressof(@x) // Address of function x
+	let b = addressof(a) // Address of variable a (locals ONLY!)
+</pre>
+The "raw_call" operator will, on the other hand, call an address.<br>
+<pre>
+	/* raw_call works like this:
+		@raw_call(function_address, number_of_arguments, argument1, argument2, ..., ...)
+	*/
+	// call address 0x14000
+	@raw_call(0x14000, 0) /* 0 args */
+	// call value of a with 3 args
+	@raw_call(a, 3, 1, 2, 3)
+</pre>
 <h3>Floating Point Numbers</h3>
 Floating Point Numbers are represented like: 30.3256 (note the dot).<br>
 If you want an absolute number, you must do something like: 30.0<br>
