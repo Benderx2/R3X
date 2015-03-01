@@ -1617,20 +1617,16 @@ do_print ()
 
   do_print_item ();
 
-  for (;;)
-    {
-      if (look == ',')
-	{
+  for (;;) {
+	eat_blanks();
+    if (look == ',') {
 	  match (',');
 	  use_print_t = 1;
 	  puts ("\tcall print_t");
-	}
-      else if (look == ';')
-	{
+	} else if (look == ';') {
+	  eat_blanks();
 	  match (';');
-	}
-      else
-	{
+	} else {
 	  break;
 	}
 
