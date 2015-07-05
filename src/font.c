@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015 Benderx2, 
+Copyright (c) 2015 Benderx2,
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -42,12 +42,12 @@ font_t* loadfont(char* s)
     float glyph_x[256][4];
     SDL_Surface* beforeimg = IMG_Load(s);
     SDL_Surface* img = SDL_DisplayFormat(beforeimg);
-    
+
     uint32_t * pixels = (uint32_t*) img->pixels;
-    
+
     f->box_w = img->w/16.0; f->box_h = img->h/16.0;
     int first_x, last_x; bool empty;
-    
+
     for(int bx = 0; bx<16; bx++)
     {
         for(int by = 0; by<16; by++)
@@ -73,28 +73,27 @@ font_t* loadfont(char* s)
                 }
             }
             if(empty)
-                last_x = f->box_w/8.0f;
-            
-            glyph_x[by*16+bx][0] = bx*f->box_w+first_x;
-            glyph_x[by*16+bx][1] = by*f->box_h;
-            glyph_x[by*16+bx][2] = bx*f->box_w+last_x+1;
-            glyph_x[by*16+bx][3] = (by+1)*f->box_h;
-            f->w[by*16+bx] = last_x - first_x+1;
+            	last_x = f->box_w/8.0f;
+            	glyph_x[by*16+bx][0] = bx*f->box_w+first_x;
+            	glyph_x[by*16+bx][1] = by*f->box_h;
+            	glyph_x[by*16+bx][2] = bx*f->box_w+last_x+1;
+            	glyph_x[by*16+bx][3] = (by+1)*f->box_h;
+            	f->w[by*16+bx] = last_x - first_x+1;
         }
     }
-    
+
     glGenTextures(1, &(f->texture));
-    
+
     glBindTexture(GL_TEXTURE_2D, f->texture);
     glTexImage2D( GL_TEXTURE_2D, 0, img->format->BytesPerPixel, img->w, img->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, img->pixels );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    
+
     f->display_list = glGenLists(256);
     f->mat_list = glGenLists(2);
-    
+
     float iw = img->w, ih = img->h;
-    
+
     for(int i = 0; i<256; i++)
     {
         glNewList(f->display_list+i, GL_COMPILE);
@@ -107,10 +106,10 @@ font_t* loadfont(char* s)
             glTranslatef( f->w[i]+1, 0.0, 0.0 );
         glEndList();
     }
-    
+
     int viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
-    
+
     glNewList(f->mat_list, GL_COMPILE);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -120,7 +119,7 @@ font_t* loadfont(char* s)
     glPushMatrix();
     glLoadIdentity();
     glEndList();
-    
+
     glNewList(f->mat_list+1, GL_COMPILE);
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
@@ -134,53 +133,53 @@ font_t* loadfont(char* s)
 bool text3D(font_t * f, const char* txt, ...)
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, f->texture);
-    
+
     char buff[256]; va_list args;
     va_start(args, txt);
     vsprintf(buff, txt, args);
     va_end(args);
-    
+
     glPushMatrix();
 	glScaled(1.0/ (double)(f->box_w), -1.0 / (double)(f->box_h), 1.0);
     glListBase(f->display_list);
     glCallLists(strlen(buff), GL_UNSIGNED_BYTE, buff);
     glPopMatrix();
-    
+
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
-    
+
     glPopAttrib();
-    
+
     return true;
 }
 
 bool text( int x, int y, float scale, font_t * f, char* txt)
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, f->texture);
-    
+
     glCallList(f->mat_list);
-    
+
     glTranslatef(x, y, -2.0f);
     glScalef(scale, scale, scale);
     glListBase(f->display_list);
     glCallLists(strlen(txt), GL_UNSIGNED_BYTE, txt);
     glCallList(f->mat_list+1);
-    
+
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
-    
+
     glPopAttrib();
-    
+
     return true;
 }
 
@@ -206,10 +205,10 @@ void vm_putc(char a, Graphics_t* Graphics)
 		// Scroll the screen by 1 line
 		glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		GLUpdate(); 
+		GLUpdate();
 		glClearColor(DefaultRGBA_r, DefaultRGBA_g, DefaultRGBA_b, DefaultRGBA_a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		GLUpdate(); 
+		GLUpdate();
         for(int i = 0; i < (Graphics->CharMaxH-1)*(Graphics->CharMaxW); i++){
             Graphics->TextBuf[i] = Graphics->TextBuf[i+Graphics->CharMaxW];
         }
@@ -233,7 +232,7 @@ bool vm_puts(font_t* font, char* txt, Graphics_t* Graphics)
 	RenderCursor(Graphics);
 	gl_text_update(Graphics);
 	return true;
-	
+
 }
 void ClearCursor(Graphics_t* Graphics){
 	if(CurrentCursorOffset != 0){
@@ -251,10 +250,10 @@ bool gl_text_update(Graphics_t* Graphics) {
 		putstring[0] = Graphics->TextBuf[i];
 		putstring[1] = 0;
 		if(putstring[0] == '\t' || putstring[0] == ' '){
-		} 
+		}
 		else if(putstring[0] != 0){
 			text(x, y, Graphics->FontScale, Graphics->font, (char*)&putstring);
-		} 
+		}
 		x += Graphics->FontWidth; // and the 8th :D
 		if(x >= Graphics->Width){
 				y += Graphics->FontHeight;

@@ -117,4 +117,3 @@ unsigned int stream_write(void* ptr, unsigned int handle, size_t count) {
 	}
 	return 0xFFFFFFFF;
 }
-

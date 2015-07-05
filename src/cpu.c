@@ -2280,6 +2280,7 @@ void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
 				printf("Unknown Exception!\n");
 				break;
 		}
+		
 		raise(SIGSEGV);
 		return;
 	} else {

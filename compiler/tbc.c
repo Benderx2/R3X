@@ -104,6 +104,10 @@ enum
 #define OP_NONE 7
 #define OP_AND '&'
 #define OP_OR '|'
+
+#define INTERNAL_FUNCTION 0
+#define DYNAMIC_FUNCTION 1
+#define NATIVE_FUNCTION 2
 typedef enum {
 	RX_INT8,
 	RX_INT16,
@@ -118,6 +122,7 @@ typedef struct {
 	char* name;
 	unsigned int number_of_arguments;
 	bool used;
+	int type;
 } function_type;
 typedef struct {
 	char* Name;
@@ -238,6 +243,7 @@ static unsigned int return_member_offset(char* StructName, char* MemberName);
 
 static void write_init_code	 PARAMS ((const char *format, ...)) PRINTF (1, 2);
 
+int CompileDynamic = 0;
 /*!
  * Standard C main function
  * */
@@ -318,6 +324,7 @@ add_to_function_table(char* function_name, unsigned int no_of_args) {
 	function_table->functions[function_table->current_index].name = strdup(function_name);
 	function_table->functions[function_table->current_index].number_of_arguments = no_of_args;
 	function_table->functions[function_table->current_index].used = true;
+	function_table->functions[function_table->current_index].type = INTERNAL_FUNCTION;
 	function_table->current_index++;
 }
 static function_type*
@@ -1046,8 +1053,11 @@ do_string ()
   for (i = 0; i < string_count; ++i)
     if (!strcmp (strings[i], string))
       {
-	printf ("\tloadr R1, s%i\n", i);
-	return;
+			printf ("\tloadr R1, s%i\n", i);
+			if(CompileDynamic == 1) {
+				printf("\taddrr R1, R20");
+			}
+			return;	
       }
 
   ++string_count;
@@ -1055,6 +1065,9 @@ do_string ()
   strings[string_count - 1] = string;
 
   printf ("\tloadr R1, s%i\n", i);
+  if(CompileDynamic == 1) {
+	printf("\taddrr R1, R20");
+  }
 }
 /*!
  * Outputs help
@@ -1097,7 +1110,11 @@ begin ()
 {
 
   puts ("");
-  puts ("include 'libR3X/libR3X.pkg'");
+  if(CompileDynamic == 1) {
+	  puts ("include 'libR3X/dynR3X.pkg'");
+  } else {
+		puts ("include 'libR3X/libR3X.pkg'");
+  }
   /*
    * 256-bit header in text section
    * */
@@ -1125,7 +1142,7 @@ finish ()
 {
   int i;
   puts("main: ");
-  puts("jmp _rexcall_main");
+  puts("jmpl _rexcall_main");
   puts ("");
   puts ("; exit to operating system");
   puts ("");
@@ -1203,7 +1220,7 @@ finish ()
       puts ("\tcmp");
       puts ("\tpop");
       puts ("\tpopr R1");
-      puts ("\tje input_i");
+      puts ("\tjel input_i");
       puts ("\tret");
     }
   else
@@ -1734,7 +1751,7 @@ do_while()
   match('(');
   do_expression ();
   printf("\tcmpri R1, 0\n");
-  printf("\tje endwhile%u\n", whilelines);
+  printf("\tjel endwhile%u\n", whilelines);
   match(')');
   whilelines++;
   currentwhile--;
@@ -1746,7 +1763,7 @@ static void
 do_endw()
 {
 	int currentwhile_now = while_stack[currentwhile+1];
-	printf("\tjmp while%u\n", currentwhile_now);
+	printf("\tjmpl while%u\n", currentwhile_now);
 	printf("endwhile%u:\n", currentwhile_now);
 	currentwhile++;
 }
@@ -1757,7 +1774,7 @@ static void
 do_goto ()
 {
   if(isalpha(look) && current_function_name!=NULL) {
-	printf("\tjmp %s.l%s\n", current_function_name, return_next_tok());
+	printf("\tjmpl %s.l%s\n", current_function_name, return_next_tok());
   } else {
 	error("unknown goto.\n");
   }
@@ -1863,7 +1880,7 @@ do_rem ()
 static void
 do_end ()
 {
-  puts ("\tjmp _exit");
+  puts ("\tjmpl _exit");
 }
 static void 
 do_func() {
