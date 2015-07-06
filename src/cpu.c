@@ -167,6 +167,7 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 			#endif
 			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->InstructionPointer) != RX_EXEC){
 				printf("Error: (INSTRUCTION FETCH FAULT) Attempt to execute code in a non-exec region, IP: 0x%X\n", CPU->InstructionPointer);
+				raise(SIGSEGV);
 				break;
 			}
 			if(r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID) != -1) {
@@ -815,7 +816,11 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		INTERP_CALLL:
 		#endif
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_WITH_32_OP);
-			CPU->InstructionPointer += return_32bit_int_from_ip(CPU);
+			if((int32_t)return_32bit_int_from_ip(CPU) > 0) {
+				CPU->InstructionPointer +=  return_32bit_int_from_ip(CPU) + CPU_INCREMENT_WITH_32_OP;
+			} else {
+				CPU->InstructionPointer -= abs((int32_t)return_32bit_int_from_ip(CPU)+CPU_INCREMENT_WITH_32_OP);
+			}
 			#ifndef REX_OPTIMIZE
 				break;
 			#else 

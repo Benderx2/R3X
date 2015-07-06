@@ -343,6 +343,19 @@ Low precedence:
 &gt;= - Greater than or equal
 &lt;= - Lesser than or equal
 </pre>
+<h3>External functions (Dynamic Library) and DL creation</h3>
+Creating a dynamic library in T++ is very simple, just pass the "-d" parameter after specifying file input and output<br>
+options.<br>
+You can now use functions from your dynamic library into your application like this:<br>
+<pre>
+	extern (test_func, "lib.ro", 0) /* extern (function_name, "library_name.ro", no_of_arguments) */
+	
+	function main(0) 
+		...
+		@test_func()
+		...
+	endf
+</pre>
 <h3>Preprocessor</h3>
 t++ calls GCC first to do the preprocessing (using options -E and -P), which means you can use all C preprocessor features!<br>
 Including another file is done like: <br>
@@ -367,5 +380,6 @@ You can also define expressions: <br>
 -s: Specify source file
 -o: Specify output file (if none is given a.exe is assumed)
 -i: Specify include directory
+-d: Compile as dynamic library
 -h: Show help.
 </pre>

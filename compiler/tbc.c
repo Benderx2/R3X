@@ -81,6 +81,7 @@ enum
   T_STRUCT,
   T_ENDSTRUCT,
   T_GLOBAL,
+  T_EXTERNAL,
   T_END
 };
 
@@ -122,6 +123,7 @@ typedef struct {
 	char* name;
 	unsigned int number_of_arguments;
 	bool used;
+	bool is_external;
 	int type;
 } function_type;
 typedef struct {
@@ -214,7 +216,7 @@ static void  do_func       PARAMS ((void));
 static void  do_struct	   PARAMS ((void));
 static void  do_global	   PARAMS ((void));
 static void  do_endf		PARAMS ((void));
-
+static void  do_external  PARAMS((void));
 char* return_next_int_name_and_add (void);
 
 static void  do_function_call PARAMS((void));
@@ -242,7 +244,7 @@ static RX_STRUCT_TYPE return_type_if_struct_member_exists(char* StructName, char
 static unsigned int return_member_offset(char* StructName, char* MemberName);
 
 static void write_init_code	 PARAMS ((const char *format, ...)) PRINTF (1, 2);
-
+int wtf = 0;
 int CompileDynamic = 0;
 /*!
  * Standard C main function
@@ -508,12 +510,15 @@ parse_opts (argc, argv)
   else
     program_name = argv[0];
 
-  while ((opt = getopt (argc, argv, "hVo:")) != -1)
+  while ((opt = getopt (argc, argv, "hdVo:")) != -1)
     switch (opt)
       {
       case 'h':
 	print_help ();
 	exit (EXIT_SUCCESS);
+	  case 'd':
+	CompileDynamic = 1;
+	break;
       case 'V':
 	print_version ();
 	exit (EXIT_SUCCESS);
@@ -1055,7 +1060,7 @@ do_string ()
       {
 			printf ("\tloadr R1, s%i\n", i);
 			if(CompileDynamic == 1) {
-				printf("\taddrr R1, R20");
+				printf("\taddrr R1, R20\n");
 			}
 			return;	
       }
@@ -1066,7 +1071,7 @@ do_string ()
 
   printf ("\tloadr R1, s%i\n", i);
   if(CompileDynamic == 1) {
-	printf("\taddrr R1, R20");
+	printf("\taddrr R1, R20\n");
   }
 }
 /*!
@@ -1115,19 +1120,6 @@ begin ()
   } else {
 		puts ("include 'libR3X/libR3X.pkg'");
   }
-  /*
-   * 256-bit header in text section
-   * */
-  puts (".text {");
-  puts ("\tdd 0x56081124");
-  puts ("\tdd 0x12345678");
-  puts ("\tdd 0x12335850");
-  puts ("\tdd 0xFFFF3FFF");
-  puts ("\tdd 0x23FF0FFF");
-  puts ("\tdd 0x13370000");
-  puts ("\tdd 0x66600000");
-  puts ("\tdd 0xEF7E0016");
-  puts ("}");
   puts ("");
   puts (".text {");
   puts ("");
@@ -1141,14 +1133,23 @@ static void
 finish ()
 {
   int i;
+  use_input_i = true;
   puts("main: ");
-  puts("jmpl _rexcall_main");
-  puts ("");
+  if(CompileDynamic == 0) {
+		puts("jmpl _rexcall_main");
+		puts (""); 
+  }
   puts ("; exit to operating system");
   puts ("");
   puts ("_exit:");
-  puts ("\tConsole.WaitKey");
-  puts ("\tSystem.Quit 0");
+  if(CompileDynamic == 0) {
+	puts("\tConsole.WaitKey");
+	puts("\tSystem.Quit 0");
+  } else {
+	puts ("\tcalll input_i");
+	puts ("\tpush 0\n");
+	puts ("\texit");
+  }
   puts ("");
 
   if (use_print_i)
@@ -1363,6 +1364,8 @@ get_keyword ()
 	i = T_STRUCT;
   else if(!strcmp(token, "global"))
 	i = T_GLOBAL;
+  else if(!strcmp(token, "extern"))
+	i = T_EXTERNAL;
   else
     error ("expected keyword got '%s'", token);
   eat_blanks ();
@@ -1564,8 +1567,24 @@ do_statement ()
     case T_ENDF:   do_endf(); break;
     case T_STRUCT: do_struct(); break;
     case T_GLOBAL: do_global(); break;
+    case T_EXTERNAL: do_external(); break;
     default:       assert (0);   break;
     }
+}
+static void
+do_external() {
+	eat_blanks();
+	match('(');
+	char* function_name = return_next_tok();
+	match(',');
+	char* libname = return_str();
+	printf("extern _rexcall_%s, \"%s\"\n", function_name, libname);
+	match(',');
+	unsigned int no_of_args = get_num();
+	add_to_function_table(function_name, no_of_args);
+	function_type* myfunc = return_function_type_if_function_exists(function_name);
+	myfunc->is_external = true;
+	match(')');
 }
 static void
 do_global()
@@ -1639,7 +1658,7 @@ do_print ()
     if (look == ',') {
 	  match (',');
 	  use_print_t = 1;
-	  puts ("\tcall print_t");
+	  puts ("\tcalll print_t");
 	} else if (look == ';') {
 	  eat_blanks();
 	  match (';');
@@ -1650,7 +1669,7 @@ do_print ()
       do_print_item ();
     }
 
-  puts ("\tcall print_n");
+  puts ("\tcalll print_n");
 }
 /*!
  * The actual code that does the generation for the 'print' keyword.
@@ -1662,25 +1681,25 @@ do_print_item ()
     {
       use_print_s = 1;
       do_string ();
-      puts ("\tcall print_s");
+      puts ("\tcalll print_s");
     }
   else if (look == '$') {
 	    get_char();
 		use_print_s = 1;
 		char* name = return_next_int_name();
 		printf ("\tpushr R1\n\tloadrm dword, R1, v%s\n", name);
-		printf ("\tcall print_s\n\tpopr R1\n");
+		printf ("\tcalll print_s\n\tpopr R1\n");
   }
   else if(look == '%') {
 	get_char();
 	do_expression();
-	puts("\tcall print_f");
+	puts("\tcalll print_f");
   }
   else
     {
       use_print_i = 1;
       do_expression ();
-      puts ("\tcall print_i");
+      puts ("\tcalll print_i");
     }
 }
 /*!
@@ -1691,7 +1710,7 @@ do_input ()
 {
   use_input_i = 1;
   do
-    printf ("\tcall input_i\n\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", return_next_int_name ());
+    printf ("\tcalll input_i\n\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", return_next_int_name ());
   while (look == ',');
 }
 /*!
@@ -1786,7 +1805,11 @@ static void
 do_gosub ()
 {
   if(isalpha(look) && current_function_name != NULL) {
-	printf("\tcall %s.l%s\n", current_function_name, return_next_tok());
+	if(CompileDynamic == 0) {
+		printf("\tcall %s.l%s\n", current_function_name, return_next_tok());
+	} else {
+		printf("\tcalll %s.l%s\n", current_function_name, return_next_tok());
+	}
   } else {
 	error("unknown gosub.\n");
   }
@@ -1893,7 +1916,7 @@ do_func() {
 	printf("function _rexcall_%s\n", function_name);
 	if(!strcmp(function_name, "main")) {
 	  //! add some codez to mainz.
-	  printf("\tcall __internal_init\n");
+	  printf("\tcalll __internal_init\n");
 	}
 	current_function_name = function_name;
 }
@@ -1915,7 +1938,15 @@ do_function_call() {
 		label_num++;
 		match('(');
 		do_expression();
-		printf("\tpusha _ret_lbl_%u\n", (unsigned int)current_label_name);
+		if(CompileDynamic == 0) {
+			printf("\tpusha _ret_lbl_%u\n", (unsigned int)current_label_name);
+		} else {
+			printf("\tpushr R1\n");
+			printf("loadr R1, _ret_lbl_%u\n", (unsigned int)current_label_name);
+			printf("\taddrr R1, R20\n");
+			printf("\tpushar R1\n");
+			printf("\tpopr R1\n");
+		}
 		printf("\tpushar R1\n");
 		match(',');
 		unsigned int no_of_args = get_num();
@@ -1975,7 +2006,15 @@ do_function_call() {
 	//! Save util registers
 	printf("; Save utility registers\n");
 	printf("\tpushr R4\n\tpushr R5\n\tpushr R9\n\tpushr R10\n");
-	printf("\tcall _rexcall_%s\n", function_name);
+	if(type->is_external == false) {
+		if(CompileDynamic == 0) {
+			printf("\tcall _rexcall_%s\n", function_name);
+		} else {
+			printf("\tcalll _rexcall_%s\n", function_name);
+		}
+	} else {
+		printf("\texterncall _rexcall_%s\n", function_name);
+	}
 	printf("\tpopr R10\n\tpopr R9\n\tpopr R5\n\tpopr R4\n");
 	printf("\tpopn %u\n", type->number_of_arguments);
 	printf("\tloadrr R1, R7\n");
@@ -1994,7 +2033,12 @@ do_typecast(int signal) {
     eat_blanks();
     char* var_name = return_next_tok();
     add_variable(var_name);
-    printf("\tloadr R0, v%s\n", var_name);
+    if(CompileDynamic == 0) {
+		printf("\tloadr R0, v%s\n", var_name);
+	} else {
+		printf("\tloadr R0, v%s\n", var_name);
+		printf("\taddrr R0, R20");
+	}
     if(signal == 0) {
       printf("\tlodsd\n");
     }

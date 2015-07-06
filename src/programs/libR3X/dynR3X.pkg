@@ -31,6 +31,19 @@ macro DECLARE_SECTION name {
                 rept c x \\{ m\\#x \\}
         \} 
 }
+macro declare_bss_entry entry_name {
+	local symnameaddr
+	.data \{
+		symnameaddr:
+		db 'BSS Entry (4-bytes): '
+		db `entry_name#, 0
+	\}
+	.bss \{
+		#entry_name: 
+		rd 1
+		entry_name#_end_bss: 
+	\}
+}
 DECLARE_SECTION text
 DECLARE_SECTION data
 DECLARE_SECTION bss
@@ -88,6 +101,17 @@ macro loadrm size, reg1, memaddr {
 	else 
 	popr R1
 	end if
+}
+macro function name {
+	#name:
+	local symbol_name
+	.data \{
+		symbol_name: db `name#, 0
+	\}
+	.export \{
+		dd symbol_name
+		dd name#
+	\}
 }
 macro function name {
 	#name:

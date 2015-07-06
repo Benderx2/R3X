@@ -23,7 +23,8 @@ unsigned int TotalNumberOfIncludeDirs;
 char* ConcatenateStrings(char *s1, char *s2);
 void ParseArguments(int argc, char* argv[]);
 void AddIncludeDir(char* Dir);
-
+bool CompileDynamic = false;
+char* DynamicSuffix = " ";
 int main(int argc, char** argv) {
 	/** Check if STDLIB_R3X is given **/
 	char* StandardLibraryLocation = getenv("STDLIB_R3X");
@@ -31,6 +32,9 @@ int main(int argc, char** argv) {
 		AddIncludeDir(StandardLibraryLocation);
 	}
 	ParseArguments(argc, argv);
+	if(CompileDynamic == true) {
+		DynamicSuffix = " -d";
+	}
 	char* asmfile = ConcatenateStrings(OutputFile, ".asm");
 	char* ASMOutputFile = ConcatenateStrings(RX_PREFIX, ConcatenateStrings("/", asmfile));
 	char* TBCOutputFile = ConcatenateStrings(RX_PREFIX, "/_temp.bas");
@@ -41,7 +45,7 @@ int main(int argc, char** argv) {
 			GCCOptions = ConcatenateStrings(GCCOptions, ConcatenateStrings(" -I", IncludeDirs[i]));
 		}
 	}
-	char* TBCOptions = ConcatenateStrings(RX_PREFIX, ConcatenateStrings("/tbc > ", ConcatenateStrings(ASMOutputFile, ConcatenateStrings(" ", TBCOutputFile))));
+	char* TBCOptions = ConcatenateStrings(RX_PREFIX, ConcatenateStrings("/tbc > ", ConcatenateStrings(ASMOutputFile, ConcatenateStrings(" ", ConcatenateStrings(TBCOutputFile, DynamicSuffix)))));
 	char* FASMOptions = ConcatenateStrings(RX_PREFIX, ConcatenateStrings("/fasm ", ConcatenateStrings(ASMOutputFile, ConcatenateStrings(" ./", OutputFile))));
 	/*printf("ASMOutputFile: %s\nTBCOutputFile: %s\nGCCOptions: %s\nTBCOptions: %s\nFASMOptions: %s\n", ASMOutputFile, TBCOutputFile, GCCOptions, TBCOptions, FASMOptions);*/
 	system(GCCOptions);
@@ -101,6 +105,8 @@ void ParseArguments(int argc, char* argv[]) {
 			AddIncludeDir(argv[i+1]);
 		} else if(!strcmp(argv[i], "-asm")) {
 			AsmFlag = true;
+		} else if(!strcmp(argv[i], "-d")) {
+			CompileDynamic = true;
 		}
 	}
 	if (OutputFile == NULL) {
