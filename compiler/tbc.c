@@ -82,6 +82,7 @@ enum
   T_ENDSTRUCT,
   T_GLOBAL,
   T_EXTERNAL,
+  T_EXTERNAL_NATIVE,
   T_END
 };
 
@@ -124,6 +125,8 @@ typedef struct {
 	unsigned int number_of_arguments;
 	bool used;
 	bool is_external;
+	bool is_native;
+	char* libname_native;
 	int type;
 } function_type;
 typedef struct {
@@ -173,7 +176,6 @@ static int         string_count  = 0;
 static const char *program_name  = "<?>";
 static const char *input_name    = NULL;
 static const char *output_name   = NULL;
-static char* compiler_init_code = NULL;
 static int label_num = 0;
 static void  shutdown      PARAMS ((void));
 static void *xmalloc       PARAMS ((size_t size));
@@ -217,8 +219,8 @@ static void  do_struct	   PARAMS ((void));
 static void  do_global	   PARAMS ((void));
 static void  do_endf		PARAMS ((void));
 static void  do_external  PARAMS((void));
+static void  do_native    PARAMS((void));
 char* return_next_int_name_and_add (void);
-
 static void  do_function_call PARAMS((void));
 
 static int get_comparision_operator(void);
@@ -243,9 +245,10 @@ static RX_STRUCT_TYPE return_type_if_struct_member_exists(char* StructName, char
 
 static unsigned int return_member_offset(char* StructName, char* MemberName);
 
-static void write_init_code	 PARAMS ((const char *format, ...)) PRINTF (1, 2);
+static void write_init_code	 PARAMS ((char*));
 int wtf = 0;
 int CompileDynamic = 0;
+static char* compiler_init_code = NULL;
 /*!
  * Standard C main function
  * */
@@ -1113,7 +1116,7 @@ print_version ()
 static void
 begin ()
 {
-
+  compiler_init_code = xmalloc(50);
   puts ("");
   if(CompileDynamic == 1) {
 	  puts ("include 'libR3X/dynR3X.pkg'");
@@ -1252,8 +1255,9 @@ finish ()
   puts ("\tret");
   
   puts("; __internal_init = compiler specific program initialization");
-  puts("__internal_init:");
-  puts("\tret");
+  puts("__internal_init:\n");
+  puts(compiler_init_code);
+  puts("\tret\n");
   
   puts ("");
   puts ("}");
@@ -1293,18 +1297,10 @@ error (format)
   exit (EXIT_FAILURE);
 }
 static void 
-write_init_code(format)
-  const char* format;
-  /* ... */
+write_init_code(char* stuff)
 {
-  va_list args;
-  va_start(args, format);
-  unsigned int number_of_bytes_to_print = vsnprintf(NULL, 0, format, args);
-  char* temp = xmalloc(number_of_bytes_to_print+1);
-  vsnprintf(temp, number_of_bytes_to_print, format, args);
-  compiler_init_code = xrealloc(compiler_init_code, strlen(compiler_init_code)+strlen(temp)+1);
-  strcat(compiler_init_code, temp);
-  xfree(temp);
+  compiler_init_code = xrealloc(compiler_init_code, strlen(compiler_init_code)+strlen(stuff)+1);
+  strcat(compiler_init_code, stuff);
 }
 /*!
  * Gets a keyword, errors out if no keyword is found
@@ -1366,6 +1362,8 @@ get_keyword ()
 	i = T_GLOBAL;
   else if(!strcmp(token, "extern"))
 	i = T_EXTERNAL;
+  else if(!strcmp(token, "native"))
+	i = T_EXTERNAL_NATIVE;
   else
     error ("expected keyword got '%s'", token);
   eat_blanks ();
@@ -1568,8 +1566,28 @@ do_statement ()
     case T_STRUCT: do_struct(); break;
     case T_GLOBAL: do_global(); break;
     case T_EXTERNAL: do_external(); break;
+    case T_EXTERNAL_NATIVE: do_native(); break;
     default:       assert (0);   break;
     }
+}
+static void 
+do_native(void) {
+	eat_blanks();
+	match('(');
+	char* function_name = return_next_tok();
+	match(',');
+	char* libname = return_str();
+	write_init_code("\tpushstring \"");
+	write_init_code(libname);
+	write_init_code("\"\n");
+	write_init_code("\tloadlib\n");
+	match(',');
+	unsigned int no_of_args = get_num();
+	add_to_function_table(function_name, no_of_args);
+	function_type* myfunc = return_function_type_if_function_exists(function_name);
+	myfunc->is_native = true;
+	myfunc->libname_native = libname;
+	match(')');
 }
 static void
 do_external() {
@@ -1914,8 +1932,10 @@ do_func() {
 	match(')');
 	add_to_function_table(function_name, arguments);
 	printf("function _rexcall_%s\n", function_name);
-	if(!strcmp(function_name, "main")) {
+	if(!strcmp(function_name, "main") && CompileDynamic == 0) {
 	  //! add some codez to mainz.
+	  printf("\tcalll __internal_init\n");
+	} else if(!strcmp(function_name, "dll_main") && CompileDynamic == 1) {
 	  printf("\tcalll __internal_init\n");
 	}
 	current_function_name = function_name;
@@ -2006,14 +2026,21 @@ do_function_call() {
 	//! Save util registers
 	printf("; Save utility registers\n");
 	printf("\tpushr R4\n\tpushr R5\n\tpushr R9\n\tpushr R10\n");
-	if(type->is_external == false) {
+	if(type->is_external == false && type->is_native == false) {
 		if(CompileDynamic == 0) {
 			printf("\tcall _rexcall_%s\n", function_name);
 		} else {
 			printf("\tcalll _rexcall_%s\n", function_name);
 		}
-	} else {
+	} else if(type->is_external == true) {
 		printf("\texterncall _rexcall_%s\n", function_name);
+	} else if(type->is_native == true) {
+		printf("\tpushstring \"%s\"\n", type->libname_native);
+		printf("\tpushstring \"%s\"\n", function_name);
+		printf("\tlibexec\n");
+	}
+	if(type->is_native == true) {
+		printf("\tpopr R1\n");
 	}
 	printf("\tpopr R10\n\tpopr R9\n\tpopr R5\n\tpopr R4\n");
 	printf("\tpopn %u\n", type->number_of_arguments);

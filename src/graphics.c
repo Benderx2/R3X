@@ -30,6 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef REX_GRAPHICS
 #include <r3x_cpu.h>
 #include <r3x_graphics.h>
+#include <r3x_video.h>
 #include <r3x_version.h>
 #include <nt_malloc.h>
 #define MAX_SCREEN_WIDTH 1024
@@ -76,7 +77,9 @@ Graphics_t* InitGraphics(void)
 		exit(1);
 	}
 	graphics->Width = ScreenWidth; 
-	graphics->Height = ScreenHeight; 
+	graphics->Height = ScreenHeight;
+	// Init video frame buffer
+	rx_video_init(ScreenWidth, ScreenHeight);
 	graphics->Depth = graphics->VideoInfo->vfmt->BitsPerPixel;
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
         SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);

@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_stream.h>
 #include <r3x_exception.h>
 #include <nt_malloc.h>
+#include <r3x_video.h>
 #include <big_endian.h>
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>
@@ -127,6 +128,23 @@ int keyboard_thread(void* data);
 */
 int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 {
+	uint8_t* test = malloc(10);
+	
+	test[0] = 255;
+	test[1] = 0;
+	test[2] = 0;
+	
+	test[3] = 255;
+	test[4] = 0;
+	test[5] = 0;
+	
+	test[6] = 255;
+	test[7] = 0;
+	test[8] = 0;
+	
+	rx_write(test, 0, 9);
+	rx_render();
+	GLUpdate();
 	r3x_dispatch_job(BIOS_START, 1, CPU->RootDomain, true);
 	CPU->RootDomain->CurrentJobID = 0;
 	r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
@@ -173,7 +191,8 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 			if(r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID) != -1) {
 				/**
 				 * Is broken. Need to find another way of speeding up execution :P
-				 * **/
+				 * 
+				**/
 				r3x_emulate_instruction(CPU);
 				r3x_emulate_instruction(CPU);
 				r3x_emulate_instruction(CPU);

@@ -34,6 +34,7 @@
 #define STACK_UFLOW_ERR -1
 #define DEFAULT_STACK_SIZE 16 * sizeof(int32_t)
 #define DEFAULT_MAX_STACK_SIZE 262144
+#define TOTAL_NUMBER_OF_ITEMS_BEFORE_ARGS 7
 typedef struct __stack {
 	int32_t* content;
 	unsigned int top_of_stack;
@@ -104,4 +105,11 @@ typedef struct r3x_cpu {
 	void* ObjectList;
 } r3x_cpu_t;
 extern stack_construct Stack;
+static inline uint32_t GetArgument(r3x_cpu_t* CPU, uint32_t arg_num, uint32_t total_no_of_args) {
+	if(arg_num == 0) {
+		printf("Fatal error! Trying to grab argument 0. Arguments are NOT 0-indexed.\n");
+		return 0xFFFFFFFF;
+	}
+	return Stack.GetItem(CPU->Stack, (CPU->Stack->top_of_stack-TOTAL_NUMBER_OF_ITEMS_BEFORE_ARGS)-(total_no_of_args)+arg_num);
+}
 #endif

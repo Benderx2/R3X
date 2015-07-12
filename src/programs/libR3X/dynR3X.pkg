@@ -69,8 +69,12 @@ macro end {
 }
 macro pushstring string {
 	local addr, behind
-	pushaddr addr
-	.DATA \{ addr: db string, 0 \}
+	pushar R1
+	loadr R1, adds_r
+	addrr R1, R20
+	pushr R1
+	popar R1
+	.DATA \{ adds_r: db string, 0 \}
 } 
 macro loadrm size, reg1, memaddr {
 	if reg1 eq R0

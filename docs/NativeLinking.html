@@ -25,6 +25,13 @@ r3x_cpu_t* CPUptr = NULL;
 void Start(r3x_cpu_t* CPU) {
 	CPUptr = CPU;
 }
+/* 2 arugments for myfunc */
+#define MY_FUNC_TOTAL_ARGS 2
+uint32_t myfunc(void) {
+	argument1 = GetArgument(0, 1, MY_FUNC_TOTAL_ARGS); // Get 1st argument
+	argument2 = GetArgument(0, 2, MY_FUNC_TOTAL_ARGS); // Get 2nd argument
+	return argument1+argument2; // Return
+}
 ...
 </pre>
 Having a start function is mandatory, this will save your CPU pointer which the VM passes, now you can<br>
@@ -45,6 +52,7 @@ pushstring "mylib.so"
 pushstring "myfunction"
 libexec
 </pre>
+Or if you use T++, then refer to that page.<br>
 An example is given in /src/programs/mylib.c and /src/programs/nativelib.il<br>
 (Note that on Windows systems the extension is usually .DLL.)<br>
 </pre>
