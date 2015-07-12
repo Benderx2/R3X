@@ -2038,9 +2038,9 @@ do_function_call() {
 		printf("\tpushstring \"%s\"\n", type->libname_native);
 		printf("\tpushstring \"%s\"\n", function_name);
 		printf("\tlibexec\n");
-	}
-	if(type->is_native == true) {
-		printf("\tpopr R1\n");
+		printf("\tpopr R7\n");
+		printf("\tpop\n");
+		printf("\tpop\n");
 	}
 	printf("\tpopr R10\n\tpopr R9\n\tpopr R5\n\tpopr R4\n");
 	printf("\tpopn %u\n", type->number_of_arguments);

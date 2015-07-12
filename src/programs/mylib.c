@@ -6,5 +6,5 @@ void Start(r3x_cpu_t* CPU) {
 }
 uint32_t myfunc(void) {
 	printf("getting argument 1: %u\n", GetArgument(MyCPU, 1,1));
-	return 0;
+	return 666;
 }
