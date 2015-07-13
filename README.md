@@ -52,6 +52,8 @@ You can use Flat Assembler (there are examples in the src/programs directory), o
 * Native Object Linking (Programs can call procedures in .so or .dll files)
 * High Level Programming language (T++)
 * Inbuilt debugger
+* A mini-IRC implementation (quite buggy!)
+* A GL implementation coming soon!
 * A relatively well-featured toolchain (disassembler, executable reader, compiler)
 * A server-client-like implementation. (The server has the ability to run client VMs concurrently)
 ... and lots to come!
