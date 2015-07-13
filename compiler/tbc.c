@@ -1049,12 +1049,12 @@ do_string ()
   string[0] = 0;
 
   for (get_char (); look != '"'; get_char ())
-    {
-      ++string_size;
-      string = xrealloc (string, string_size + 1);
-      string[string_size - 1] = look;
-      string[string_size] = 0;
-    }
+  {
+    ++string_size;
+    string = xrealloc (string, string_size + 1);
+	string[string_size - 1] = look;
+	string[string_size] = 0;
+  }
 
   get_char ();
 
@@ -1314,7 +1314,7 @@ get_keyword ()
 	get_char();
   }
   if ((!isalpha (look)) && look != '#')
-    error ("expected keyword got %c", look);
+    error ("expected keyword got (CHAR) %c", look);
 
   for (i = 0; i < (int) sizeof (token) - 1 && (isalpha (look) || look == '#' || look == '!'); ++i)
     {
@@ -1546,6 +1546,7 @@ do_statement ()
   if (look == '@') {
 	get_char();
 	do_function_call();
+	return;
   }
   switch (get_keyword ())
     {
@@ -2023,6 +2024,7 @@ do_function_call() {
 			i++;
 		}
 	}
+	fprintf(stderr, "look: %c", look);
 	//! Save util registers
 	printf("; Save utility registers\n");
 	printf("\tpushr R4\n\tpushr R5\n\tpushr R9\n\tpushr R10\n");

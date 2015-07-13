@@ -64,7 +64,7 @@ export GL_FILES=""
 export DYNAMICFLAGS=""
 export DYANMIC_FILES=""
 export ARFLAGS="-rsc"
-export INCLUDE_DIR="./include/"
+export INCLUDE_DIR="./include/ -I./lib/include"
 export CFLAGS="-std=gnu99 -Wall -Wextra -Wstrict-aliasing -Wstrict-prototypes -Wmissing-prototypes "
 export IFLAGS="-I$INCLUDE_DIR"
 if [ "$USEGL" == "yes" ]
@@ -146,11 +146,11 @@ then
 else
 	export LINKER_FILES=""
 	export DYNAMICFLAGS="-ldl -rdynamic"
-	export LFLAGS="-lc -lm"
+	export LFLAGS="-lc -lm  -lefence"
 fi
 export LINKER_FILES="$LINKER_FILES cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o rfc.o script.o"
 # Compile libntmalloc
-$CC $ARCHFLAGS -c ../libntmalloc/nt_malloc.c -o nt_malloc.o -std=gnu99
+$CC $ARCHFLAGS -c ./lib/ntmalloc/nt_malloc.c -o nt_malloc.o -I./lib/include -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
 export CCFLAGS="$ARCHID $USEDYNAMIC $USEGL $USEOPTIMIZE $ENDIANFLAGS $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS"
 # compile VM
@@ -161,13 +161,12 @@ do
    set +x
 done
 $CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS $DYNAMICFLAGS $OPTIMIZEFLAGS
-$CC -c -Wall -Werror -fpic ./programs/rex/stack.c -o vstack.o
-$CC -std=gnu99 -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o
+$CC -I./lib/include -std=gnu99 -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o 
 if [ "$TARGET" == "x86_64win" ]
 then
-$CC -shared -o mylib.so ./mylib.o vstack.o -lm -Wl,-no-whole-archive
+$CC -shared -o mylib.so ./mylib.o ./lib/rxvmlib.a -lm -Wl,-no-whole-archive
 else
-	$CC -shared -o mylib.so ./mylib.o vstack.o -lc -lm -lSDL -lSDL_image -lGL -lX11 -Wl,-no-whole-archive
+	$CC -shared -o mylib.so ./mylib.o ./lib/rxvmlib.a -lc -lm -lSDL -lSDL_image -lGL -lX11 -Wl,-no-whole-archive
 fi
 # compile programs
 $AS programs/r3x_ex.il 

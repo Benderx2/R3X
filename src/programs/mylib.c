@@ -1,4 +1,4 @@
-#include "rex/virtual-machine.h"
+#include "virtual-machine.h"
 r3x_cpu_t* MyCPU;
 void Start(r3x_cpu_t* CPU) {
 	MyCPU = CPU;
