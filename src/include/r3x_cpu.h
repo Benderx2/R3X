@@ -86,6 +86,7 @@ typedef struct r3x_global_domain {
 	unsigned int TotalNumberOfJobs;
 } r3x_global_domain_t;
 typedef struct r3x_cpu {
+	uint8_t* Memory;
 	// Not global -- Thread dependent
 	vstack_t* Stack;
 	vstack_t* CallStack;
@@ -102,7 +103,6 @@ typedef struct r3x_cpu {
 	// Global -- Thread Independent.
 	r3x_memory_blocks* CPUMemoryBlocks;
 	double CPUClock;
-	uint8_t* Memory;
 	uint32_t ISR_handlers[256];
 	unsigned int CurrentInstruction;
 	unsigned int MemorySize;

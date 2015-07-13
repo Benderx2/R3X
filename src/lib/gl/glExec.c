@@ -15,5 +15,6 @@ uint32_t Start(r3x_cpu_t* _CPU) {
 }
 uint32_t gl_CreateInstance(void) {
 	//! get name
-	unsigned char* name = (char*)GetArgument(CPU, 1, 1);
+	unsigned char* name = (char*)GetLinearAddress(CPU, GetArgument(CPU, 1, 1));
+	
 } 

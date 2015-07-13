@@ -84,6 +84,8 @@ typedef struct {
 	void* MemoryBlocks;
 } r3x_memory_blocks;
 typedef struct r3x_cpu {
+	// super global : memory
+	uint8_t* Memory;
 	// Not global -- Thread dependent
 	vstack_t* Stack;
 	vstack_t* CallStack;
@@ -95,12 +97,11 @@ typedef struct r3x_cpu {
 	bool ZeroFlag;
 	bool ExceptionFlag;
 	uint32_t FLAGS;
-	uint32_t Regs[21];
+	uint64_t Regs[MAX_NUMBER_OF_REGISTERS+1];
 	uint32_t ExceptionHandlers[4];
 	// Global -- Thread Independent.
-	r3x_memory_blocks CPUMemoryBlocks;
+	r3x_memory_blocks* CPUMemoryBlocks;
 	double CPUClock;
-	uint8_t* Memory;
 	uint32_t ISR_handlers[256];
 	unsigned int CurrentInstruction;
 	unsigned int MemorySize;
@@ -119,5 +120,8 @@ static inline uint32_t GetArgument(r3x_cpu_t* CPU, uint32_t arg_num, uint32_t to
 	}
 	return Stack.GetItem(CPU->Stack, (CPU->Stack->top_of_stack-TOTAL_NUMBER_OF_ITEMS_BEFORE_ARGS)-(total_no_of_args)+arg_num);
 }
-static inline void* GetLinearAddress(r3x_cpu_t* CPU, )
+static inline void* GetLinearAddress(r3x_cpu_t* CPU, uint32_t addr) {
+	printf("addr: %lu\n", (uintptr_t)CPU->Memory);
+	return (void*)((uintptr_t)CPU->Memory + (uintptr_t)addr);
+}
 #endif

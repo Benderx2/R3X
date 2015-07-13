@@ -33,8 +33,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 native_handle_t* head;
 native_handle_t* tail;
 int number_of_handles;
+extern r3x_cpu_t* r3_cpu;
 void* load_native_library(char* name, r3x_cpu_t* CPU)
 {
+	printf("cpu memory: %lu\n", (uintptr_t)CPU->Memory);
 	void *handle;
 	handle = dlopen(name, RTLD_LAZY);
 	if(!handle){	
