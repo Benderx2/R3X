@@ -7,6 +7,13 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <stdarg.h>
+#ifdef REX_GRAPHICS
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <X11/Xlib.h>
+#endif
 #ifndef _WIN32
 #include <unistd.h>
 #else
@@ -112,4 +119,5 @@ static inline uint32_t GetArgument(r3x_cpu_t* CPU, uint32_t arg_num, uint32_t to
 	}
 	return Stack.GetItem(CPU->Stack, (CPU->Stack->top_of_stack-TOTAL_NUMBER_OF_ITEMS_BEFORE_ARGS)-(total_no_of_args)+arg_num);
 }
+static inline void* GetLinearAddress(r3x_cpu_t* CPU, )
 #endif

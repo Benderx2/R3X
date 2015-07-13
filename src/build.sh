@@ -162,12 +162,12 @@ do
 done
 $CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS $DYNAMICFLAGS $OPTIMIZEFLAGS
 $CC -c -Wall -Werror -fpic ./programs/rex/stack.c -o vstack.o
-$CC -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o
+$CC -std=gnu99 -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o
 if [ "$TARGET" == "x86_64win" ]
 then
 $CC -shared -o mylib.so ./mylib.o vstack.o -lm -Wl,-no-whole-archive
 else
-	$CC -shared -o mylib.so ./mylib.o vstack.o -lc -lm -Wl,-no-whole-archive
+	$CC -shared -o mylib.so ./mylib.o vstack.o -lc -lm -lSDL -lSDL_image -lGL -lX11 -Wl,-no-whole-archive
 fi
 # compile programs
 $AS programs/r3x_ex.il 
