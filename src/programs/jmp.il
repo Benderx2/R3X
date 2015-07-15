@@ -12,10 +12,13 @@ current_ip:
 		calll rel_jump
 		System.Quit 0
 		times 269 db 0x1F ; Exit opcode.
+finally_exit: 
+		Console.Write "Exitting!"
+		Console.WaitKey
+		exit
 rel_jump:
 		Console.Write "Relative Jump!"
-		Console.WaitKey
-		ret
+		jmpl finally_exit
 	endfunction main
 }
 end

@@ -51,10 +51,15 @@ uint32_t host_send(void) {
 	strcpy(out, arg2);
 	strcat(out, "\n");
 	//printf("Sending message: %s to socket: %d\n", out, sockfd);
-    return (uint32_t)send(sockfd, out, strlen(out), 0);
-    free(out);
+    int retval = (uint32_t)send(sockfd, out, strlen(out), 0);
+	return retval;
 }
-
+uint32_t host_receive(void) {
+	int sockfd = (int)GetArgument(CPU, 1,3);
+	unsigned int length = (unsigned int)GetArgument(CPU, 2,3);
+	char* buf = GetLinearAddress(CPU, GetArgument(CPU, 3,3));
+	return read(sockfd, buf, length);
+}
 int get_ip_from_hostname(char* hostname, char* ip) 
 {  
 	struct hostent *host_entry;     

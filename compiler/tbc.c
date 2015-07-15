@@ -161,6 +161,9 @@ static int         use_print_s   = 0;
 static int         use_print_t   = 0;
 static int         use_print_n   = 0;
 static int         use_input_i   = 0;
+static char** 		lnative_libs	  = NULL;
+static unsigned int number_of_native_libs = 0;
+static unsigned int current_native_lib = 0;
 static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
 static int 		stuff_pushed_to_stack = 0;
 static bool			returned_float = false;
@@ -1573,15 +1576,36 @@ do_statement ()
 }
 static void 
 do_native(void) {
+	if(number_of_native_libs == 0) {
+		lnative_libs = xmalloc(sizeof(char*)*16);
+		number_of_native_libs += 16; 
+		current_native_lib = 0;
+	}
+	if(current_native_lib > number_of_native_libs-1) {
+		number_of_native_libs += 16;
+		lnative_libs = xrealloc(lnative_libs, sizeof(char*)*number_of_native_libs);
+	}
 	eat_blanks();
 	match('(');
 	char* function_name = return_next_tok();
 	match(',');
 	char* libname = return_str();
-	write_init_code("\tpushstring \"");
-	write_init_code(libname);
-	write_init_code("\"\n");
-	write_init_code("\tloadlib\n");
+	bool already_exists = false;
+	for(int i = 0; i < number_of_native_libs; i++) {
+		if(lnative_libs[i] != NULL) {
+			if(!strcmp(lnative_libs[i], libname)) {
+				already_exists = true;
+			}
+		}
+	}
+	if(already_exists == false) {
+		write_init_code("\tpushstring \"");
+		write_init_code(libname);
+		write_init_code("\"\n");
+		write_init_code("\tloadlib\n");
+		lnative_libs[current_native_lib] = libname;
+		current_native_lib++;
+	}
 	match(',');
 	unsigned int no_of_args = get_num();
 	add_to_function_table(function_name, no_of_args);

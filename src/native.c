@@ -41,10 +41,11 @@ void* load_native_library(char* name, r3x_cpu_t* CPU)
 	handle = dlopen(name, RTLD_LAZY);
 	if(!handle){	
 		printf("\nFATAL: Unable to load shared object: %s\n", name);
+		exit(EXIT_FAILURE);
 	}	
 	
 	native_handle_t* newhandle = nt_malloc(sizeof(native_handle_t));
-	newhandle->soname = name;
+	newhandle->soname = strdup(name);
 	newhandle->handle = handle;
 	newhandle->next = NULL;
 	void (*Start)(r3x_cpu_t*);
@@ -75,15 +76,17 @@ void* returnhandle(char* soname)
 	native_handle_t* current_handle = head;
 	for(int i = 0; i <= number_of_handles; i++)
 	{	
-		if(!strcmp(current_handle->soname, soname)){
-			return current_handle->handle;
-		}
-		else {
-			if(current_handle->next == NULL)
-			{
-				return NULL;
+		if(current_handle->soname != NULL) {
+			if(!strcmp(current_handle->soname, soname)){
+				return current_handle->handle;
 			}
-			current_handle = (struct native_handle*)current_handle->next;
+			else {
+				if(current_handle->next == NULL)
+				{
+					return NULL;
+				}
+				current_handle = (struct native_handle*)current_handle->next;
+			}
 		}
 	}
 	return NULL;

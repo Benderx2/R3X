@@ -6,7 +6,7 @@ mv ./rexdump $PREFIX
 mv ./cgen $PREFIX
 cd ..
 cd compiler
-gcc -g tbc.c -o tbc
+gcc -std=gnu99 -g tbc.c -o tbc
 gcc -std=gnu99 t++.c -o t++ -D RX_PREFIX="\"$PREFIX\""
 mv ./tbc $PREFIX
 mv ./t++ $PREFIX 
