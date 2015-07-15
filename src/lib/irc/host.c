@@ -47,10 +47,10 @@ uint32_t host_send(void) {
 	int sockfd = (int)GetArgument(CPU,1,2);
 	char* arg2 = (char*)GetLinearAddress(CPU, GetArgument(CPU,2,2));
 	char* out = malloc(strlen(arg2+2));
+	memset(out, 0, strlen(arg2+2));
 	strcpy(out, arg2);
-	out[strlen(out)] = '\n';
-	out[strlen(out)+1] = 0;
-	printf("Sending message: %s to socket: %d\n", out, sockfd);
+	strcat(out, "\n");
+	//printf("Sending message: %s to socket: %d\n", out, sockfd);
     return (uint32_t)send(sockfd, out, strlen(out), 0);
     free(out);
 }
