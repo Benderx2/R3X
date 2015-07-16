@@ -36,7 +36,6 @@ int number_of_handles;
 extern r3x_cpu_t* r3_cpu;
 void* load_native_library(char* name, r3x_cpu_t* CPU)
 {
-	printf("cpu memory: %lu\n", (uintptr_t)CPU->Memory);
 	void *handle;
 	handle = dlopen(name, RTLD_LAZY);
 	if(!handle){	
@@ -50,7 +49,6 @@ void* load_native_library(char* name, r3x_cpu_t* CPU)
 	newhandle->next = NULL;
 	void (*Start)(r3x_cpu_t*);
 	*(void**)(&Start) = dlsym(handle, "Start");
-	printf("Finding Start....\n");
 	if(Start == NULL)
 	{
 		printf("ERROR: Start function not found in native library! Exitting..\n");

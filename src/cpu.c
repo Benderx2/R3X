@@ -2111,7 +2111,6 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				}*/
 				Stack.Push(CPU->Stack, CPU->MemorySize);
 				unsigned int NumberOfPages = (((unsigned int)get_item_from_stack_top(2) & 0xFFFFF000)+SEGMENT_SIZE) / SEGMENT_SIZE;
-				printf("Number of pages: %u\n", NumberOfPages);
 				CPU->MemorySize += SEGMENT_SIZE * NumberOfPages;
 				CPU->Memory = nt_realloc(CPU->Memory, CPU->MemorySize);
 				CPU->CPUMemoryBlocks = RebuildMemoryBlock(CPU->CPUMemoryBlocks, CPU->MemorySize);
