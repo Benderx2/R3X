@@ -2048,7 +2048,6 @@ do_function_call() {
 			i++;
 		}
 	}
-	fprintf(stderr, "look: %c", look);
 	//! Save util registers
 	printf("; Save utility registers\n");
 	printf("\tpushr R4\n\tpushr R5\n\tpushr R9\n\tpushr R10\n");

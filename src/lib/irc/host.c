@@ -28,19 +28,18 @@ uint32_t host_connect(/*char *server, unsigned int port*/) {
     servaddr.sin_port = htons(port);
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		printf("FAILED\n");
+		printf("host_connect FAILED\n");
         return (uint32_t)-1;
     }
 
     if (inet_pton(AF_INET, server, &servaddr.sin_addr) <= 0) {
-		printf("FAILED\n");
+		printf("host_connect FAILED\n");
         return (uint32_t)-1;
     }
     if (connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0 ) {
-		printf("FAILED\n");
+		printf("host_connect FAILED\n");
         return (uint32_t)-1;
     }
-    printf("SUCCESS. sockfd is %d\n", sockfd);
     return sockfd;
 }
 uint32_t host_send(void) {
@@ -58,7 +57,20 @@ uint32_t host_receive(void) {
 	int sockfd = (int)GetArgument(CPU, 1,3);
 	unsigned int length = (unsigned int)GetArgument(CPU, 2,3);
 	char* buf = GetLinearAddress(CPU, GetArgument(CPU, 3,3));
-	return read(sockfd, buf, length);
+	memset(buf, 0, length);
+	int n = 0;
+	while(n == 0) {
+		n = read(sockfd, buf, length);
+	}
+	return n;
+}
+uint32_t host_receive_no_wait(void) {
+	int sockfd = (int)GetArgument(CPU, 1,3);
+	unsigned int length = (unsigned int)GetArgument(CPU, 2,3);
+	char* buf = GetLinearAddress(CPU, GetArgument(CPU, 3,3));
+	memset(buf, 0, length);
+	int n = read(sockfd, buf, length);
+	return n;
 }
 int get_ip_from_hostname(char* hostname, char* ip) 
 {  
