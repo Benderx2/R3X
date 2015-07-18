@@ -3,8 +3,8 @@
 #define GL_FALSE 1
 #define SO_NAME "glExec.so"
 
-#include "virtual-machine.h"
-#include "nt_malloc.h"
+#include <virtual-machine.h>
+#include <nt_malloc.h>
 
 /* gl implementation for r3x */
 

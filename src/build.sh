@@ -168,6 +168,9 @@ $CC -shared -o mylib.so ./mylib.o ./lib/rxvmlib.a -lm -Wl,-no-whole-archive
 else
 	$CC -shared -o mylib.so ./mylib.o ./lib/rxvmlib.a -lc -lm -lSDL -lSDL_image -lGL -lX11 -Wl,-no-whole-archive
 fi
+cd lib/rstdlib
+./build.sh
+cd ../../
 # compile programs
 $AS programs/r3x_ex.il 
 $AS programs/math.il 

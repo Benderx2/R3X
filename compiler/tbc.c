@@ -325,7 +325,7 @@ add_to_function_table(char* function_name, unsigned int no_of_args) {
 	if(type!=NULL) {
 		error("function %s already defined\n", function_name);
 	}
-	if(function_table->total_functions < function_table->current_index-1) {
+	if(function_table->current_index >= function_table->total_functions) {
 		function_table->total_functions += 16;
 		function_table->functions = xrealloc(function_table->functions, function_table->total_functions * sizeof(function_type));
 	}

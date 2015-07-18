@@ -30,6 +30,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef REX_DYNAMIC
 #include <r3x_native.h>
 #include <nt_malloc.h>
+extern char* ApplicationPath;
 native_handle_t* head;
 native_handle_t* tail;
 int number_of_handles;
@@ -37,7 +38,15 @@ extern r3x_cpu_t* r3_cpu;
 void* load_native_library(char* name, r3x_cpu_t* CPU)
 {
 	void *handle;
-	handle = dlopen(name, RTLD_LAZY);
+	if(!strcmp(name, "rstdlib")) {
+		char* tempstr = nt_malloc(strlen(ApplicationPath)+strlen("/rstdlib.so")+1);
+		strcpy(tempstr, ApplicationPath);
+		strcat(tempstr, "/rstdlib.so");
+		handle = dlopen(tempstr, RTLD_LAZY);
+		nt_free(tempstr);
+	} else {
+		handle = dlopen(name, RTLD_LAZY);
+	}
 	if(!handle){	
 		printf("\nFATAL: Unable to load shared object: %s\n", name);
 		exit(EXIT_FAILURE);

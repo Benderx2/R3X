@@ -5,16 +5,12 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#include "virtual-machine.h"
-r3x_cpu_t* CPU = NULL;
+#include <virtual-machine.h>
+extern r3x_cpu_t* CPU;
 
 int get_ip_from_hostname(char * hostname, char* ip);
 
-void Start(r3x_cpu_t* _CPU) {
-	CPU = _CPU;
-}
-
-uint32_t host_connect(/*char *server, unsigned int port*/) {
+uint32_t r_connect(/*char *server, unsigned int port*/) {
 	char* server_name = GetLinearAddress(CPU, GetArgument(CPU, 1,2));
 	char* server = malloc(80);
 	get_ip_from_hostname(server_name, server);
@@ -42,7 +38,7 @@ uint32_t host_connect(/*char *server, unsigned int port*/) {
     }
     return sockfd;
 }
-uint32_t host_send(void) {
+uint32_t r_send(void) {
 	int sockfd = (int)GetArgument(CPU,1,2);
 	char* arg2 = (char*)GetLinearAddress(CPU, GetArgument(CPU,2,2));
 	char* out = malloc(strlen(arg2+2));
@@ -53,7 +49,7 @@ uint32_t host_send(void) {
     int retval = (uint32_t)send(sockfd, out, strlen(out), 0);
 	return retval;
 }
-uint32_t host_receive(void) {
+uint32_t r_receive(void) {
 	int sockfd = (int)GetArgument(CPU, 1,3);
 	unsigned int length = (unsigned int)GetArgument(CPU, 2,3);
 	char* buf = GetLinearAddress(CPU, GetArgument(CPU, 3,3));
@@ -64,7 +60,7 @@ uint32_t host_receive(void) {
 	}
 	return n;
 }
-uint32_t host_receive_no_wait(void) {
+uint32_t r_receive_no_wait(void) {
 	int sockfd = (int)GetArgument(CPU, 1,3);
 	unsigned int length = (unsigned int)GetArgument(CPU, 2,3);
 	char* buf = GetLinearAddress(CPU, GetArgument(CPU, 3,3));

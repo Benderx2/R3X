@@ -121,6 +121,7 @@ static inline uint32_t GetArgument(r3x_cpu_t* CPU, uint32_t arg_num, uint32_t to
 	return Stack.GetItem(CPU->Stack, (CPU->Stack->top_of_stack-TOTAL_NUMBER_OF_ITEMS_BEFORE_ARGS)-(total_no_of_args)+arg_num);
 }
 static inline void* GetLinearAddress(r3x_cpu_t* CPU, uint32_t addr) {
+	if(addr == 0) { return (void*)NULL; }  
 	return (void*)((uintptr_t)CPU->Memory + (uintptr_t)addr);
 }
 #endif
