@@ -1,4 +1,4 @@
-#include "rstdlib.h"
+#include <rstdlib.h>
 
 function main(0)
 	print "calling sin"

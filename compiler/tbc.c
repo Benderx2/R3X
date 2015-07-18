@@ -152,6 +152,7 @@ typedef union {
 	int ReturnVal;
 	float Float;
 } FloatTypeCastInt;
+static unsigned int		total_variables = 0;
 static char        look          = 0;
 static int         line          = 1;
 static unsigned int			whilelines 	  = 0;
@@ -173,7 +174,6 @@ static s_table*	structs_table = NULL;
 static char* 		current_function_name = NULL;
 static char **     strings       = NULL;
 static unsigned int 		current_variable_index = 0;
-static unsigned int		total_variables = 0;
 static char** 			variables_used = NULL;
 static int         string_count  = 0;
 static const char *program_name  = "<?>";
@@ -312,7 +312,7 @@ add_variable(char* var_name) {
 			}
 		}
 	}
-	if(total_variables < current_variable_index-1) {
+	if(current_variable_index >= total_variables-1) {
 		total_variables += 16;
 		variables_used = xrealloc(variables_used, total_variables * sizeof(char*));
 	}

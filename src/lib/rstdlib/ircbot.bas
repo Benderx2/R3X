@@ -1,5 +1,5 @@
-#include "rstdlib.h"
-
+#include <rstdlib.h>
+#define HOST_READ_MAXLINE 512
 function main(0)
 	let buf = alloc(HOST_READ_MAXLINE+1)
 	print "irc bot: sending stuff to ##ingsoc @ irc.freenode.net"

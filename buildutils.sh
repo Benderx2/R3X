@@ -1,4 +1,5 @@
 # Build utilites for R3X
+export CC=gcc
 cd disasm
 ./build.sh
 mv ./readrex $PREFIX
@@ -6,8 +7,8 @@ mv ./rexdump $PREFIX
 mv ./cgen $PREFIX
 cd ..
 cd compiler
-gcc -std=gnu99 -g tbc.c -o tbc
-gcc -std=gnu99 t++.c -o t++ -D RX_PREFIX="\"$PREFIX\""
+$CC -std=gnu99 -g tbc.c -o tbc
+$CC -std=gnu99 t++.c -o t++ -D RX_PREFIX="\"$PREFIX\""
 mv ./tbc $PREFIX
 mv ./t++ $PREFIX 
 cd ../src

@@ -57,9 +57,7 @@ int main(int argc, char** argv) {
 	/**!
 		Remove temp files
 	**/
-	if(AsmFlag == true) {
-		remove(ASMOutputFile);
-	}
+	remove(ASMOutputFile);
 	//remove(TBCOutputFile);
 	return 0;
 }
