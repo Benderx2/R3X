@@ -50,9 +50,9 @@ void GetApplicationPath(void);
 // graphics and stuff
 unsigned int ScreenWidth = 640;
 unsigned int ScreenHeight = 480;
-unsigned int FontHeight = 8;
-unsigned int FontWidth = 8;
-double FontScale = 0.5f;
+unsigned int FontHeight = 16;
+unsigned int FontWidth = 16;
+double FontScale = 1.0f;
 char* FontFileName = NULL;
 char* ProgramArguments = NULL;
 char* ScriptName = NULL;
