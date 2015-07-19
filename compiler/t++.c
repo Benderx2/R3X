@@ -9,9 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#ifndef RX_PREFIX
-#error "No RX_PREFIX defined!"
-#endif
 
 char* InputFile = NULL;
 char* OutputFile = NULL;
@@ -26,6 +23,11 @@ void AddIncludeDir(char* Dir);
 bool CompileDynamic = false;
 char* DynamicSuffix = " ";
 int main(int argc, char** argv) {
+	#ifndef RX_PREFIX
+	#warning "No RX_PREIFX defined. Relying on RX_PREFIX @ runtime"
+	char* RX_PREFIX = getenv("RX_PREFIX");
+	if(RX_PREFIX == NULL) { printf("Error: RX_PREFIX not defined, neither on compile nor on run time. Please export RX_PREFIX as the directory of the compiler executable!\n"); exit(EXIT_FAILURE); }
+	#endif 
 	/** Check if STDLIB_R3X is given **/
 	char* StandardLibraryLocation = getenv("STDLIB_R3X");
 	if(StandardLibraryLocation!=NULL) {
