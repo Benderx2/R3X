@@ -14,5 +14,9 @@ mv ./t++ $PREFIX
 cd ../src
 cd programs
 cp -r ./libR3X/ $PREFIX
+cd .. 
 cd ..
-cd ..
+cd $PREFIX
+mkdir include
+cp -r ../src/lib/rstdlib/include/rstdlib.h ./include/
+export STDLIB_R3X="$PREFIX/include"

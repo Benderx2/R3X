@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 		Remove temp files
 	**/
 	remove(ASMOutputFile);
-	//remove(TBCOutputFile);
+	remove(TBCOutputFile);
 	return 0;
 }
 char* ConcatenateStrings(char *s1, char *s2)

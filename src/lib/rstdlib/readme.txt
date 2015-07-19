@@ -1,4 +1,13 @@
 this file contains the rstdlib implementation for r3x and examples in t++.
+using the standard library is very easy, during the build process, the build script compiles it
+and copies it to the vm's directory.
+
+the buildutils.sh will compile the compiler, and then copy the header to compiler directory/include and will
+export STDLIB_R3X as that. this will only work for one session though.
+
+to make it permanent, edit your .bashrc or similar, and add this:
+
+export STDLIB_R3X="$PREFIX/include" # $PREFIX is where you have your compiler.
 STRING FUNCTIONS:
 
 @r_strlen(string) -> return length of string
