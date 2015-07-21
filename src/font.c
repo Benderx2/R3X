@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <nt_malloc.h>
 #ifdef REX_GRAPHICS
 char putstring[2];
-int CurrentCursorOffset = 0;
+unsigned int CurrentCursorOffset = 0;
 void ClearCursor(Graphics_t* Graphics);
 void RenderCursor(Graphics_t* Graphics);
 font_t* loadfont(char* s)
@@ -130,34 +130,6 @@ font_t* loadfont(char* s)
     SDL_FreeSurface(img);
     return f;
 }
-bool text3D(font_t * f, const char* txt, ...)
-{
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, f->texture);
-
-    char buff[256]; va_list args;
-    va_start(args, txt);
-    vsprintf(buff, txt, args);
-    va_end(args);
-
-    glPushMatrix();
-	glScaled(1.0/ (double)(f->box_w), -1.0 / (double)(f->box_h), 1.0);
-    glListBase(f->display_list);
-    glCallLists(strlen(buff), GL_UNSIGNED_BYTE, buff);
-    glPopMatrix();
-
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
-
-    glPopAttrib();
-
-    return true;
-}
-
 bool text( int x, int y, float scale, font_t * f, char* txt)
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -242,6 +214,7 @@ void ClearCursor(Graphics_t* Graphics){
 void RenderCursor(Graphics_t* Graphics){
 	Graphics->TextBuf[Graphics->TextOffset] = 18;
 	CurrentCursorOffset = Graphics->TextOffset;
+
 }
 bool gl_text_update(Graphics_t* Graphics) {
 	GL_ClearScreen();

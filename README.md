@@ -2,10 +2,9 @@ R3X
 ===
 ![Alt text](http://i.imgur.com/Klw1O26.png)<br>
 Official repository for the R3X (REX) virtual machine. See docs/REX.html for more details.<br>
-![Alt text](http://i.imgur.com/c97xG9g.png "R3X Running on Linux64 with example program and debugger")
+![Alt text](http://i.imgur.com/oyEJwny.png "R3X Running an ircbot on Linux64")
 ![Alt text](http://i.imgur.com/wcPCVSP.png "R3X running a program written in t++")
 ![Alt text](http://i.imgur.com/tLGIFQK.png "R3X running on Windows with example program")
-![Alt text](http://i.imgur.com/zkOn3qc.png "A test run showing the customization of the VM")
 <h1>What is R3X?</h1>
 R3X is a runtime environment for portable applications. It is similar to JVM (Java Virtual Machine) or the .NET CLR (Common Language Runtime).
 It has currently been ported to x86, x86-64, PPC, and ARM architectures and runs on Linux as well as Windows.<br>
@@ -59,4 +58,4 @@ You can use Flat Assembler (there are examples in the src/programs directory), o
 ... and lots to come!
 
 
-<b>Current version:</b> 0.4.7b Angel of Angles (unstable)<br>
+<b>Current version:</b> 0.4.8a Cheesy Blueberry (unstable)<br>

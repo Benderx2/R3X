@@ -78,6 +78,10 @@ typedef struct Graphics {
 	int ScreenY;
 	int SDLFlags;
 } Graphics_t;
+typedef struct {
+	unsigned int x;
+	unsigned int y;
+} Graphics_Cursor_t;
 font_t* loadfont(char* s);
 bool text3D( font_t * f, const char* txt, ...);
 bool text( int x, int y, float scale, font_t * f, char* txt);

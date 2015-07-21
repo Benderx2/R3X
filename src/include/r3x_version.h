@@ -30,21 +30,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef R3X_VERSION_H
 #define R3X_VERSION_H
 #ifdef LINUX_ARCH_X8664
-	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.7b Angel of Angles, compiled for: Linux64"
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.8a Cheesy Blueberry, compiled for: Linux64"
 #endif
 #ifdef LINUX_ARCH_X8632
-	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.7b Angel of Angles, compiled for: Linux32"
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.8a Cheesy Blueberry, compiled for: Linux32"
 #endif
 #ifdef LINUX_ARCH_ARM64
-	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.7b Angel of Angles, compiled for: LinuxARM64"
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.8a Cheesy Blueberry, compiled for: LinuxARM64"
 #endif
 #ifdef LINUX_ARCH_PPC 
-	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.7b Angel of Angles, compiled for: LinuxPPC"
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.8a Cheesy Blueberry, compiled for: LinuxPPC"
 #endif
 #ifdef WIN_ARCH_X8632
-	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.7b Angel of Angles, compiled for: Windows32"
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.8a Cheesy Blueberry, compiled for: Windows32"
 #endif
 #ifdef WIN_ARCH_X8664
-	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.7b Angel of Angles, compiled for: Windows64"
+	#define R3X_SYSTEM_VERSION "R3X Virtual Machine 0.4.8a Cheesy Blueberry, compiled for: Windows64"
 #endif
 #endif

@@ -48,10 +48,11 @@ void ParseArguments(int argc, char* argv[]);
 void PrintHelp(void);
 void GetApplicationPath(void);
 // graphics and stuff
-unsigned int ScreenWidth = 640;
-unsigned int ScreenHeight = 480;
-unsigned int FontHeight = 16;
-unsigned int FontWidth = 16;
+//! DEFAULT SETTINGS FOR VGA 8x8 CODEPAGE 437 (60x45)
+unsigned int ScreenWidth = 480;
+unsigned int ScreenHeight = 360;
+unsigned int FontHeight = 8;
+unsigned int FontWidth = 8;
 double FontScale = 1.0f;
 char* FontFileName = NULL;
 char* ProgramArguments = NULL;
@@ -106,6 +107,13 @@ int main(int argc, char* argv[])
 		ScreenHeight = TempState.ScreenHeight;
 		ScreenWidth = TempState.ScreenWidth;
 	}
+	if(FontWidth != FontHeight) {
+		printf("Height and width are not equal. Font not supported\n");
+	}
+	//! Round up to nearest multiple of font height and width.
+	ScreenHeight = ScreenHeight + (FontHeight - ScreenHeight % FontHeight);
+	ScreenWidth = ScreenWidth + (FontWidth - ScreenWidth % FontWidth);
+	printf("%d\n", ScreenWidth);
 	if(UseServer == true){
 		printf("VM is running under client mode\n");
 	}
