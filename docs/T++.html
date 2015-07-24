@@ -237,14 +237,18 @@ T++ provides 4 internal functions for a program to use.<br>
 	print "hello: "; my_int1, my_int2+1, my_int3*3 ...
 </pre>
 <h4>input</h4>
-	The "input" function inputs a single character from stdin into a variable. The usage is shown below:<br>
+	The "input" function inputs a string from stdin into a variable. The usage is shown below:<br>
 <pre>
 	...
-	input my_var
-	# might store it or use it?
-	if my_var == 'y' goto yes
+	let size = 256
+	let pointer = alloc(size+1) // 1 for 0 terminator
+	input pointer, size
 	...
-	let [buffer] = my_var
+	you can use it like:
+	if(@r_strcmp(pointer, "hello")) {
+		//...
+	}
+	...
 </pre>
 <h4>alloc</h4>
 	The "alloc" function allocates a region of memory, by size, and then puts the pointer into a variable<br>

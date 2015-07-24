@@ -166,9 +166,12 @@ void vm_putc(char a, Graphics_t* Graphics)
 		int ScreenY = Graphics->TextOffset / Graphics->CharMaxW;
 		ScreenY++;
 		Graphics->TextOffset = ScreenY * Graphics->CharMaxW;
+	} else if(a == '\b') {
+		Graphics->TextBuf[Graphics->TextOffset-1] = ' ';
+		Graphics->TextOffset--;
 	}
 	if(Graphics->TextOffset < ((Graphics->Height/Graphics->FontHeight)*(Graphics->Width/Graphics->FontWidth))){
-		if(a != 0 && a != '\n'){
+		if(a != 0 && a != '\n' && a != '\b'){
 			Graphics->TextBuf[Graphics->TextOffset] = a;
 			Graphics->TextOffset++;
 		}
@@ -224,7 +227,7 @@ bool gl_text_update(Graphics_t* Graphics) {
 		putstring[1] = 0;
 		if(putstring[0] == '\t' || putstring[0] == ' '){
 		}
-		else if(putstring[0] != 0){
+		else if(putstring[0] != 0 && putstring[0] != 0x09){
 			text(x, y, Graphics->FontScale, Graphics->font, (char*)&putstring);
 		}
 		x += Graphics->FontWidth; // and the 8th :D

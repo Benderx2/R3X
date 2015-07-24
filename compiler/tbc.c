@@ -1222,12 +1222,43 @@ finish ()
     {
       puts ("\t; read a number from the terminal");
       puts ("input_i:");
+      puts ("\tpushr R3\n");
+      puts ("\tpushr R4\n");
+      puts ("\tloadrr R3, R1\n");
+      puts ("__input_i_loop:\n");
       puts ("\tsyscall SYSCALL_GETC");
       puts ("\tpush 0");
       puts ("\tcmp");
       puts ("\tpop");
       puts ("\tpopr R1");
-      puts ("\tjel input_i");
+      puts ("\tjel __input_i_loop");
+      puts ("\tcmpri R1, 0x0D\n");
+      puts ("\tje __input_i_final\n");
+      puts ("\tcmpri R3, 0x09\n");
+      puts ("\tjel __input_i_backspace");
+      puts ("\tpushr R1\n");
+      puts ("\tsyscall SYSCALL_PUTCH\n");
+      puts ("\tpop\n");
+      puts ("\tdecr R3\n");
+      puts ("\tcmpri R3, 1\n");
+      puts ("\tjel __input_i_final\n");
+ 	  puts ("\tstosb\n");
+ 	  puts ("\taddr R0, 1\n");
+ 	  puts ("\tjmpl __input_i_loop\n");
+ 	  puts ("\t__input_i_backspace:");
+ 	  puts ("\tcmpr R3, R4\n");
+ 	  puts ("\tjgl __input_i_loop\n");
+ 	  puts ("\tincr R3\n");
+ 	  puts ("\tpush 0x09\n");
+ 	  puts ("\tsyscall SYSCALL_PUTCH\n");
+ 	  puts ("\tpop\n");
+ 	  puts ("\tdecr R0\n");
+ 	  puts ("\tjmp __input_i_loop\n");
+ 	  puts ("__input_i_final:\n");
+ 	  puts ("\tpopr R3\n");
+ 	  puts ("\tpopr R4\n");
+ 	  puts ("\tloadr R1, 0\n");
+ 	  puts ("\tstosb\n");
       puts ("\tret");
     }
   else
@@ -1752,9 +1783,17 @@ static void
 do_input ()
 {
   use_input_i = 1;
-  do
-    printf ("\tcalll input_i\n\tpushr R0\n\tpushr R1\n\tloadr R0, v%s\n\tstosd\n\tpopr R1\n\tpopr R0\n", return_next_int_name ());
-  while (look == ',');
+  eat_blanks();
+  printf("\tpushr R0\n");
+  do_expression();
+  printf("\tloadrr R0, R1\n");
+  match(',');
+  do_expression();
+  printf("\tpushr R0\n");
+  printf("\tcalll input_i\n");
+  printf("\tpopr R0\n");
+  printf("\tloadrr R1, R0\n");
+  printf("\tpopr R0\n");
 }
 /*!
  * Allocates amount of memory defined by an expression, and sets it to a variable.
