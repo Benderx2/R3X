@@ -71,7 +71,7 @@ if [ "$USEGL" == "yes" ]
 	then
 	 export USEGL="-D REX_GRAPHICS"
 	 export GLFLAGS="-lSDL -lSDL_image -lGL -lX11"
-	 export GL_FILES="font.o graphics.o video.o"
+	 export GL_FILES="font.o graphics.o"
 fi
 if [ "$USEDYNAMIC" == "yes" ]
 	then

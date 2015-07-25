@@ -1,11 +1,10 @@
 #include <r3x_disassemble.h>
 void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionheader, uint32_t memaddr){
 	unsigned int i = 0;
-	unsigned int j = memaddr;
 	unsigned int domain_num = 0;
 	fprintf(output, "%s\n", sectionheader);
 	while(i < size){
-	printf("0x%X: ", i);
+	printf("0x%X: ", memaddr+i);
 	switch(input[i]) {
 			case R3X_CALL:
 				fprintf(output, "call 0x%X\n", BYTE_SWAP(*((uint32_t*)&input[i+1])));

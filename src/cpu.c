@@ -37,7 +37,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_stream.h>
 #include <r3x_exception.h>
 #include <nt_malloc.h>
-#include <r3x_video.h>
 #include <big_endian.h>
 #ifdef REX_GRAPHICS
 #include <r3x_graphics.h>

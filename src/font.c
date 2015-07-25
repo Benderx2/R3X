@@ -128,7 +128,7 @@ font_t* loadfont(char* s)
     glEndList();
     SDL_FreeSurface(beforeimg);
     SDL_FreeSurface(img);
-    return f;
+	return f;
 }
 bool text( int x, int y, float scale, font_t * f, char* txt)
 {
