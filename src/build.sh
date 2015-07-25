@@ -1,4 +1,4 @@
-echo "REX Compilation Script, version 0.71b"
+echo "REX Compilation Script, version 0.75b"
 set -o verbose
 if [ "$1" == "arch=x86_64" ]
 then
@@ -161,16 +161,29 @@ do
    set +x
 done
 $CC $ARCHFLAGS -o rxvm $LINKER_FILES $GL_FILES $DYNAMIC_FILES $LFLAGS $GLFLAGS $DYNAMICFLAGS $OPTIMIZEFLAGS
-$CC -I./lib/include -std=gnu99 -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o 
-if [ "$TARGET" == "x86_64win" ]
-then
-$CC -shared -o mylib.so ./mylib.o ./lib/rxvmlib.a -lm -Wl,-no-whole-archive
-else
-	$CC -shared -o mylib.so ./mylib.o ./lib/rxvmlib.a -lc -lm -lSDL -lSDL_image -lGL -lX11 -Wl,-no-whole-archive
-fi
-cd lib/rstdlib
-./build.sh
+
+# build static rxvmlib
+cd ./lib/rxvmlib
+$CC -I../include -std=gnu99 -c -Wall -Werror -fpic rxvmlib.c -o rxvmlib.o -O3
+$AR -rsc ../rxvmlib.a ./rxvmlib.o
+rm *.o
+cd ../ntmalloc
+# build static ntmalloc lib
+$CC -I../include -std=gnu99 -c -Wall -Werror -fpic nt_malloc.c -o nt_malloc.o -O3
+$AR -rsc ../libntmalloc.a ./nt_malloc.o
+rm *.o
+# build rstdlib (dynamic)
+cd ../rstdlib
+$CC -I../include -std=gnu99 -c -Wall -Werror -fpic rstdlib.c -o rstdlib.o -O3
+$CC -I../include -std=gnu99 -c -Wall -Werror -fpic rmath.c -o rmath.o -O3
+$CC -I../include -std=gnu99 -c -Wall -Werror -fpic rsocket.c -o rsocket.o -O3
+$CC -shared -o rstdlib.so ./rsocket.o ./rmath.o ./rstdlib.o ../rxvmlib.a ../libntmalloc.a -lc -lm -Wl,-no-whole-archive 
+mv ./rstdlib.so "../../$BINDIR"
+rm *.o
 cd ../../
+# build example so
+$CC -I./lib/include -std=gnu99 -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o 
+$CC -shared -o mylib.so ./mylib.o ./lib/rxvmlib.a -lc -lm -Wl,-no-whole-archive
 # compile programs
 $AS programs/r3x_ex.il 
 $AS programs/math.il 
