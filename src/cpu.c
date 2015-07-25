@@ -2061,7 +2061,7 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				// Ensure the there !IS! a keyboard interrupt, our thread will set the is_read value to false if there is.
 				if(is_read == false) {
 					is_read = true; 
-					Stack.Push(CPU->Stack, keycode);
+					if(keycode == '\b') { Stack.Push(CPU->Stack, 0x08); } else { Stack.Push(CPU->Stack, keycode); }
 				}
 				// To prevent race condition, push 0 if is_read == false;
 				else {		

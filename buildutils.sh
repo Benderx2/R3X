@@ -17,6 +17,6 @@ cp -r ./libR3X/ $PREFIX
 cd .. 
 cd ..
 cd $PREFIX
-mkdir include
+mkdir -p include
 cp -r ../src/lib/rstdlib/include/rstdlib.h ./include/
 export STDLIB_R3X="$PREFIX/include"
