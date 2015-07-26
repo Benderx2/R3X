@@ -70,7 +70,7 @@ export IFLAGS="-I$INCLUDE_DIR"
 if [ "$USEGL" == "yes" ]
 	then
 	 export USEGL="-D REX_GRAPHICS"
-	 export GLFLAGS="-lSDL -lSDL_image -lGL -lX11"
+	 export GLFLAGS="-lSDL -lSDL_image -lGL"
 	 export GL_FILES="font.o graphics.o"
 fi
 if [ "$USEDYNAMIC" == "yes" ]
@@ -88,7 +88,7 @@ if [ "$TARGET" == "x86_64" ]
 	then
 	 export ARCHFLAGS="-m64"
 	 export ENDIANFLAGS="-D R3X_LITTLE_ENDIAN"
-     export ARCHID="-D LINUX_ARCH_X8664"
+     	 export ARCHID="-D LINUX_ARCH_X8664"
 	 export CC="gcc"
 	 export AR="ar"
 	 export BINDIR="../bin64"

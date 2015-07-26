@@ -51,7 +51,6 @@ double DefaultRGBA_b = 0.0f;
 void Update(SDL_Surface*);
 Graphics_t* InitGraphics(void)
 {
-	XInitThreads();
 	if(ScreenWidth > MAX_SCREEN_WIDTH || ScreenHeight > MAX_SCREEN_HEIGHT || ScreenHeight < MIN_SCREEN_HEIGHT || ScreenWidth < MIN_SCREEN_WIDTH) {
 		printf("Error: Screen size is either too high or too low. Max: 1024*768, Min: 320*200\n");
 		exit(EXIT_FAILURE);

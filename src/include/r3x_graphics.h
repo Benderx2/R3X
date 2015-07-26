@@ -35,7 +35,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <SDL/SDL_image.h>
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include <X11/Xlib.h>
 #endif
 typedef struct font {
 	#ifdef REX_GRAPHICS
