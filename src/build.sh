@@ -145,14 +145,15 @@ then
 	export LFLAGS="-lm"
 else
 	export LINKER_FILES=""
-	export DYNAMICFLAGS="-ldl -rdynamic"
-	export LFLAGS="-lc -lm  -lefence"
+	export LFLAGS="-lc -lm"
 fi
 export LINKER_FILES="$LINKER_FILES cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o rfc.o script.o"
 # Compile libntmalloc
 $CC $ARCHFLAGS -c ./lib/ntmalloc/nt_malloc.c -o nt_malloc.o -I./lib/include -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
 export CCFLAGS="$ARCHID $USEDYNAMIC $USEGL $USEOPTIMIZE $ENDIANFLAGS $ARCHFLAGS $CFLAGS $OFLAGS $DFLAGS $IFLAGS"
+mkdir -p $BINDIR
+mkdir -p $BINDIR/bios
 # compile VM
 for i in *.c
 do
@@ -202,8 +203,6 @@ $AS programs/asshole.il
 $AS programs/rfc.il
 $AS programs/dynamiclib.il
 $AS programs/args.il
-mkdir -p $BINDIR
-mkdir -p $BINDIR/bios
 # now transfer it 
 mv rxvm $BINDIR/
 mv mylib.so $BINDIR/
