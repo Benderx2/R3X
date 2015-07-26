@@ -1,13 +1,159 @@
 <!DOCTYPE html>
-<img src="./rxvmlogo.png" align="center"></img>
+<img src="./rxvmlogo.png" align="left" title="The New Virtual Order"></img>
+<img src="./rxvmscreenshot.png" align="right" title="Running an IRC bot in R3X VM"></img>
 <body>
-<h1>R3X Virtual Machine</h1>
-<div>R3X is an experiment to rebuild an entire runtime environment from scratch. The project began in the 
-November of 2014, as a hobbyist's attempt at studying virtual machines. Since then, the project has moved 
-quite ahead, and is very functional. There is indeed quite a lot of complications and technical errors, 
-but it is improving. The <i>runtime environment</i> features a debugger, a fully capable instruction set, 
-a standard library, a compiler and a small terminal emulator which uses OpenGL capabilities.</div>
+<h1 align="center">R3X Virtual Machine</h1>
+<p>R3X is an experiment to rebuild an entire runtime environment (like JVM) from scratch. 
+The project began in the November of 2014, as a hobbyist's attempt at studying virtual machines. 
+Since then, the project has moved quite ahead, and is very functional. There is indeed quite a 
+lot of complications and technical errors, but it continues to improve. The <i>runtime environment</i> 
+features a debugger, a fully capable instruction set, a standard library, a compiler and a small 
+terminal emulator which uses OpenGL capabilities.<br><br>
+
+The current version of the R3X runtime environment is 0.4.8a codename: <i>Cheesy Blueberry</i> (unstable).
+There has been considerable progress on the graphics library, and the standard library is fully functional,
+although some features are still missing. Most of the bugs have been identified and resolved, and the compiler
+(and programming language) are now quite useful with the arrival of the standard library.<br><br>
+
+The total R3X source contains 57,377 lines of code (which includes ANSI C, T++, SH and Assembly), the first
+version of the project, in comparision contained 1,714 lines of code. That is a 3247.5% increase within just
+8 months. Below is a graph of the project's SLOC count history.<br><br>
+<img src="./SLOC.png"></img> <br><br>
+You can notice from the graph the project is continously being worked on and improved. There is still a long
+way to, with so many shortcomings, but as said before, the project continues to get better. <br><br>
 </p>
+<h2>Features</h2>
+<ol>
+<li type="disc">Fully capable instruction set (conditionals, arithmetic, stack, floating point)</li>
+<li type="disc">Integrated Debugger</li>
+<li type="disc">Exception handling</li>
+<li type="disc">A small terminal emulator (input/output) using OpenGL</li>
+<li type="disc">Portable (has been tested on PPC, ARM, x86, and x64 [Windows and Linux])</li>
+<li type="disc">High Level Programming language (T++, a BASIC-like programming language)</li>
+<li type="disc">Standard Library for T++ (includes math, sockets, File I/O, and string handling)</li>
+<li type="disc">Functional Toolchain (including compiler, disassembler, executable information dump etc.)</li>
+<li type="disc">Dynamic Linking and Native Linking for R3X programs</li>
+<li type="disc">A server-like implementation which can run multiple instances of VMs</li>
+<li type="disc">Own configure script system for VM</li>
+</ol>
+<h2>Limitations</h2>
+<p>
+Since, R3X is a hobby project, it does not aim to as featureful unlike JVM or .NET, which are platforms
+designed by large corporations for professional use. This introduces quite a lot of limitations, a few of them
+are given below:<br><br>
+</p>
+<ol>
+<li type="disc">No graphics library. (There is an WIP OpenGL wrapper)</li>
+<li type="disc"><b>No JIT</b> compilation. All code is interpreted. <b>No optimisations</b> either.</li>
+<li type="disc">Compiler produces very unoptimised code</li>
+<li type="disc">Limited error handling (compiler) and very crude output</li>
+<li type="disc">No assembler, R3X currently uses FASM as it's backend assembler</li>
+<li type="disc">Programming language does not provide error handling (although the instruction set allows it)</li>
+<li type="disc">Escape sequences are not supported by the compiler</li>
+<li type="disc">No IDE</li>
+<li type="disc">Terminal emulator is very limited, no colors either.</li>
+</ol>
+<h2>Requirements</h2>
+<p>
+The R3X runtime is very minimal, and hence the system requirements are very low, the following are the <i>minimum</i> requirements
+for the runtime:<br>
+<ol>
+<li type="disc">256 Megabytes of RAM (512 if using with OpenGL)</li>
+<li type="disc">Intel Pentium or greater CPU</li>
+<li type="disc">If using GL, a GPU is recommended, rendering large blocks of text is often slow on integrated GPUs/software rendering.</li>
+<li type="disc">A Linux System (recommended), R3X has not been tested throughly on Windows systems, and the build process is very UNIX-y</li>
+<li type="disc">Space requirements are tiny, R3X does not consume more than 5 Megabytes of storage (along with the standard library and toolchain)</li>
+</ol>
+</p>
+<h2>Building</h2>
+Building the virtual machine is accomplished by running the "./build.sh" script in the src/ directory. The following are
+required to do a <i>full fleged</i> build:<br>
+<ol>
+<li type="disc">GCC (GNU C Compiler) Toolchain</li>
+<li type="disc">A standard C library</li>
+<li type="disc">OpenGL Libraries (Both the Include files and the library itself)</li>
+<li type="disc">SDL (Simple Direct Layer) (Again, both the library and the include files)</li>
+<li type="disc">FASM (Flat Assembler)</li>
+<li type="disc">libpthread (Both headers and libraries)</li>
+</ol>
+See docs/Porting.html for the required header files.
+Now, you can run the build.sh with the following arguments:
+<pre>./build.sh arch=[archname] usegl=yes/no usedynamic=yes/no useoptimise=yes/no</pre>
+Refer to the docs/Building.html for more information.
 </body>
+<h2>Documentation</h2>
+All documentation can be found at: <a href="https://github.com/Benderx2/R3X/blob/master/docs/">https://github.com/Benderx2/R3X/blob/master/docs/</a><br>
+<h2>Github and Downloads</h2>
+<p>
+Github Site: <a href="https://github.com/Benderx2/R3X/">https://github.com/Benderx2/R3X/</a><br>
+Github Tarball: <a href="https://github.com/Benderx2/R3X/tarball/master">https://github.com/Benderx2/R3X/tarball/master</a><br>
+Github Zip: <a href="https://github.com/Benderx2/R3X/zipball/master">https://github.com/Benderx2/R3X/zipball/master</a><br>
+Release 0.4.7b (for Linux x64 Only): <a href="https://github.com/Benderx2/R3X/releases/tag/0.4.7b">https://github.com/Benderx2/R3X/releases/tag/0.4.7b</a><br><br>
+</p>
+<h2>Directory Organisation of the project</h2>
+The directories in the repository are organised as follows:
+<pre>
+/ --------------------------------------------------------- Parent Directory.
+-----> compiler/ : Contains the T++ compiler sources and examples.
+-----> disasm/ 	 : Contains the toolchain sources (rexdump, readrex and cgen)
+-----> docs/ 	 : Containts the documentation for the R3X VM
+		------> data : Contains the data files required by the HTML document sources
+-----> fasm/	 : Contains the source for Flat Assembler (by Tomasz Grystar)	
+-----> llvm/
+	    ------> llvm/
+			----> lib/
+				-----> target/ : Contains the target file for LLVM toolchain (Work in progress!)
+-----> server/	 : Contains the implementation of R3X server
+-----> src/		 : Contains the source code for VM, it's programs and libraries
+		------> include/ : Contains the include the directory for the VM.
+				-----> win32 : contains include files specific to win32 port of R3X
+		------> lib/ 	 : Contains the libraries for the VM.
+					----> gl/ : Contains the GL wrapper for R3X
+					----> include/ : Include files for creating native shared libraries for the runtime
+					----> ntmalloc/ : Malloc wrapper for R3X native shared libraries
+					----> rstdlib/ : Standard library source. (with T++ examples)
+							------> include/ : Contains the include directory with rstdlib.h (header for t++ programs)
+					----> rxvmlib/ : Library that provides a communication layer between the R3X runtime and the shared library.
+		------> win32/ : Contains sources specific to win32 port of R3X
+		------> programs/ : Contains the programs directory written in R3X assembly which can be assembled with FASM.
+					----> libR3X/ : FASM architecture-specific include files (defines opcodes with macros)
+</pre>
+<h2>License</h2>
+<pre>
+Copyright (c) 2015 Benderx2, 
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of R3X nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+NOTE:
+
+The files src/win32/dlfcn.c and src/include/win32/dlfcn.h have been taken from 
+github.com/dlfcn-win32/dlfcn-win32
+
+The file src/inclue/win32/dbghelp.h has been taken from mingw64's headers.
+</pre>
 </html>
 
