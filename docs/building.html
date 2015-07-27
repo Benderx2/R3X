@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<title>Building the R3X VM</title>
+<h1>Building the R3X Virtual Machine, and associated programs</h1>
+<h2>Requirements</h2>
+Unfortunately the R3X runtime can only be built on Linux systems for now. An OS-independent build system is on its way, and
+there is hope that this nuisance would be solved very soon.
+<ol>
+<li type="disc">A Linux System (with a sh compatible shell, like bash.)<br><br></li>
+<li type="disc">Flat Assembler (<a href="http://flatassembler.net/download.php">http://flatassembler.net/download.php</a>).<br>
+Make sure the executable location is added to your $PATH. To do this (for one session), just run the following command:
+<pre>export PATH="$PATH:/path/to/your/fasm/directory/"</pre>
+To make this change permanent, just add the above line to your .bashrc in ~/.<br><br>
+</li>
+<li type="disc">GCC (GNU C Compiler) toolchain<br>On Debian systems simply run <pre>apt-get install gcc</pre> (You might need superuser privileges)
+<br>The build script assumes target as an x64 machine, if you want to compile for another architecture (x32, ARM, ARM64, PPC) then
+the following is the list of compilers the build script will need:
+<pre>
+arm-linux-gnueabi-*** <i>For ARM architectures (Linux only)</i>
+powerpc-linux-gnu-*** <i>For PPC architectures (Linux only)</i>
+x86_64-w64-mingw32-*** <i>For Windows x64 (Only 64-bit versions of Windows supported for now.)</i>
+</pre></li>
+<li type="disc">libc6 (compulsory), libsdl1.2-dev, freeglut3-dev (if you want the terminal emulator), and libpthread-stubs0-dev (if you want optimisations)<br>
+On Debian systems simply run:
+<pre>
+apt-get install libsdl1.2-dev
+apt-get install freeglut3-dev
+# lib pthread should be present with the libc and gcc, just in case.
+apt-get install libpthread-stubs0-dev
+</pre>
+(Again, you might need superuser privileges)<br><br>
+</li>
+</ol>
+<h2>Getting the sources</h2>
+Open up your terminal, and make sure you have <i><a href="https://git-scm.com/">git</a></i>, now with all that over, type the following in:
+<pre>git clone https://github.com/Benderx2/R3X</pre>
+This will create a clone of the repository in your home directory (provided your terminal brings you to the home directory).<br><br>
+Alternatively, you can download the tarball in the "Github and Downloads" section of the homepage).
+<h2>The build</h2>
+Now, type in:
+<pre>
+cd R3X/src
+</pre>
+This brings you to the source code directory of the program, which contains the build script (build.sh). Executing the build script
+will build the VM, a few example programs, and the standard library. There are a few options which might be required if you want to
+build according to your own taste. Likewise, if you want to build on the default settings (x64, uses OpenGL, uses multithreading, and uses
+dynamic library support), simply:
+<pre>
+./build.sh
+</pre>
+However, the build script provides the following options:
+<pre>
+./build.sh arch=archname usegl=yes/no usedynamic=yes/no useoptimize=yes/no
+</pre>
+<ol>
+<li type="disc">arch: This specifies the target architecture. The following targets are supported:
+<pre>
+OPTION		  TARGET DESCRIPTION
+--------------------------------
+x86_64 		- Default. x86 64-bit CPUs. Linux.
+x86_32 		- x86 32-bit CPUs. Linux.
+x86_64win 	- x86 64-bit CPUs. Windows. (a few problems persist with this option.)
+aarch64 	- ARM64 (little endian). Linux.
+aarch64-big 	- ARM64 (big endian). Linux.
+ppc 		- PowerPC architecture
+</pre></li>
+<li type="disc">usegl: Option to use the graphics libraries (opengl and SDL)
+<pre>
+OPTION		  DESCRIPTION
+-----------------------
+yes 		- use GL and SDL. Terminal emulator supported. (RECOMMENDED)
+no			- do not use GL and SDL. Uses standard output as output for programs. buggy with input.	
+</pre></li>
+<li type="disc">usedynamic: Specifies whether to use dynamic (loading SO files) support or not. Usually for limited OSes
+<pre>
+OPTION		  DESCRIPTION
+-----------------------
+yes 		- use dynamic library support. (dlfcn.h). R3X standard library available. native code execution available.
+no			- do not use dynamic library support. R3X standard library not available. native code execution not available.
+</pre></li>
+<li type="disc">useoptimize: Use optimisations. Requires multithreading support.
+<pre>
+OPTION		  DESCRIPTION
+-----------------------
+yes 		- use optimisations. (pthread.h). Faster execution.
+no			- do not use use optimisations. (pthread.h). slower execution.
+</pre>
+</li>
+</ol>
+Notes:
+<ol>
+<li type="disc">The ./build.sh automatically creates a binary directory right outside the source directory (../src), the name of this directory
+is "bin[archname]"</li>
+<li type="disc">Note that R3X uses a routine called GetApplicationPath (in src/main.c), to find it's executable directory. Unfortunately,
+this approach deviates from the standard and hence, this makes the routine very system specific. There are two implementations one for Linux,
+and the other for Windows, however, if you are compiling for some other operating system the routine fall backs to the original environment
+variable way. In this case, you will have to export "RX_DIR_ENV" as the place where you have the VM executable, before launching the VM.</li>
+</ol>
+<h2>Building the toolchain (compiler, compiler frontend, disassembler, checksum generator, and executable reader)</h2>
+The toolchain requires nothing more than the standard library, however, you will need to do an extra step before compiling.
+To maintain simplicity and portability, the toolchain uses 2 environment variables, one at compile time, and the other at runtime,
+these are respectively, <i>PREFIX</i> and <i>STDLIB_R3X</i>.<br><br>
+The PREFIX variable tells the compiler where it is, this is used by the frontend, which calls the preprocessor, the compiler, and the assembler.
+This means that the compiler executable is immovable, and hence would need to be recompiled again, if it is being shifted to some other directory.
+So, choose wisely! [Also, note that it is REQUIRED you keep the PREFIX directory same as the one where in you have your FASM executable]<br><br>
+The STDLIB_R3X variable tells the compiler where the standard R3X library header is, which contains the &lt;rstdlib.h&gt; that can be used by R3X
+programs. The buildutils.sh (which compiles the compiler and the toolchain) copies this to $PREFIX/include. Therefore it is adivisable to keep it that
+way.<br>
+The build steps for a functioning toolchain are as follows:
+<pre>
+export PREFIX="/path/to/fasm/executable/"
+./buildutils.sh # provided you are in the same directory.
+export PATH="$PATH:/path/to/fasm/executable" # add to path (if you haven't already!)
+export STDLIB_R3X="$PREFIX/include"
+</pre>
+The last two lines can be added to .bashrc if you want this to be permanent.
+</html>
