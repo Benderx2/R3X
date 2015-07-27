@@ -71,7 +71,7 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	{
 		printf("r3x_load_executable: invalid header: 0x%X.\n", header->header_id);
 		nt_free(mem1);
-		return NULL;
+		exit(EXIT_FAILURE)
 	}
 	
 	//! Check for page alignment for text and data sections
@@ -128,7 +128,7 @@ void load_dependencies(r3x_cpu_t* CPU) {
   for(unsigned int i = 0; i < NumberOfImports; i++) {
     if(BIG_ENDIAN_INT(Imports[i].SymbolName) > CPU->MemorySize || BIG_ENDIAN_INT(Imports[i].LibName) > CPU->MemorySize) {
 	fprintf(stderr, "Error: Corrupted import section\n");
-	exit(0);
+	exit(EXIT_FAILURE);
     }
     printf("import_sec: %s\n", (char*)((uintptr_t)CPU->Memory + BIG_ENDIAN_INT(Imports[i].SymbolName)));
     int handle = load_dynamic_library((char*)((uintptr_t)CPU->Memory + BIG_ENDIAN_INT(Imports[i].LibName)), CPU);

@@ -113,7 +113,6 @@ int main(int argc, char* argv[])
 	//! Round up to nearest multiple of font height and width.
 	ScreenHeight = ScreenHeight + (FontHeight - ScreenHeight % FontHeight);
 	ScreenWidth = ScreenWidth + (FontWidth - ScreenWidth % FontWidth);
-	printf("%d\n", ScreenWidth);
 	if(UseServer == true){
 		printf("VM is running under client mode\n");
 	}

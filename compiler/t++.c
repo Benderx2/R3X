@@ -24,7 +24,7 @@ bool CompileDynamic = false;
 char* DynamicSuffix = " ";
 int main(int argc, char** argv) {
 	#ifndef RX_PREFIX
-	#warning "No RX_PREIFX defined. Relying on RX_PREFIX @ runtime"
+	#warning "No RX_PREFIX defined. Relying on RX_PREFIX @ runtime"
 	char* RX_PREFIX = getenv("RX_PREFIX");
 	if(RX_PREFIX == NULL) { printf("Error: RX_PREFIX not defined, neither on compile nor on run time. Please export RX_PREFIX as the directory of the compiler executable!\n"); exit(EXIT_FAILURE); }
 	#endif 
