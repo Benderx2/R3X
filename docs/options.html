@@ -50,12 +50,14 @@ End of Script<br><br>
 <h3>An example script</h3>
 
 Below is an example of running args.exe with the appropriate options:<br>
-executable: "args.exe"<br>
-font_height: 16<br>
-font_width: 16<br>
-font_scale: 1.0f<br>
-args: "hello, world!"<br>
-end:<br>
+<pre>
+executable: "args.exe"
+font_height: 16
+font_width: 16
+font_scale: 1.0f
+args: "hello, world!"
+end:
+</pre>
 (NOTE: The "end:" is not needed, but is recommended.) <br>
 You can also use enviroment variables in strings, for example executable: "$EXEC_FILE_NAME" will set the executable to the enviroment variable
 pointed by "EXEC_FILE_NAME".
