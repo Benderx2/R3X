@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<h1>R3X VM options</h1>
+The Virtual Machine can accept several options from the command line, this document will provide a list of these
+commands and a brief description and their usage.<br><br>
+The following are the options that can be passed to "rxvm":<br>
+<ul>
+<pre>
+<li type="disc"><i>-exe [exename]</i>: 		Specifies the executable file to be run</li>
+<li type="disc"><i>-stack [stacksize]</i>: 		Specifies the stack size limit (default is 0x100000 of stack space [DWORDS])</li>
+<li type="disc"><i>-h or --help</i>: 			Display VM version and licensing information</li>
+<li type="disc"><i>-f [frequency]</i>: 		Specify the CPU frequency (floating point) in kilohertz.</li>
+<li type="disc"><i>-s</i>: 				Runs the VM in client mode. (Should only be used by server programs.)</li>
+<li type="disc"><i>-w [width]</i>: 			Specify OpenGL terminal width</li>
+<li type="disc"><i>-w [height]</i>: 			Specify OpenGL terminal height</li>
+<li type="disc"><i>-fo [fontpath]</i>: 		Specify a PNG file containing a bitmap font (256 characters, can be 128x128 or 256x256)</li>
+<li type="disc"><i>-fw [width]</i>: 			Specify font width</li>
+<li type="disc"><i>-fh [height]</i>: 			Specify font height</li>
+<li type="disc"><i>-fs [scale]</i>: 			Specify font scale (floating point)</li>
+<li type="disc"><i>-args "[arguments]"</i>: 		Specify program arguments to VM. (this will be passed to your program)</li>
+<li type="disc"><i>-rs [scriptpath]</i>:		Specify R3X script configuration file (see below)</li>
+</pre>
+</ul>
+<h2>Using the configure script feature</h2>
+If you do not like using the command line and instead want to directly pass the your settings to the VM through a file, you
+can use the "-rs" option to pass the configure script's path to the VM. Note that all your command line settings will be
+overwritten by those in the configuration file.
+
+<h3>Configure script syntax</h3>
+executable: "[exename]"<br>
+Specify executable name.<br><br>
+args: "[args]"<br>
+Specify arguments<br><br>
+font_file: "[font name]"<br>
+Specify font file name (Must be a PNG-Bitmap font: 128x128, 256x256, 512x512)<br><br>
+font_height: [integer value]<br>
+Specify font height<br><br>
+font_width: [integer value]<br>
+Specify font width<br><br>
+font_scale: [float value]<br>
+Specify font scale<br><br>
+screen_width: [integer value]<br>
+Specify screen width (in pixels)<br><br>
+screen_height: [integer value]<br>
+Specify screen height (in pixels)<br><br>
+stack: [integer value]<br>
+Specify max stack size<br><br>
+end: <br>
+End of Script<br><br>
+
+<h3>An example script</h3>
+
+Below is an example of running args.exe with the appropriate options:<br>
+executable: "args.exe"<br>
+font_height: 16<br>
+font_width: 16<br>
+font_scale: 1.0f<br>
+args: "hello, world!"<br>
+end:<br>
+(NOTE: The "end:" is not needed, but is recommended.) <br>
+You can also use enviroment variables in strings, for example executable: "$EXEC_FILE_NAME" will set the executable to the enviroment variable
+pointed by "EXEC_FILE_NAME".
+</html>
