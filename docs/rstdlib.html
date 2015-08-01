@@ -1,0 +1,66 @@
+<h1>The T++ standard library for R3X (rstdlib)</h1>
+
+<b>This document is under construction. There might be several factual and grammatical errors which will be fixed in the future.</b><br><br>
+
+The following is a list of functions available by the <i>rstdlib</i> standard library. Including the library is very simple, just make sure
+you have followed the building instructions properly, and you have configured your build environment properly.
+
+To include simply:
+<pre>
+#include &lt;rstdlib.h&gt;
+</pre>
+<h3>String functions</h3>
+<ul>
+<li type="disc">@r_strlen(<i>string</i>) : return length (in bytes) of <i>string</i></li>
+<li type="disc">@r_strcmp(<i>str1</i>, <i>str2</i>) : Compare <i>str1</i> with <i>str2</i>, returns 0 (true) if they are equal. else returns the number of characters
+the string have been similar.</li>
+<li type="disc">@r_strcpy(<i>dest</i>, <i>src</i>) : Copy string <i>src</i> into string <i>dest</i>.</li>
+<li type="disc">@r_strcat(<i>dest</i>, <i>src</i>) : concatenate two strings, (note dest should have required buffer size)</li>
+</ul>
+<h3>Memory Access functions</h3>
+<li type="disc">@r_memset(buffer, char, size) -> set all bytes in buffer of size to char.</li>
+<li type="disc">@r_memcpy(dest, src, length) -> copy src to dest of length "length".</li>
+
+<h3>File I/O</h3>
+
+<li type="disc">@r_fopen(filename, mode) -> open file with name "filename" and mode. returns file descriptor (filefd)</li>
+<li type="disc">@r_fclose(filefd) -> close a file</li>
+<li type="disc">@r_fread(filefd, length, buffer) -> read from filfd into buffer of length "length". return the amount of bytes</li>
+read
+<li type="disc">@r_fwrite(filefd, length, buffer) -> write to filefd of length "length" from buffer. return the amount of bytes
+written</li>
+<li type="disc">@r_fflush(filefd) -> flush filefd.</li>
+
+<h3>Environment Functions</h3>
+
+<li type="disc">@r_getenv(envname, buf) -> copy value of environment variable "envname" to buf. buffer should be allocated previously.
+in order to find the required size of buffer, use the function with null as buf, it will return the amount of bytes
+required for envname.</li>
+
+<li type="disc">@r_setenv(envname, envval, overwrite) -> set environment variable "envname" to "envval", with "overwrite" properties</li>
+
+<h3>Math functions</h3>
+
+<li type="disc">r_sin/r_cos/r_tan/r_sec/r_cosec/r_cot(float) -> return sine/cos/tan/sec/cosec/cot in [radians]</li>
+<li type="disc">@r_sinh/r_cosh/r_tanh/r_sech/r_cosech/r_coth(float) -> return value of hyperbolic trig functions [in radians]</li>
+<li type="disc">@r_asin/r_acos/r_atan/r_asec/r_acosec/r_acot(float) -> return value of inverse trig functions in radians</li>
+<li type="disc">@r_asinh/r_acosh/r_atanh/r_asech/r_acoseh/r_coth(float) -> return value of inverse trig hyperbolic functions in radians</li>
+<li type="disc">@r_exp(float) -> return e^float</li>
+<li type="disc">@r_log(float) -> return log base e of float</li>
+<li type="disc">@r_log10(float) -> return log base 10 of float</li>
+<li type="disc">@r_pow(base, exp) -> return base^exp</li>
+<li type="disc">@r_ceil(float) -> return ceil of float</li>
+<li type="disc">@r_floor(float) -> return floor of float</li>
+<li type="disc">@r_fmod(dividend, divisor) -> return remainder of dividend/divisor</li>
+
+SOCKET FUNCTIONS:
+
+<li type="disc">@r_connect(server_name, port) -> Connects to the server with the specified port and returns the socket descriptor.</li>
+
+<li type="disc">@r_send(sockfd, string) -> sends a null terminated "string" to sockfd with a newline '\n'</li>
+
+<li type="disc">@r_receive(sockfd, length, buffer) -> Reads from socket sockfd, to buffer with specified length. This function will
+<b>wait</b> until data is received. returns the number of bytes read.</li>
+
+<li type="disc">@r_receive_no_wait(sockfd, length, buffer) -> Reads from socket sockfd, to buffer with specified length. This function does not wait for data to be received. if there is no data received, it returns 0, else it returns the
+number of bytes read.</li>

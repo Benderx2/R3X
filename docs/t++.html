@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<h1>The T++ Programming Language</h1>
+<font size="1"><i>Before reading this, it is suggested you familiarise yourself with the compiler 
+and toolchain environment <a href="./compiler.html">here</a>.</i><br><br></font>
+T++ is a high level programming language for the R3X runtime, it is highly imperative, and is suitable
+for almost every task. The language features a relatively simple syntax with support for calling functions from
+dynamic libraries (both native and virtual), function calls, strings, memory management and lots which is not
+mentioned. Granted, it is a hobby project and hence is not as powerful or good as some of the mainstream languages
+like Java or C#, but from a not-so-professional perspective, it is good enough. Considerable effort has been made
+to improve the syntax and the overall language, which is still a WIP.
+<h2>Type System</h2>
+One very improtant thing to note here is that T++ is techinically typeless, meaning there is *no* type safety, it is 
+unlikely that type safety is going to be added in the <b>near</b> future.
+<h2>Keywords</h2>
+Keywords form the base of any programming language, and T++ is no exception to this rule (of course). The following is the list
+of keywords available in the T++ programming language:
+<ul>
+<li type="disc">
+function <i>function_name</i>(<i>number_of_arguments</i>)<br>
+This keyword defines a function, with the name <i>function_name</i> which takes <i>number_of_arguments</i> arguments. Please
+note that <i>number_of_arguments</i> should always be a constant. The resulting keyword for ending a function is, <b>endf</b>. <b>Also,
+all statements (except preprocessor ones, the "global" and the "struct" keyword) can only be executed inside a function block.</b>
+Sample usage is shown below:
+<pre>
+function my_function(3)
+	...
+endf
+</pre>
+</li>
+<li type="disc">
+struct <i>name_of_struct</i>(<i>number_of_members</i>)<br>
+Declare a structure with <i>number_of_members</i> amount of members. The structure can be composed of 
+<b>int8 (8-bit, 1 byte) or int16 (16-bit, 2 bytes) or int32 (32-bit 4 bytes)</b>. Please note that since pointers are 32-bit in R3X, 
+int32 can be used to store pointers. The resulting keyword to end a structure declaration is <b>ends</b>. Structure declarations <b>
+are global and must be done outside the scope of functions</b>.
+An example is given below:
+<pre>
+...
+struct mystruct(3)
+	int8 member1_8bit
+	int16 member2_16bit
+	int32 member3_32bit
+ends
+...
+</pre>
+</li>
+<li type="disc">
+let <i>variable_name</i> = <i>expression</i><br>
+Set a <b>local</b> variable with <i>variable_name</i> to <i>expression</i>. <i>expression</i> can be either a string, integer, character, another variable or an expression.
+An example is given below:
+<pre>
+...
+	let a = 5*6
+	let b = a+5
+	let c = a+b+27*3
+...
+</pre>
+</li>
+<li type="disc">
+return <i>expression</i><br>
+Return from a function with a value of <i>expression</i>. T++ expects <b>all functions to have a <i>reachable</i> return</b>.
+</li>
+<li type="disc">
+if (<i>expr</i>)<br>
+Executes the <b>next statement</b> if <i>expr</i> is <b>true</b>. (usually a goto to a local label). Jumps to next if false. An example is
+shown below:
+<pre>
+...
+	if (a := 0) goto a_is_zero
+	if (a := 5) goto a_is_equal_to_5
+	if (a &gt; 5) goto a_is_greater_than_5
+	if (a &lt; ) goto a_is_lesser_than_5
+...
+:a_is_zero
+	/* Do something */
+:a_is_equal_to_5
+	/* Dome something */
+...
+</pre>
+</li>
+<li type="disc">
+while (<i>expr</i>) ... endw<br>
+Executes statements sandwiched between <i>while (...)</i> and <i>endw</i>, until <i>expr</i> is <b>true</b>. An example is given below
+<pre>
+	/* While a is greater than 5, keep executing "a = a - 1"
+	while (a > 5)
+		a = a - 1
+	endw
+</pre>
+</li>
+<li type="disc">
+goto <i>label</i><br>
+Jumps to <i>label</i>. An example is given below:
+<pre>
+	...
+	goto label01
+	...
+:label01 
+	let a = 5
+	a = a*45
+	...
+</pre>
+</li>
+<li type="disc">
+gosub <i>label</i>
+Calls <i>label</i>. Recursion supported. An example is given below:
+<pre>
+	...
+	gosub label01
+	/* this code will be executed after return */
+	/* a will be set from 5 to 1 */
+	let a = 1
+:label01
+	let b = 11*3
+	let a = 5
+	/* return value will be trashed */
+	return 0
+	...
+</pre>
+</li>
+<li type="disc">
+native (<i>function_name</i>, <i>name_of_native_library</i>, <i>number_of_arguments</i>)<br>
+Declare a native function, present in a native (.SO/.DLL) library <i>name_of_native_library</i> (<b>absolute path must be given</b>)
+with number of arguments as <i>number_of_arguments</i>. This function can then be called normally just like any other function. Note
+that this declaration is <b>recommended</b> to be done outside any function block, usually in a header file (*.h). An example
+is given below:
+<pre>
+...
+native(test_func, "./lib.so", 3) // Declare a native function test_func present in lib.so that takes 3 arguments.
+...
+</pre>
+</li>
+<li type="disc">
+extern (<i>function_name</i>, <i>name_of_dynamic_library</i>, <i>number_of_arguments</i>)<br>
+Declare a <b>function in an R3X dynamic library (*.ro)</b> whose location is in <i>name_of_dynamic_library</i> (<b>absolute 
+path must be given</b>). This works same as "<i>native</i>", the only difference being, that this is used for R3X dynamic libraries,
+while "native" is used for native dynamic libraries. An example is given below:
+<pre>
+extern (test_func, "./test_func.ro", 3) // Declare a dynamic library function test_func present in ./test_func.ro that takes 3 arguments.
+</pre>
+</li>
+<li type="disc">
+global <i>variable_name</i><br>
+Create a <b>global</b> variable, note that you have to set it's value in your initialisation function, global variables can't be initialised in
+declaration (yet). An example is given below
+<pre>
+...
+global myvar
+...
+</pre>
+</li>
+</ul>
+<h2>Language and syntax</h2>
+R3X follows an imperative style, along with newlines to differentiate between statements. (with the exception of <b>if</b>).
+<h3>Function calls</h3>
+Functions must be <b>defined before they are to be called</b>. There is unfortunately, no support for prototypes (like C) here, yet.
+To call a function, the '@' character must precede the function name followed by arguments enclosed within '(' and ')'. An example is given
+below:
+<pre>
+...
+function add2numbers(2)
+	let number1 = $1
+	let number2  = $2
+	return number1 + number2
+endf
+...
+function main(0)
+	let my_num = @add2numbers(2,5)
+	// my_num = 7
+	// the below function call's return value will be trashed, in case it's not needed
+	@add2numbers(40, 45)
+	...
+endf
+...
+</pre>
+However, this only supports internal (and native/external dynamic) functions. <b>If you want to call an address, you must use raw_call.</b><br>
+@raw_call(<i>function_address</i>, <i>number_of_arguments</i>, <i>arg1</i>, <i>arg2</i>, <i>arg3</i>, ...).<br>
+<i>function_address</i> shall be an expression that equates to the address that needs to be called, <i>number_of_arguments</i> shall be
+the number of arguments to be passed, then follows the list of expressions equating to the arguments that need to be passed. 
+An example is given below:
+<pre>
+	...
+	arg2 = 5
+	arg3 = 28
+	// call address 0x140000 with 3 arguments
+	@raw_call(0x140000, 3, 3*5, arg2, arg3+6)
+	...
+</pre>
+<b><i>Note</i></b>: All programs must have a <b>main</b> function. Dynamic libraries don't have a main function on the other hand.
+<h3>Function Arguments</h3>
+Function arguments can be accessed by prefixing a '$' infront of the number of argument. Arguments are 1-indexed, so this means,
+the first argument can be accessed by '$1'. Note that this <b>NOT permitted to be used in expressions</b>. For example:
+<pre>
+let a = $1+2
+</pre>
+will translate to:
+<pre>
+let a = $3
+</pre>
+<i>and not</i>
+<pre>
+let a = (first_argument_value) + 2
+</pre>
+Hence, it is recommended, to rather have this:
+<pre>
+function myfunc (2)
+	let arg1 = $1
+	let arg2 = $2
+	...
+	// Now you can use arg1 and arg2 normally in expressions. like:
+	let a = arg1 + arg2
+	...
+endf
+</pre>
+<h3>Pointers</h3>
+Pointers are variables that point to a section of memory. <i>Accessing Pointers</i> generally refers to accessing the values at these memory
+locations pointed by the variables. Since <b>T++ is a typeless language there are <i>no pointer types</i>, this task is rather, accomplished
+by <i>specific operators</i></b>. The following are the operators that can be used:
+<pre>
+<b>int8_ptr (<i>expression</i>)</b> 	- 8-bit pointer access
+<b>int16_ptr(<i>expression</i>)</b> 	- 16-bit pointer access
+<b>int32_ptr(<i>expression</i>)</b> 	- 32-bit pointer access
+</pre>
+Several examples are given below, including pointer access and assignment:
+<pre>
+	...
+	// set addr4MB to 0x400000
+	let addr4MB = 0x400000
+	let whatisat4MB = int8_ptr(whatisat4MB)
+	// whatisat4MB contains the value of the byte (8-bit) at 0x400000.
+	let int32_ptr(whatistat4MB+4) = 69
+	// now 4 bytes after 0x400000 contains the 32-bit integer '69'.
+	...
+</pre>
+<h3>Labels</h3>
+Labels can be defined by prefixing a colon (':'). An example is given below:
+<pre>
+...
+:label01
+...
+:label02
+...
+:label03
+...
+</pre>
+Keywords like <b>goto</b> and <b>gosub</b> can be used to jump between labels.
+<h3>Structures and globals</h3>
+Structures can be accessed by: &lt;struct <i>name_of_struct</i>&gt;<i>expression</i>.<i>member_name</i><br>
+<i>name_of_struct</i> is the structure name which is given during declaration, <i>expression</i> gives out the pointer to the struct, 
+and <i>member_name</i> is the member <b>name</b> whose value is to be returned. You can use the <b>sizeof(<i>name_of_struct</i>)</b> to return the 
+size of a structure. An example is given below:
+<pre>
+struct mystruct(5)
+	int8 m1
+	int8 m2
+	int32 m3
+	int16 m4
+	int32 m5
+	int8 m6
+ends
+...
+	let mystruct_ptr = alloc(sizeof(mystruct))
+	// set m3 to 5
+	let &lt;struct mystruct&gt;mystruct_ptr.m3 = 5
+	// return value of m2.
+	let mystruct_val_m2 = &lt;struct mystruct&gt;mystruct_ptr.m2
+...
+</pre>
+Global variables are also accessed in a similar way, using &lt;global&gt;<i>variable_name</i><br>
+<i>variable_name</i> is the name of the variable whose value is to be accessed. An example is given below:
+<pre>
+global myvar
+...
+	let &lt;global&gt;myvar = 5
+	...
+	let value_of_var = &lt;global&gt;myvar
+...
+</pre>
+<h3>Address of functions or local variables</h3>
+Address of functions or local variables can be taken by using the <b>addressof(<i>variable_or_function</i>)</b> operator. 
+<i>variable_or_function</i> refers to the variable/function name whose address is to taken. For functions, they MUST be prefixed with a
+'@'. An example is given below:
+<pre>
+function func1(6)
+	...
+endf
+...
+function func2(0)
+	let x = 0
+	...
+	let addressof_x = addressof(x)
+	let addressof_func1 = addressof(@func1)
+	...
+endf
+...
+</pre>
+<h3>Internal functions</h3>
+There are some internal functions that are provided by the language, these are:
+<ul>
+<li type="disc"><b>print</b> <i>string</i> ; <i>...</i><br>
+The "print" function will print the <i>string</i> to screen which can be preceded by integers, floats or pointers to strings 
+(represented by <i>...</i>). An example is given below:
+<pre>
+...
+	print "value of my_var is"; my_var
+	print "string at my_var is :"; $my_var // treat my_var as a string
+	print "float at my_var is: "; %my_var // treat my_var as float
+...
+</pre>
+</li>
+<li type="disc"><b>input</b> <i>pointer_to_string</i>, <i>number_of_chars_to_input</i><br>
+The "input" function will take input from the terminal, and put that into <i>pointer_to_string</i> until RETURN is pressed, 
+however if the input exceeds, <i>number_of_chars_to_input</i> then it will automatically return back to the caller. An example is given below:
+<pre>
+...
+	let ptr_str = alloc(256+1) // extra for null terminator
+	input ptr_str, 256
+	// ptr_str contains what the user typed in.
+...
+</pre>
+</li> 
+<li type="disc"><b>alloc(<i>bytes_to_allocate</i>)</b><br>
+The alloc function allocates pages (as required by <i>bytes_to_allocate</i>) and returns the pointer to the page(s) allocated by the VM. 
+An example is given below:
+<pre>
+// allocate 256 bytes
+let alloc_addr = alloc(256)
+</pre>
+</li>
+<li type="disc"><b>end</b></li><br>
+The end function will quit the program. An example is given below:
+<pre>
+...
+	end
+...
+</pre>
+</ul>
+<h3>Floats</h3>
+T++ supports Floating Point (Decimal) members, operations on them can be done through using special operators. The following is a list
+of all floating point operations available.<br>
+<ul>
+<li type="disc">add_f(<i>expression1</i>, <i>expression2</i>)<br>
+add_f will add two <b>floating point numbers</b> which will be given out by <i>expression1</i> and <i>expression2</i> respectively.</li>
+<li type="disc">sub_f(<i>expression1</i>, <i>expression2</i>)<br>
+sub_f will subtract two <b>floating point numbers</b> which will be given out by <i>expression1</i> and <i>expression2</i> respectively.</li>
+<li type="disc">mul_f(<i>expression1</i>, <i>expression2</i>)<br>
+mul_f will multiply two <b>floating point numbers</b> which will be given out by <i>expression1</i> and <i>expression2</i> respectively.</li>
+<li type="disc">div_f(<i>expression1</i>, <i>expression2</i>)<br>
+div_f will add two <b>floating point numbers</b> which will be given out by <i>expression1</i> and <i>expression2</i> respectively.</li>
+</ul>
+<b><i>NOTES:</i></b><br>
+&#8226; Declaration of floating point numbers must be done like this (i.e. have at least 1 digit after the decimal point):
+<pre>
+let A = 30.0 // "let A = 30" will set A to an integer, NOT a floating point number.
+...
+</pre>
+&#8226; <b>Integers and Floats CANNOT be MULTIPLIED.</b> To be able to do this, you must use two operators <b>conv_f(<i>expression</i>)</b> (which converts integer to floats)
+and <b>conv_i(<i>expression</i>)</b>. An example is given below:
+<pre>
+let integernum = 30
+let floatnum = 50.5
+let result = mul_f(floatnum, conv_f(integernum)) // convert integernum to float and multiply
+...
+let result = integernum * conv_i(floatnum) // convert floatnum to integer and then multiply (decimal points will be lost!)
+</pre>
+<h3>Operators and Operator precedence</h3>
+T++ has <b>no operator precedence</b>, all operations which are to be done first must be enclosed in brackets or done sequentially.
+The following is a list of all operators present in T++:
+<ul>
+<li type="disc">right_shift(<i>expression1</i>, <i>expression2</i>)<br>
+Right Shift <i>expression1</i> by <i>expression2</i> bits.
+</li>
+<li type="disc">left_shift(<i>expression1</i>, <i>expression2</i>)</li>
+Left Shift <i>expression1</i> by <i>expression2</i> bits.</li>
+<li type="disc"><i>expression1</i> <b>&</b> <i>expression2</i><br>
+The '&' (Bitwise AND) operator will do a bitwise AND on <i>expression1</i> <i>by expression2</i>
+</li>
+<li type="disc"><i>expression1</i> <b>|</b> <i>expression2</i><br>
+The '|' (Bitwise OR) operator will do a bitwise OR on <i>expression1</i> <i>by expression2</i>
+</li>
+<li type="disc"><i>expression1</i> <b>^</b> <i>expression2</i><br>
+The '^' (Bitwise XOR) operator will do a bitwise XOR on <i>expression1</i> <i>by expression2</i>
+</li>
+<li type="disc"><i>expression1</i> <b>&&</b> <i>expression2</i><br>
+The '&&' (Logical AND) operator will do a logical AND on <i>expression1</i> <i>by expression2</i>
+</li>
+<li type="disc"><i>expression1</i> <b>||</b> <i>expression2</i><br>
+The '&' (Logical OR) operator will do a logical OR on <i>expression1</i> <i>by expression2</i>
+</li>
+<li type="disc"><i>expression1</i> <b>!=</b> <i>expression2</i><br>
+If <i>expression1</i> is <b>not equal to</b> <i>expression2</i>, then the expression evaluates to <b>true</b>. Else it evaluates to <b>false</b>.
+</li>
+<li type="disc"><i>expression1</i> <b>:=</b> <i>expression2</i><br>
+If <i>expression1</i> is <b>equal to</b> <i>expression2</i>, then the expression evaluates to <b>true</b>. Else it evaluates to <b>false</b>.
+</li>
+<li type="disc"><i>expression1</i> <b>&gt;</b> <i>expression2</i><br>
+If <i>expression1</i> is <b>greater than</b> <i>expression2</i>, then the expression evaluates to <b>true</b>. Else it evaluates to <b>false</b>.
+</li>
+<li type="disc"><i>expression1</i> <b>&lt;</b> <i>expression2</i><br>
+If <i>expression1</i> is <b>lesser than</b> <i>expression2</i>, then the expression evaluates to <b>true</b>. Else it evaluates to <b>false</b>.
+</li>
+<li type="disc"><i>expression1</i> <b>&gt;=</b> <i>expression2</i><br>
+If <i>expression1</i> is <b>greater than or equal to</b> <i>expression2</i>, then the expression evaluates to <b>true</b>. Else it evaluates to <b>false</b>.
+</li>
+<li type="disc"><i>expression1</i> <b>&lt;=</b> <i>expression2</i><br>
+If <i>expression1</i> is <b>lesser than or equal to</b> <i>expression2</i>, then the expression evaluates to <b>true</b>. Else it evaluates to <b>false</b>.
+</li>
+</ul>
+<h3>The Preprocessor</h3>
+T++ uses <b>GCC as a preprocessor</b>. This means that anything that can be done in the C preprocessor which <i>does not make use of
+C language features</i> is accomplishable in T++ as well.<br>
+</html>
