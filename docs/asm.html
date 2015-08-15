@@ -1,0 +1,53 @@
+<h1>Writing R3X programs in assembly</h1>
+
+<h2>A basic sketch</h2>
+
+The basic structure of an R3X program is:
+<pre>
+include 'libR3X/libR3X.pkg' ; Located in src/programs/
+.text {
+	; Text section
+	function main
+		; A main function is mandatory for programs, not for dynamic libraries.
+	endfunction main
+}
+.data {
+	; Data Section
+}
+.bss {
+	; BSS Section
+}
+</pre>
+
+<b>Text Section</b>: This section contains code, which is to be executed.<br>
+<b>Data Section</b>: This section contains data, and hence cannot be written to.<br>
+<b>BSS Section</b>: This section contains uninitialised data. This region is both readable and writable. It is zeroed
+when the VM starts execution.<br>
+<b>function</b>: Functions are blocks of code, which can be called. The VM's BIOS calls the main function after initialisation
+.<br>
+
+<h2>Assembling</h2>
+Assembling must be done using Flat Assembler, assuming you have set up the environment correctly, you just have to:
+<pre> 
+fasm myfile.asm 
+</pre>
+And you should get a 'myfile.exe' which can now be executed as by the Virtual Machine.
+
+<h2>Dynamic Libraries</h2>
+
+A basic sketch of a dynamic library is very similar to the program sketch, but a few things are different:
+<pre>
+include 'libR3X/dynR3X.pkg'
+.text {
+
+}
+.data {
+
+}
+.bss {
+
+}
+</pre>
+Unlike programs a main function is not required. But if you are addressing local variables, you must add R20 to the address.
+This is because dynamic libraries are designed to be loaded at any point, and hence need to be relocatable. Whenever, the VM
+calls a dynamic library function, it sets R20 to the load address of the library.

@@ -1,0 +1,100 @@
+<h1>Writing a Native Library for the R3X runtime</h1>
+
+Native libraries are often used to provide functionality that is not inbuilt in the VM and is platform-specific. Native libraries
+are written in C, which is a widely used low-level programming language.
+
+<h1>Required Files/Tools</h1>
+
+The GCC Compiler toolchain is required, if you wish to use graphical components then an implementation of OpenGL (same as
+the one used for compiling the VM) is needed.
+If you have followed the build tutorial correctly, you should have two files in, src/lib directory namely, <i>libntmalloc.a</i> 
+and <i>librxvm.a</i>. These, especially the latter, are required. You will also need the headers in src/include.
+
+<h1>Writing the Library</h1>
+
+All libraries usually begin with: 
+<pre>#include &lt;virtual-machine.h&gt;
+#include &lt;nt_malloc.h&gt;</pre>
+
+<h2>The "Start" function</h2>
+
+Whenever the runtime loads a native library, it looks for a Start function. The "Start" function is a mandatory initialisation
+function which is present in the library. A minimal 'Start' function will take the pointer to the CPU structure (given in the
+argument) and store it in a global variable. An example is given below:
+
+<pre>
+r3x_cpu_t* CPU = NULL;
+...
+void Start(r3x_cpu_t* _CPU) {
+	CPU = _CPU;
+	...
+}
+...
+</pre>
+
+Declaring functions is very simple, just like you would declare a normal function. The only exception being that, all
+functions must return a <i>uint32_t</i> and should take 0 arguments i.e. <i>void</i>T (here is a different way of 
+taking arguments that will be covered later on in this page. An example is given below:). After the function returns,
+it's return value will be pushed to the VM's data stack. 
+
+<pre>
+...
+uint32_t myfunction(void) {
+	...
+}
+</pre>
+
+Now you can simply declare this function in T++ as:
+<pre>
+...
+native(myfunction, "./myfunctionlib.so", <i>number_of_arguments</i>) // number_of_arguments is a constant
+
+// ... And call it like a normal function
+@myfunction(arg1, arg2, ...)
+
+</pre>
+
+<h2>Taking Arguments</h2>
+
+Since T++ follows the REXCall convention, arguments have to be taken in a different way, using the <i>GetArgument</i> function, 
+defined in &lt;virtual-machine.h&gt;. An example is given below:
+
+<pre>
+...
+uint32_t add_two_numbers(void) {
+	// CPU is an r3x_cpu_t*, the pointer to the CPU structure saved by the Start()
+	uint32_t arg1 = GetArgument(CPU, 1); // First argument. Arguments are 1 indexed!
+	uint32_t arg2 = GetArgument(CPU, 2);
+	return arg1 + arg2;
+}
+</pre>
+
+<h3>Pointers as arguments</h3>
+
+If you want a linear address or a pointer from an argument, like a buffer or string, you will have to use 
+the <i>GetLinearAddress</i> function to convert the relative address given by the argument to an actual linear address. 
+An example of this, by implmenting the 'strcmp' function is given below:
+
+<pre>
+uint32_t my_strcmp(void) {
+	// CPU is an r3x_cpu_t*, the pointer to the CPU structure saved by the Start()
+	char* str1 = GetLinearAddress(CPU, GetArgument(CPU, 1)); // Get Linear Address of argument 1
+	char* str2 = GetLinearAddress(CPU, GetArgument(CPU, 2)); // same as above, but argument 2 this time
+	strcmp(str1, str2); // now you can use pointers as you will in a normal program.
+	return 0;
+}
+</pre>
+
+<b>NOTE:</b> <i>Never</i> return malloc'd or internal addresses as arguments! Your program can only access memory given to it
+by the runtime, anything outside will cause a segmentation fault.
+
+<h2>Compiling</h2>
+
+Once you have written your library, you can compile it using:
+
+<pre>
+gcc -I<i>directory_to_src/lib/include/</i> -std=gnu99 -Wall -fpic mylib.c -o mylib.o
+gcc -shared -o mylib.so ./mylib.o librxvm.a libntmalloc.a
+</pre>
+
+<i>mylib.so</i> is your native library which can now be used by R3X programs.

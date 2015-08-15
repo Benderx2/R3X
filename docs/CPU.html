@@ -1,0 +1,1834 @@
+<h1>R3X CPU documentation and Instruction Manual</h1>
+<style type="text/css">
+	table { table-layout: fixed; }
+	td { width: 1%; }
+	td { height: 1%; }
+	tr { width: 1%; }
+	tr { height: 1%; }
+</style>
+
+<h1>CPU Summary</h1>
+
+The R3X CPU is a 32-bit stack-based, RISC-like CPU, which is one of the central components of the R3X runtime. The R3X
+CPU can also be classfied as a hybrid between stack and register based design. In general, however, most of the operations
+are done over stack.
+
+<h2>Stack</h2>
+The R3X CPU <b><i>contains two stacks</i></b>: One is known as the 'data stack', where most operations are done, the second
+stack is known as the 'address or call' stack which contains return addresses of calls.
+
+<h2>Registers</h2>
+The R3X CPU contains 21 registers [R0-R20] which can be used to temporarily store data, these can be operated on using
+instructions which accept an 8-bit immediate known as 'register index'. The following is a table of register indexes:
+<table border="1" width="25%">
+<tr>
+<td>Register</td>
+<td>8-bit Register Index Value</td>
+</tr>
+<tr>
+<td>R0</td>
+<td>0</td>
+</tr>
+</tr>
+<tr>
+<td>R1</td>
+<td>1</td>
+</tr>
+</tr>
+<tr>
+<td>R2</td>
+<td>2</td>
+</tr>
+</tr>
+<tr>
+<td>R3</td>
+<td>3</td>
+</tr>
+</tr>
+<tr>
+<td>R4</td>
+<td>4</td>
+</tr>
+</tr>
+<tr>
+<td>R5</td>
+<td>5</td>
+</tr>
+</tr>
+<tr>
+<td>R6</td>
+<td>6</td>
+</tr>
+</tr>
+<tr>
+<td>R7</td>
+<td>7</td>
+</tr>
+</tr>
+<tr>
+<td>R8</td>
+<td>8</td>
+</tr>
+</tr>
+<tr>
+<td>R9</td>
+<td>9</td>
+</tr>
+</tr>
+<tr>
+<td>R10</td>
+<td>10</td>
+</tr>
+</tr>
+<tr>
+<td>R11</td>
+<td>11</td>
+</tr>
+</tr>
+<tr>
+<td>R12</td>
+<td>12</td>
+</tr>
+</tr>
+<tr>
+<td>R13</td>
+<td>13</td>
+</tr>
+</tr>
+<tr>
+<td>R14</td>
+<td>14</td>
+</tr>
+</tr>
+<tr>
+<td>R15</td>
+<td>1</td>
+</tr>
+</tr>
+<tr>
+<td>R16</td>
+<td>16</td>
+</tr>
+</tr>
+<tr>
+<td>R17</td>
+<td>17</td>
+</tr>
+</tr>
+<tr>
+<td>R18</td>
+<td>18</td>
+</tr>
+</tr>
+<tr>
+<td>R19</td>
+<td>19</td>
+</tr>
+</tr>
+<tr>
+<td>R20</td>
+<td>20</td>
+</tr>
+</table>
+
+<h2>Syscalls</h2>
+
+The 'syscall' instruction is used to call a VM specific function, these include things like output, input, file I/O, multithreading,
+etc. The following is table of values to be passed as an <b>8-bit</b> immediate to the 'syscall' instruction.
+
+<table border="1" width="50%">
+	<tr>
+	<td>Syscall Name</td>
+	<td>Syscall Value (to be passed to 'syscall' as immediate)</td>
+	<td>Description</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_PUTS</td>
+	<td>0x0</td>
+	<td>Print a string to stdout, whose address is pushed last to data stack.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_PUTI</td>
+	<td>0x1</td>
+	<td>Print the integer to stdout, which is pushed last to data stack.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_PUTF</td>
+	<td>0x2</td>
+	<td>Print the float to stdout, which is pushed last to data stack.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_GLUPDATE</td>
+	<td>0x3</td>
+	<td>Call the VM's video refresh function.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_GETC</td>
+	<td>0x4</td>
+	<td>Read from keyboard buffer, and push character to data stack. Does not wait, instead pushes 0 if no character was read.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_PUTCH</td>
+	<td>0x5</td>
+	<td>Print ASCII character to stdout, whose value was pushed last to data stack.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_ATOI</td>
+	<td>0x6</td>
+	<td>Convert string, whose address is pushed last to data stack, and push the result to data stack.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_ALLOC</td>
+	<td>0x7</td>
+	<td>Allocate memory, with size, whose value is pushed last to data stack, and push the allocated address to data stack.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_DISPATCH</td>
+	<td>0x8</td>
+	<td>Create a new thread, and start execution from address which was pushed last to data stack.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_LOADDYNAMIC</td>
+	<td>0x9</td>
+	<td>Load a dynamic library, whose location is in a string, whose address is pushed last to data stack, and push the library
+	handle to data stack, which is to be used when calling a dynamic library function using the 'calldynamic' instruction.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_GETCLOCK</td>
+	<td>0x10</td>
+	<td>Push the number of CPU clock ticks to data stack.</td>
+	</tr>
+	<tr>
+	<td>SYSCALL_GETCLOCKSPERSEC</td>
+	<td>0x11</td>
+	<td>Push the number of CPU ticks in one second to data stack.</td>
+	</tr>
+</table>
+
+<h1>Exceptions</h1>
+Exceptions in R3X can be thrown using the 'throw' instruction. You can set exception handlers using 'catch'. How these instructions
+work is given in the instruction manual below.
+
+These instructions require something called an 'exception ID' to identify what exception to throw, and what exception has occured,
+the following is a list of exception IDs.
+<table border="1" width="50%">
+	<tr>
+	<td>Exception Name</td>
+	<td>Exception ID</td>
+	<td>Exception Description</td>
+	</tr>
+	<tr>
+	<td>INVALID_ACCESS</td>
+	<td>0</td>
+	<td>Thrown when a program attempts to access a region of memory which is inaccessible or protected or non-existent.</td>
+	</tr>
+	<tr>
+	<td>INVALID_OPCODE</td>
+	<td>1</td>
+	<td>Thrown when the CPU encounters an invalid opcode.</td>
+	</tr>
+	<tr>
+	<td>R_EXCEP</td>
+	<td>2</td>
+	<td>User defined exception.</td>
+	</tr>
+	<tr>
+	<td>INVALID_ARITH</td>
+	<td>3</td>
+	<td>Thrown when the CPU attempts to do an invalid arithmetic operation. (division by 0 for example)</td>
+	</tr>
+</table>
+<h1>Instructions</h1>
+<h2>push</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>push</td>
+	<td>0x01, <i>byte</i></td>
+	<td>Push an immediate to data stack.</td>
+	<td>32-bit constant</td>
+	<td>0x01 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>pop</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>pop</td>
+	<td>0x02, <i>byte</i></td>
+	<td>Pop a 32-bit integer from stack. Value trashed.</td>
+	<td>Nothing</td>
+	<td>0x02 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>add</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>add</td>
+	<td>0x03, <i>byte</i></td>
+	<td>Add two numbers on top of data stack, and push result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x03 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>sub</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>sub</td>
+	<td>0x04, <i>byte</i></td>
+	<td>Subtract the number on top of data stack from the number pushed second last. And push result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x04 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>mul</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>mul</td>
+	<td>0x05, <i>byte</i></td>
+	<td>Multiply two numbers on top of data stack, and push result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x05 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>div</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>div</td>
+	<td>0x06, <i>byte</i></td>
+	<td>Divide the number on top of data stack by the number pushed second last. And push result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x06 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>fadd</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fadd</td>
+	<td>0x07, <i>byte</i></td>
+	<td>Add the IEEE754 float on top of data stack to the IEEE754 float pushed second last. And push the IEEE754 float result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x07 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>fsub</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fsub</td>
+	<td>0x08, <i>byte</i></td>
+	<td>Subtract the IEEE754 float on top of data stack from the IEEE754 float pushed second last. And push the IEEE754 float result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x08 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>fmul</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fmul</td>
+	<td>0x09, <i>byte</i></td>
+	<td>Multiply the IEEE754 float on top of data stack with the IEEE754 float pushed second last. And push the IEEE754 float result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x09 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>fdiv</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fdiv</td>
+	<td>0x0A, <i>byte</i></td>
+	<td>Divide the IEEE754 float on top of data stack by the IEEE754 float pushed second last. And push the IEEE754 float result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x0A (BYTE)</td>
+	</tr>
+</table>
+
+<h2>cmp</h2>
+
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>cmp</td>
+	<td>0x0A, <i>byte</i></td>
+	<td>Compare the two values on top of data stack. Let A be the value pushed second last, a B be the value
+	pushed last. If A &gt; B, Set 'G' (Greater Than) flag to true. If A = B, Set 'E' (Equal) flag to true. If
+	A &lt; B, Set L (Lesser Than) flag to true. <b>The comparsion is unsigned.</b>
+	<td>Nothing</td>
+	<td>0x0B (BYTE)</td>
+	</tr>
+</table>
+
+<h2>je</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>je</td>
+	<td>0x0C, <i>byte</i></td>
+	<td>Jump to a 32-bit address, if Equal flag is set, given by the immediate. <b>This jump is absolute.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x0C (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>jl</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jl</td>
+	<td>0x0D, <i>byte</i></td>
+	<td>Jump to a 32-bit address, if Lesser than flag is set, given by the immediate. <b>This jump is absolute.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x0C (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>jg</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jg</td>
+	<td>0x0E, <i>byte</i></td>
+	<td>Jump to a 32-bit address, if Greater than flag is set, given by the immediate. <b>This jump is absolute.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x0E (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>jz</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jz</td>
+	<td>0x11, <i>byte</i></td>
+	<td>Jump to a 32-bit address, if Zero flag is set, given by the immediate. <b>This jump is absolute.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x11 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>jmp</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jmp</td>
+	<td>0x20, <i>byte</i></td>
+	<td>Jump to a 32-bit address given by the immediate. <b>This jump is absolute.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x20 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>and</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>and</td>
+	<td>0x12, <i>byte</i></td>
+	<td>Do a bitwise AND on second last number pushed to data stack, by the <i>value of number on top of stack</i> bits.</td>
+	<td>Nothing</td>
+	<td>0x12 (BYTE) </td>
+	</tr>
+</table>
+
+<h2>or</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>or</td>
+	<td>0x13, <i>byte</i></td>
+	<td>Do a bitwise OR on second last number pushed to data stack, by the <i>value of number on top of stack</i> bits.</td>
+	<td>Nothing</td>
+	<td>0x13 (BYTE) </td>
+	</tr>
+</table>
+
+<h2>xor</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>xor</td>
+	<td>0x14, <i>byte</i></td>
+	<td>Do a bitwise XOR on second last number pushed to data stack, by the <i>value of number on top of stack</i> bits.</td>
+	<td>Nothing</td>
+	<td>0x14 (BYTE) </td>
+	</tr>
+</table>
+
+<h2>dup</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>dup</td>
+	<td>0x15, <i>byte</i></td>
+	<td>Duplicate the value on top of data stack, and push the result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x15 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>loads</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>loads</td>
+	<td>0x17, <i>byte</i></td>
+	<td>Load value from number of positions below top of data stack, given by immediate and push it to the data stack.
+	<i>Push to Data Stack (Data Stack[Top of Data Stack - <b>immediate</b>])</i></td>
+	<td>32-bit constant</td>
+	<td>0x17 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>load</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>load</td>
+	<td>0x18, <i>byte</i></td>
+	<td>Load <b>DWORD</b> from address on top of data stack.</td>
+	<td>Nothing</td>
+	<td>0x18 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>store</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>store</td>
+	<td>0x19, <i>byte</i></td>
+	<td>Store <b>DWORD</b> which is on top of data stack, to address whose value is pushed second last.</td>
+	<td>Nothing</td>
+	<td>0x19 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>exit</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>exit</td>
+	<td>0x1F, <i>byte</i></td>
+	<td>Exit VM and all subsystems (if called from <b>main thread</b>, Else exit current thread.</td>
+	<td>Nothing</td>
+	<td>0x1F (BYTE)</td>
+	</tr>
+</table>
+
+<h2>syscall</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>syscall</td>
+	<td>0x21, <i>byte</i></td>
+	<td>Call VM internal function whose 8-bit index is given by the immediate.</td>
+	<td>8-bit Constant</td>
+	<td>0x21 (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>loadlib</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>loadlib</td>
+	<td>0x22, <i>byte</i></td>
+	<td>Load native library, whose location is stored in a string whose address must be on top of stack.</td>
+	<td>Nothing</td>
+	<td>0x22 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>libexec</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>libexec</td>
+	<td>0x23, <i>byte</i></td>
+	<td>Call a function from the native library, whose name is in a string whose address must be pushed last on data stack, 
+	and whose library location is stored in the address which is pushed second last on the data stack. <i><b>loadlib</b> with
+	the same library locations must be called beforehand.</i>
+	</td>
+	<td>Nothing</td>
+	<td>0x23 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>call</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>call</td>
+	<td>0x24, <i>byte</i></td>
+	<td>Jump to address given by immediate, and push return address to <b>call stack</b> (next instruction in memory).</i>
+	</td>
+	<td>32-bit Constant</td>
+	<td>0x24 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>ret</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>ret</td>
+	<td>0x25, <i>byte</i></td>
+	<td>Pop address from call stack, and jump to that address.</i>
+	</td>
+	<td>Nothing</td>
+	<td>0x25 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>pusha</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>pusha</td>
+	<td>0x26, <i>byte</i></td>
+	<td>Push the 32-bit immediate to call stack.</i>
+	</td>
+	<td>32-bit immediate</td>
+	<td>0x26 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>popa</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>popa</td>
+	<td>0x27, <i>byte</i></td>
+	<td>Pop last pushed item from call stack.</i>
+	</td>
+	<td>32-bit immediate</td>
+	<td>0x27 (BYTE) </td>
+	</tr>
+</table>
+
+<h2>memcpy</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>memcpy</td>
+	<td>0x28, <i>byte</i></td>
+	<td>Copy memory from address pushed second last to data stack, to destination pushed third last with size pushed 
+	last (i.e. on top of) to data stack.</i></td>
+	<td>Nothing</td>
+	<td>0x28 (BYTE) </td>
+	</tr>
+</table>
+
+<h2>lods'x'</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>lodsb, lodsw, lodsd</td>
+	<td>0x29 (lodsb) or 0x62 (lodsw) or 0x31 (lodsd), <i>byte</i></td>
+	<td>Load data from address pointed by register R0 to register R1 with size either byte, word, or dword 
+	determined by the suffix of the mnemonic, b, w, and d respectively.</i></td>
+	<td>Nothing</td>
+	<td>0x29 (lodsb) or 0x62 (lodsw) or 0x31 (lodsd) (BYTE) </td>
+	</tr>
+</table>
+
+<h2>stos'x'</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>stosb, stosw, stosd</td>
+	<td>0x2A (stosb) or 0x61 (stosw) or 0x2E (stosd), <i>byte</i></td>
+	<td>Store value of register R1 to address pointed by register R0 with size either byte, word, or dword 
+	determined by the suffix of the mnemonic, b, w, and d respectively.</i></td>
+	<td>Nothing</td>
+	<td>0x2A (stosb) or 0x61 (stosw) or 0x2E (stosd) (BYTE) </td>
+	</tr>
+</table>
+
+<h2>cmps'x'</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>cmpsb, cmpsw, cmpsd</td>
+	<td>0x2F (cmpsb) or 0x63 (cmpsw) or 0x30 (cmpsd), <i>byte</i></td>
+	<td>Compare value of register R1 with value at address pointed by R3, with size either byte, word, or dword 
+	determined by the suffix of the mnemonic, b, w, and d respectively.</i></td>
+	<td>Nothing</td>
+	<td>0x2F (cmpsb) or 0x63 (cmpsw) or 0x30 (cmpsd) (BYTE) </td>
+	</tr>
+</table>
+
+<h2>loadr</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>loadr</td>
+	<td>0x2B, <i>byte</i></td>
+	<td>Load register pointed by 8-bit register index (immediate), with value pointed by the 32-bit immediate.</td>
+	<td>8-bit Register Index, 32-bit Constant</td>
+	<td>0x2B (BYTE) [BYTE] [DWORD]</td>
+	</tr>
+</table>
+
+<h2>pushr</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>pushr</td>
+	<td>0x2C, <i>byte</i></td>
+	<td>Push value of register index, to data stack, pointed by 8-bit register index (immediate)</td>
+	<td>8-bit Register Index</td>
+	<td>0x2C (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>popr</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>popr</td>
+	<td>0x2D, <i>byte</i></td>
+	<td>Pop value from data stack, and store it in register pointed by the 8-bit register index (immediate).</td>
+	<td>8-bit Register Index</td>
+	<td>0x2D (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>incr</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>incr</td>
+	<td>0x32, <i>byte</i></td>
+	<td>Increment value of register by 1, pointed by 8-bit register index (immediate).</td>
+	<td>8-bit Register Index</td>
+	<td>0x32 (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>decr</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>decr</td>
+	<td>0x33, <i>byte</i></td>
+	<td>Decrement value of register by 1, pointed by 8-bit register index (immediate).</td>
+	<td>8-bit Register Index</td>
+	<td>0x33 (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>int *</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>int</td>
+	<td>0x34, <i>byte</i></td>
+	<td>Cause a CPU interrupt, whose index is given by the 8-bit ISR index (immediate).</td>
+	<td>8-bit ISR Index</td>
+	<td>0x34 (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>loadi *</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>loadi</td>
+	<td>0x35, <i>byte</i></td>
+	<td>Set interrupt vector, given by 8-bit ISR Index (immediate), to address given by the 32-bit address (immediate).</td>
+	<td>8-bit ISR Index, 32-bit address</td>
+	<td>0x35 (BYTE) [BYTE] [DWORD]</td>
+	</tr>
+</table>
+
+<h2>not</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>not</td>
+	<td>0x36, <i>byte</i></td>
+	<td>Do a bitwise NOT to value pushed last on data stack, and push result.</td>
+	<td>Nothing</td>
+	<td>0x36 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>neg</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>neg</td>
+	<td>0x37, <i>byte</i></td>
+	<td>Do a bitwise NEG (negation) on value pushed last to data stack and push result.</td>
+	<td>Nothing</td>
+	<td>0x37 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>pushar</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>pushar</td>
+	<td>0x38, <i>byte</i></td>
+	<td>Push value of register index, to call stack, pointed by 8-bit register index (immediate)</td>
+	<td>8-bit Register Index</td>
+	<td>0x38 (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>popar</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>popar</td>
+	<td>0x39, <i>byte</i></td>
+	<td>Pop value from call stack, and store it in register pointed by the 8-bit register index (immediate).</td>
+	<td>8-bit Register Index</td>
+	<td>0x39 (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>shr</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>shr</td>
+	<td>0x4A, <i>byte</i></td>
+	<td>Do a SHR (Right Bit shift) operation on value pushed second last on data stack, by number of bits pushed last, and push
+	result on data stack.</td>
+	<td>Nothing</td>
+	<td>0x4A (BYTE)</td>
+	</tr>
+</table>
+
+<h2>shl</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>shl</td>
+	<td>0x4B, <i>byte</i></td>
+	<td>Do a SHL (Left Bit shift) operation on value pushed second last on data stack, by number of bits pushed last, and push
+	result on data stack.</td>
+	<td>Nothing</td>
+	<td>0x4B (BYTE)</td>
+	</tr>
+</table>
+
+<h2>calldynamic</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>calldynamic</td>
+	<td>0x53, <i>byte</i></td>
+	<td>Call a dynamic library function, whose library handle is pushed second last to data stack, and name is pushed last to
+	data stack.</td>
+	<td>Nothing</td>
+	<td>0x53 (BYTE)</td>
+	</tr>
+</table>
+(Note: <i>The library handle can be retrived by calling 'syscall SYSCALL_LOADDYNAMIC'.);</i>
+
+<h2>fxxx (trignometric function)</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fsin, fcos, ftan</td>
+	<td>0x56 (fsin), 0x57 (fcos) or 0x58 (ftan), <i>byte</i></td>
+	<td>Evaluates the sine, cosine or tangent, depending upon the suffix sin, cos, and tan respectively, of the IEEE754 float
+	pushed last to stack  and push result to data stack, IEEE754 float. (<i>in radians</i>)</td>
+	<td>Nothing</td>
+	<td>0x56 (fsin), 0x57 (fcos) or 0x58 (ftan) (BYTE)</td>
+	</tr>
+</table>
+
+<h2>axxx (inverse trignometric function)</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>asin, acos, atan</td>
+	<td>0x59 (asin), 0x5A (acos) or 0x5B (atan), <i>byte</i></td>
+	<td>Evaluates the inverse sine, cosine or tangent, depending upon the suffix sin, cos, and tan respectively, of the IEEE754
+	float pushed last to stack, and push result to data stack, IEEE754 float. (<i>in radians</i>)</td>
+	<td>Nothing</td>
+	<td>0x59 (asin), 0x5A (acos) or 0x5B (atan) (BYTE)</td>
+	</tr>
+</table>
+
+<h2>fpow</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fpow</td>
+	<td>0x5C, <i>byte</i></td>
+	<td>Raise the IEEE754 float pushed second last to stack to the power of IEEE754 float pushed last, and push the result
+	to data stack, which is a IEEE754 float.</td>
+	<td>Nothing</td>
+	<td>0x5C (BYTE)</td>
+	</tr>
+</table>
+
+<h2>mod</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>mod</td>
+	<td>0x5D, <i>byte</i></td>
+	<td>Do a modulus operation on value pushed second last to data stack by value pushed last to data stack, and push result
+	to data stack.
+	<i>Explaination: Push to Data Stack (Remainder of (Data Stack [Top - 1], [Top]))</i></td>
+	<td>Nothing</td>
+	<td>0x5D (BYTE)</td>
+	</tr>
+</table>
+
+<h2>fmod</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fmod</td>
+	<td>0x5E, <i>byte</i></td>
+	<td>Do a modulus operation on IEEE754 float pushed second last to data stack by IEEE754 float pushed last to data stack,
+	and push result to data stack, IEEE754 float.
+	Same as mod, but for IEEE754 floating point numbers.</td>
+	<td>Nothing</td>
+	<td>0x5E (BYTE)</td>
+	</tr>
+</table>
+
+<h2>rconv</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>rconv</td>
+	<td>0x5F, <i>byte</i></td>
+	<td>Convert angles to radians. The angle value must be pushed to stack and should be a IEEE754 floating point number.
+	The result is pushed to stack.</td>
+	<td>Nothing</td>
+	<td>0x5F (BYTE)</td>
+	</tr>
+</table>
+
+<h2>aconv</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>aconv</td>
+	<td>0x60, <i>byte</i></td>
+	<td>Convert radians to angles. The radian value must be pushed to stack and should be a IEEE754 floating point number.
+	The result is pushed to stack.</td>
+	<td>Nothing</td>
+	<td>0x60 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>cmps</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>cmps</td>
+	<td>0x67, <i>byte</i></td>
+	<td>Same as <i>cmp</i>, but comparsion is <b>signed</b>.</td>
+	<td>Nothing</td>
+	<td>0x67 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>popn</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>popn</td>
+	<td>0x68, <i>byte</i></td>
+	<td>Pop and trash, 'n' number of items from stack, where 'n' is equal to value of 32-bit immediate.</td>
+	<td>32-bit constant</td>
+	<td>0x68 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>pushf</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>pushf</td>
+	<td>0x69, <i>byte</i></td>
+	<td>Push FLAGS register to data stack.</td>
+	<td>Nothing</td>
+	<td>0x69 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>popf</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>popf</td>
+	<td>0x6A, <i>byte</i></td>
+	<td>Pop value from data stack and set it to FLAGS register.</td>
+	<td>Nothing</td>
+	<td>0x6A (BYTE)</td>
+	</tr>
+</table>
+
+<h2>tern</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>tern</td>
+	<td>0x6B, <i>byte</i></td>
+	<td>Do a ternary operation on stack. The third last pushed value on data stack must be a boolean, if boolean is <b>true</b>
+	then the second last value will be popped out from data stack, if boolean is <b>false</b> then the value last
+	pushed to data stack will be popped out.</td>
+	<td>Nothing</td>
+	<td>0x6B (BYTE)</td>
+	</tr>
+</table>
+
+<h2>ror</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>ror</td>
+	<td>0x4C, <i>byte</i></td>
+	<td>Do a ROR (Rotate bits right) operation on value pushed second last on data stack, by number of bits, whose value
+	is pushed last.</td>
+	<td>Nothing</td>
+	<td>0x4C (BYTE)</td>
+	</tr>
+</table>
+
+<h2>rol</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>ror</td>
+	<td>0x4D, <i>byte</i></td>
+	<td>Do a ROR (Rotate bits left) operation on value pushed second last on data stack, by number of bits, whose value
+	is pushed last.</td>
+	<td>Nothing</td>
+	<td>0x4D (BYTE)</td>
+	</tr>
+</table>
+
+<h2>catch</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>catch</td>
+	<td>0x6C, <i>byte</i></td>
+	<td>Set exception handler, the ID of the exception which is to be handled (given in the CPU description above) 
+	must be pushed second last to data stack, and the address of the handler to be set must be pushed last. 
+	When an exception occurs the CPU will jump to this address, and set EXF (EXception Flag) to true.</td>
+	<td>Nothing</td>
+	<td>0x6C (BYTE)</td>
+	</tr>
+</table>
+
+<h2>handle</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>handle</td>
+	<td>0x6E, <i>byte</i></td>
+	<td>Handle exception, that is, set EXF to false. This is must be put at the end of a handler, just before return.</td>
+	<td>Nothing</td>
+	<td>0x6E (BYTE)</td>
+	</tr>
+</table>
+
+<h2>throw</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>throw</td>
+	<td>0x6D, <i>byte</i></td>
+	<td>Throw exception. The type of exception (exception ID) to be throw must be on top of stack. (Set exception ID's in the CPU description section)</td>
+	<td>Nothing</td>
+	<td>0x6D (BYTE)</td>
+	</tr>
+</table>
+
+<h2>stores</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>stores</td>
+	<td>0x6F, <i>byte</i></td>
+	<td>Replace the value to number of positions below top of data stack, given by the value of the immediate, by value pushed last to stack. In other words:
+	<i>Data Stack [ Top of Data Stack - Value of immediate ] = Data Stack [ Top of Stack ]</i>
+	</td>
+	<td>32-bit constant</td>
+	<td>0x6F (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>loadsr</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>loadsr</td>
+	<td>0x70, <i>byte</i></td>
+	<td>Load value from number of positions below top of data stack, given by the value of the register whose
+	index is given by the immediate and push it to the data stack. In other words:
+	<i>Push to Data Stack ( Data Stack [ Top of Data Stack - Value of Register specified by immediate] )</i>
+	</td>
+	<td>8-bit register index</td>
+	<td>0x70 (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>storesr</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>loadsr</td>
+	<td>0x71, <i>byte</i></td>
+	<td>Replce the  value to number of positions below top of data stack, given by the value of the register whose
+	index is given by the immediate, by value pushed last to stack. In other words:
+	<i>Data Stack [ Top of Data Stack - Value of Register specified by immediate ] = Data Stack [ Top of Stack ]</i>
+	</td>
+	<td>8-bit register index</td>
+	<td>0x71 (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>set'xx'</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>sete or setne or setg or setl</td>
+	<td>0x72 (sete) or 0x73 (setne) 0x74 (setg) or 0x75 (setl), <i>byte</i></td>
+	<td>
+	Set the register whose index is given by the 8-bit register index immediate to 0x0 if equal is set, or equal
+	is unset, or lesser than flag is set or greater than flag is set, depending upon the suffix, which can be
+	e, ne, g or l, respectively.
+	</td>
+	<td>8-bit register index</td>
+	<td>0x72 (sete), 0x73 (setne), 0x74 (setg), 0x75 (setl) (BYTE) [BYTE]</td>
+	</tr>
+</table>
+
+<h2>f'xxx'h <i>(trignometric function)</i></h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fsinh or fcosh or ftanh</td>
+	<td>0x76 (fsinh) or 0x77 (fcosh) or 0x78 (ftanh), <i>byte</i></td>
+	<td>
+	Evaluates the <b>hyperbolic</b> sine, cosine or tangent, depending upon the suffix sinh, cosh, and tanh respectively, 
+	of the IEEE754 float pushed last to stack  and push result to data stack, IEEE754 float. (<i>in radians</i>)
+	</td>
+	<td>Nothing</td>
+	<td>0x76 (fsinh), 0x77 (fcosh), 0x78 (ftanh) (BYTE)</td>
+	</tr>
+</table>
+
+<h2>fabs</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fabs</td>
+	<td>0x79, <i>byte</i></td>
+	<td>Take absolute value of the IEEE754 float last pushed to data stack, and push the result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x79 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>floor</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>floor</td>
+	<td>0x7A, <i>byte</i></td>
+	<td>Do a 'floor' operation on the IEEE754 float pushed to data stack, and push the result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x7A (BYTE)</td>
+	</tr>
+</table>
+
+<h2>ceil</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fabs</td>
+	<td>0x7B, <i>byte</i></td>
+	<td>Do a 'ceil' operation on the IEEE754 float pushed to data stack, and push the result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x7B (BYTE)</td>
+	</tr>
+</table>
+
+<h2>a'xxx'h <i>(trignometric function)</i></h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>asinh or acosh or atanh</td>
+	<td>0x7C (asinh) or 0x7D (acosh) or 0x7E (atanh), <i>byte</i></td>
+	<td>
+	Evaluates the <b>inverse hyperbolic</b> sine, cosine or tangent, depending upon the suffix sinh, cosh, and tanh respectively, 
+	of the IEEE754 float pushed last to stack  and push result to data stack, IEEE754 float. (<i>in radians</i>)
+	</td>
+	<td>Nothing</td>
+	<td>0x7C (asinh), 0x7D (acosh), 0x7E (atanh) (BYTE)</td>
+	</tr>
+</table>
+
+<h2>fconv</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fconv</td>
+	<td>0x7F, <i>byte</i></td>
+	<td>Convert integer pushed to data stack to IEEE754 float, and push result to data stack.</td>
+	<td>Nothing</td>
+	<td>0x7F (BYTE)</td>
+	</tr>
+</table>
+
+<h2>iconv</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>fconv</td>
+	<td>0x7F, <i>byte</i></td>
+	<td>Convert IEEE754 pushed to data stack to 32-bit integer, and push result to data stack. Values
+	after decimal point will be lost due to lack of precision.</td>
+	<td>Nothing</td>
+	<td>0x7F (BYTE)</td>
+	</tr>
+</table>
+
+<h2>jmpl</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jmpl</td>
+	<td>0x82, <i>byte</i></td>
+	<td>Jump to a 32-bit address given by the immediate. <b>This jump is relative.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x82 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>jel</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jel</td>
+	<td>0x83, <i>byte</i></td>
+	<td>Jump to a 32-bit address, if equal flag is set, given by the immediate. <b>This jump is relative.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x83 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>jgl</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jgl</td>
+	<td>0x84, <i>byte</i></td>
+	<td>Jump to a 32-bit address, if greater than flag is set, given by the immediate. <b>This jump is relative.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x84 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>jll</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jll</td>
+	<td>0x85, <i>byte</i></td>
+	<td>Jump to a 32-bit address, if lesser than flag is set, given by the immediate. <b>This jump is relative.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x85 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>jzl</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>jzl</td>
+	<td>0x87, <i>byte</i></td>
+	<td>Jump to a 32-bit address, if zero flag is set, given by the immediate. <b>This jump is relative.</b></td>
+	<td>32-bit Constant</td>
+	<td>0x87 (BYTE) [DWORD]</td>
+	</tr>
+</table>
+
+<h2>puship</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>puship</td>
+	<td>0x86, <i>byte</i></td>
+	<td>Push current IP address to data stack.</td>
+	<td>Nothing</td>
+	<td>0x86 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>ars</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>ars</td>
+	<td>0x89, <i>byte</i></td>
+	<td>Do an 'arithmetic right shift' operation on value pushed last to data stack, by number of bits pushed second last to
+	stack.</td>
+	<td>Nothing</td>
+	<td>0x89 (BYTE)</td>
+	</tr>
+</table>
+
+<h2>break</h2>
+<table border="10">
+	<tr>
+	<td>Instruction mnemonic</td>
+	<td>Opcode and Opcode Size</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Encoding</td>
+	</tr>
+	<tr>
+	<td>break</td>
+	<td>0x8A, <i>byte</i></td>
+	<td>VM Specific 'break' instruction. Current implementation will switch to the debugger.</td>
+	<td>Nothing</td>
+	<td>0x8A (BYTE)</td>
+	</tr>
+</table>
