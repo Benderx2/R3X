@@ -9,7 +9,7 @@
 
 <h1>CPU Summary</h1>
 
-The R3X CPU is a 32-bit stack-based, RISC-like CPU, which is one of the central components of the R3X runtime. The R3X
+The R3X CPU is a 32-bit little-endian, stack-based, RISC-like CPU, which is one of the central components of the R3X runtime. The R3X
 CPU can also be classfied as a hybrid between stack and register based design. In general, however, most of the operations
 are done over stack.
 
@@ -131,6 +131,35 @@ instructions which accept an 8-bit immediate known as 'register index'. The foll
 </tr>
 </table>
 
+There is another register called the 'FLAGS' register, which contains the CPU Flags, the following is a table which shows
+the structure of the 32-bit FLAGS register. The FLAGS register can be retrieved by the 'pushf' instruction and set by the
+'popf' instruction.
+<table>
+<tr>
+<td>Bit no.</td>
+<td>Description</td>
+</tr>
+<tr>
+<td>1</td>
+<td>E (EQUAL)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>G (GREATER THAN)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>L (LESSER THAN)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Z (ZERO)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>EXF (EXCEPTION)</td>
+</tr>
+</table>
 <h2>Syscalls</h2>
 
 The 'syscall' instruction is used to call a VM specific function, these include things like output, input, file I/O, multithreading,
