@@ -134,7 +134,7 @@ instructions which accept an 8-bit immediate known as 'register index'. The foll
 There is another register called the 'FLAGS' register, which contains the CPU Flags, the following is a table which shows
 the structure of the 32-bit FLAGS register. The FLAGS register can be retrieved by the 'pushf' instruction and set by the
 'popf' instruction.
-<table>
+<table border="1" width="25%">
 <tr>
 <td>Bit no.</td>
 <td>Description</td>
@@ -160,6 +160,8 @@ the structure of the 32-bit FLAGS register. The FLAGS register can be retrieved 
 <td>EXF (EXCEPTION)</td>
 </tr>
 </table>
+
+All bits not mentioned are presumed to be reserved.
 <h2>Syscalls</h2>
 
 The 'syscall' instruction is used to call a VM specific function, these include things like output, input, file I/O, multithreading,
