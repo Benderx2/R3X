@@ -71,7 +71,7 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	{
 		printf("r3x_load_executable: invalid header: 0x%X.\n", header->header_id);
 		nt_free(mem1);
-		exit(EXIT_FAILURE)
+		exit(EXIT_FAILURE);
 	}
 	
 	//! Check for page alignment for text and data sections
