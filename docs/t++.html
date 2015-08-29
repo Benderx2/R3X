@@ -406,6 +406,16 @@ If <i>expression1</i> is <b>greater than or equal to</b> <i>expression2</i>, the
 If <i>expression1</i> is <b>lesser than or equal to</b> <i>expression2</i>, then the expression evaluates to <b>true</b>. Else it evaluates to <b>false</b>.
 </li>
 </ul>
+<h3>Escape sequences</h3>
+T++ now supports escape sequences. Note that for now they can only be used in strings and are very limited, here
+is a list of them:<br>
+<pre>
+\n					Newline (0x0A)
+\r					Carraige Return (0x0D)
+\t					TAB Character (0x09)
+\\					'\' Character
+
+</pre>
 <h3>The Preprocessor</h3>
 T++ uses <b>GCC as a preprocessor</b>. This means that anything that can be done in the C preprocessor which <i>does not make use of
 C language features</i> is accomplishable in T++ as well.<br>
