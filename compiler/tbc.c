@@ -1305,9 +1305,36 @@ finish ()
   puts (".data {");
   puts ("");
 
-  for (i = 0; i < string_count; ++i)
-    printf ("\ts%i: db \"%s\", 0\n", i, strings[i]);
-
+	for (i = 0; i < string_count; ++i) {
+		//printf ("\ts%i: db \"%s\", 0\n", i, strings[i]);
+		printf("\ts%i: db ", i);
+		printf("\"");
+		for(unsigned int j = 0; j < strlen(strings[i]); j++) {
+			if(strings[i][j] == '\\') {
+				switch(strings[i][j+1]) {
+					case 'n':
+						printf("\", 0x0A, \"");
+						break;
+					case 't':
+						printf("\", 0x09, \"");
+						break;
+					case 'r':
+						printf("\", 0x0D, \"");
+						break;
+					case '\\':
+						printf("\\");
+						break;
+					default:
+						error("Error: expected escape sequence. Incomplete string");
+						break;
+				}
+				j++; // move one marker ahead
+			} else {
+				printf("%c", strings[i][j]);
+			}
+		}
+		printf("\", 0\n");
+	}
   puts ("}");
   puts("end");
   puts ("; Task Completed -- Assemble with FASM ");
