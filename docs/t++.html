@@ -245,7 +245,7 @@ Labels can be defined by prefixing a colon (':'). An example is given below:
 </pre>
 Keywords like <b>goto</b> and <b>gosub</b> can be used to jump between labels.
 <h3>Structures and globals</h3>
-Structures can be accessed by: &lt;struct <i>name_of_struct</i>&gt;<i>expression</i>.<i>member_name</i><br>
+Structures can be accessed by: [struct <i>name_of_struct</i>]<i>expression</i>.<i>member_name</i><br>
 <i>name_of_struct</i> is the structure name which is given during declaration, <i>expression</i> gives out the pointer to the struct, 
 and <i>member_name</i> is the member <b>name</b> whose value is to be returned. You can use the <b>sizeof(<i>name_of_struct</i>)</b> to return the 
 size of a structure. An example is given below:
@@ -261,19 +261,19 @@ ends
 ...
 	let mystruct_ptr = alloc(sizeof(mystruct))
 	// set m3 to 5
-	let &lt;struct mystruct&gt;mystruct_ptr.m3 = 5
+	let [struct mystruct]mystruct_ptr.m3 = 5
 	// return value of m2.
-	let mystruct_val_m2 = &lt;struct mystruct&gt;mystruct_ptr.m2
+	let mystruct_val_m2 = [struct mystruct]mystruct_ptr.m2
 ...
 </pre>
-Global variables are also accessed in a similar way, using &lt;global&gt;<i>variable_name</i><br>
+Global variables are also accessed in a similar way, using [global]<i>variable_name</i><br>
 <i>variable_name</i> is the name of the variable whose value is to be accessed. An example is given below:
 <pre>
 global myvar
 ...
-	let &lt;global&gt;myvar = 5
+	let [global]myvar = 5
 	...
-	let value_of_var = &lt;global&gt;myvar
+	let value_of_var = [global]myvar
 ...
 </pre>
 <h3>Address of functions or local variables</h3>
@@ -328,12 +328,30 @@ let alloc_addr = alloc(256)
 </pre>
 </li>
 <li type="disc"><b>end</b></li><br>
-The end function will quit the program. An example is given below:
+The end function will quit the program, if called from the main thread. An example is given below:
 <pre>
 ...
 	end
 ...
 </pre>
+<li type="disc"><b>thread</b> <i>function_name</i><br>
+The 'thread' function dispatches a function as a thread. The function shall take 0 arguments. The following is an example:
+<pre>
+...
+function mythread(0)
+	while(true)
+		/* do something */
+	endw
+endf
+...
+function main(0)
+	...
+	thread mythread
+	...
+endf
+</pre>
+<b>NOTE:</b> Never return from a thread function! If you want to quit, simply do: <b>asm "exit"</b>.
+</li>
 </ul>
 <h3>Floats</h3>
 T++ supports Floating Point (Decimal) members, operations on them can be done through using special operators. The following is a list
@@ -414,7 +432,6 @@ is a list of them:<br>
 \r					Carraige Return (0x0D)
 \t					TAB Character (0x09)
 \\					'\' Character
-
 </pre>
 <h3>The Preprocessor</h3>
 T++ uses <b>GCC as a preprocessor</b>. This means that anything that can be done in the C preprocessor which <i>does not make use of
