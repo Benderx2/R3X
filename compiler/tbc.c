@@ -83,6 +83,7 @@ enum
   T_GLOBAL,
   T_EXTERNAL,
   T_EXTERNAL_NATIVE,
+  T_THREAD,
   T_END
 };
 
@@ -223,6 +224,7 @@ static void  do_global	   PARAMS ((void));
 static void  do_endf		PARAMS ((void));
 static void  do_external  PARAMS((void));
 static void  do_native    PARAMS((void));
+static void  do_thread	   PARAMS((void));
 char* return_next_int_name_and_add (void);
 static void  do_function_call PARAMS((void));
 
@@ -968,8 +970,8 @@ do_factor ()
       match ('(');
       do_expression ();
       match (')');
-    } else if(look == '<') {
-      match('<');
+    } else if(look == '[') {
+      match('[');
       do_typecast(0);
     }
   else if (isalpha (look))
@@ -1321,6 +1323,9 @@ finish ()
 					case 'r':
 						printf("\", 0x0D, \"");
 						break;
+					case 'b':
+						printf("\", 0x08, \"");
+						break;
 					case '\\':
 						printf("\\");
 						break;
@@ -1427,6 +1432,8 @@ get_keyword ()
 	i = T_EXTERNAL;
   else if(!strcmp(token, "native"))
 	i = T_EXTERNAL_NATIVE;
+  else if(!strcmp(token, "thread"))
+	i = T_THREAD;
   else
     error ("expected keyword got '%s'", token);
   eat_blanks ();
@@ -1631,8 +1638,16 @@ do_statement ()
     case T_GLOBAL: do_global(); break;
     case T_EXTERNAL: do_external(); break;
     case T_EXTERNAL_NATIVE: do_native(); break;
-    default:       assert (0);   break;
+    case T_THREAD: do_thread(); break;
+    default:      assert (0);   break;
     }
+}
+static void do_thread(void) {
+	char* function_name = return_next_tok();
+	printf("\tpush _rexcall_%s\n", function_name);
+	printf("\tsyscall SYSCALL_DISPATCH\n");
+	printf("\tpop\n");
+	eat_blanks();
 }
 static void 
 do_native(void) {
@@ -1944,7 +1959,7 @@ static void
 do_let ()
 {
 	eat_blanks();
-	if(look=='<') {
+	if(look=='[') {
 	  get_char();
 	  RX_STRUCT_TYPE expr_type = do_typecast(1);
 	  puts("\tpushar R0");
@@ -2149,7 +2164,7 @@ do_typecast(int signal) {
   if(!strcmp(type_cast_type, "global")) {
     //! this is a global typecast.
     eat_blanks();
-    match('>');
+    match(']');
     eat_blanks();
     char* var_name = return_next_tok();
     add_variable(var_name);

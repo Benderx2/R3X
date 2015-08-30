@@ -5,8 +5,8 @@
 #ifndef __RSTDLIB_H
 #define __RSTDLIB_H
 
-#define true 0
-#define false 1
+#define true 1
+#define false 0
 #define NULL 0
 /* standard library functions defined in rstdlib.so */
 /* note: the vm has a special case for "rstdlib" */
