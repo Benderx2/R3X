@@ -1,9 +1,9 @@
-			PROTOCOL FOR ESOTERIC MINIMALISM AND AVOIDANCE OF THE TURING TARPIT (PEMATT)
+						PROTOCOL FOR ESOTERIC MINIMALISM AND AVOIDANCE OF THE TURING TARPIT (PEMATT)
 										PROTOTYPE
 										 DRAFT-I
 BASIC STRUCTURE:
 
-The system consists of a stack, which shall be used for storing data. The data, on the other hand, can be of three types: 
+The system consists of a stack, which shall be used for storing data. The data, on the other hand, can be of four types: 
 
 * Integer-type
 * Floating Point-type
