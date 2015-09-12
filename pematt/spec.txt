@@ -19,182 +19,182 @@ There must be strict type checking, implemented within the CPU. All type errors 
 
 INSTRUCTIONS:
 	CHARACTER (ASCII)					DESCRIPTION
-	-----------------------------------------------
-	>									Increase top stack pointer by 1
+	-------------------------------------------------------------------
+	>							Increase top stack pointer by 1
+	-------------------------------------------------------------------
+	<							Decrease top of stack pointer by 1
 	------------------------------------------------------------------
-	<									Decrease top of stack pointer by 1
+	(...)							Push string, float, integer or code to stack and increment the stack pointer.
+								enclosed in '()'.
+								Integers must be prefixed with 'i', e.g.: (i247) to push the integer 247. They can also
+								be prefixed with 'x' or 'b' to indicate hexadecimal or binary. e.g: (xEFF) or (b1110111).
+								You can also push the address of labels, simply by using the 'l' prefix e.g: (l"mylabel")
+								Strings must be prefixed with 's' and enclosed in '"'. e.g: (s"Hello, World!"), to push
+								the string "Hello, World!"
+								Floats must be prefixed with 'f', the non-whole part is to be separated from the whole by a
+								'.'. All floats MUST use the decimal system. e.g: (f23.7)
+								The 'Code' type contains code, which can be called through various instructions explained later 
+								on, they must be prefixed with 'c' and be enclosed within '"', e.g: (c"<<(i247)")
 	------------------------------------------------------------------
-	(...)								Push string, float, integer or code to stack and increment the stack pointer.
-										enclosed in '()'.
-										Integers must be prefixed with 'i', e.g.: (i247) to push the integer 247. They can also
-										be prefixed with 'x' or 'b' to indicate hexadecimal or binary. e.g: (xEFF) or (b1110111).
-										You can also push the address of labels, simply by using the 'l' prefix e.g: (l"mylabel")
-										Strings must be prefixed with 's' and enclosed in '"'. e.g: (s"Hello, World!"), to push
-										the string "Hello, World!"
-										Floats must be prefixed with 'f', the non-whole part is to be separated from the whole by a
-										'.'. All floats MUST use the decimal system. e.g: (f23.7)
-										The 'Code' type contains code, which can be called through various instructions explained later 
-										on, they must be prefixed with 'c' and be enclosed within '"', e.g: (c"<<(i247)")
+	+							Add/Concatenate items. Depending upon type, do an add or concatenate, and pop both the items,
+								pushing the result.
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b+a
+								*If both a and b are floats, then push: b+a
+								*If a is an integer and b is a float, then convert a to float, and push b+a
+								*If a is a float and b is an integer, round of a to an integer, and push b+a
+								*If both a and b are strings or code, concatenate a and b, and push result.
+								*If a is a string, and b is a integer, attempt to convert a to integer, and push b+a. If there
+								is an error in conversion, cause an exception.
+								*If a is an integer or float and b is a string, convert a to string, and concatenate a and b, pushing
+								the result
+								*If a is code and b is an integer or float, error out.
+								*If b is code, and a is an integer or float, error out.
 	------------------------------------------------------------------
-	+									Add/Concatenate items. Depending upon type, do an add or concatenate, and pop both the items,
-										pushing the result.
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b+a
-										*If both a and b are floats, then push: b+a
-										*If a is an integer and b is a float, then convert a to float, and push b+a
-										*If a is a float and b is an integer, round of a to an integer, and push b+a
-										*If both a and b are strings or code, concatenate a and b, and push result.
-										*If a is a string, and b is a integer, attempt to convert a to integer, and push b+a. If there
-										is an error in conversion, cause an exception.
-										*If a is an integer or float and b is a string, convert a to string, and concatenate a and b, pushing
-										the result
-										*If a is code and b is an integer or float, error out.
-										*If b is code, and a is an integer or float, error out.
+	-							Subtract/Remove items. Depending upon type, do a subtract or removal operation, and pop both items,
+								pushing result.
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b-a
+								*If both a and b are floats, then push: b-a
+								*If a is an integer and b is a float, then convert a to float, and push b-a
+								*If a is a float and b is an integer, round off a to an integer, and push b-a
+								*If both a and b are strings or code, remove all instance of 'a' from 'b' and push the result.
+								*If a is a string, and b is a integer, attempt to convert a to integer, and push b-a. If there
+								is an error in conversion, cause an exception.
+								*If a is an integer or float and b is a string, convert a to string, and remove all instance of a
+								from b, pushing the result
+								*If a is code and b is an integer or float, error out.
+								*If b is code, and a is an integer or float, error out.
 	------------------------------------------------------------------
-	-									Subtract/Remove items. Depending upon type, do a subtract or removal operation, and pop both items,
-										pushing result.
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b-a
-										*If both a and b are floats, then push: b-a
-										*If a is an integer and b is a float, then convert a to float, and push b-a
-										*If a is a float and b is an integer, round off a to an integer, and push b-a
-										*If both a and b are strings or code, remove all instance of 'a' from 'b' and push the result.
-										*If a is a string, and b is a integer, attempt to convert a to integer, and push b-a. If there
-										is an error in conversion, cause an exception.
-										*If a is an integer or float and b is a string, convert a to string, and remove all instance of a
-										from b, pushing the result
-										*If a is code and b is an integer or float, error out.
-										*If b is code, and a is an integer or float, error out.
+	*							Multiply operation.
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b*a
+								*If both a and b are floats, then push: b*a
+								*If a is an integer and b is a float, then convert a to float, and push b*a
+								*If a is a float and b is an integer, round off a to an integer, and push b*a
+								*Error out on all other circumstances
 	------------------------------------------------------------------
-	*									Multiply operation.
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b*a
-										*If both a and b are floats, then push: b*a
-										*If a is an integer and b is a float, then convert a to float, and push b*a
-										*If a is a float and b is an integer, round off a to an integer, and push b*a
-										*Error out on all other circumstances
+	/							Divide operation.
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b/a
+								*If both a and b are floats, then push: b/a
+								*If a is an integer and b is a float, then convert a to float, and push b/a
+								*If a is a float and b is an integer, round off a to an integer, and push b/a
+								*Error out on all other circumstances
 	------------------------------------------------------------------
-	/									Divide operation.
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b/a
-										*If both a and b are floats, then push: b/a
-										*If a is an integer and b is a float, then convert a to float, and push b/a
-										*If a is a float and b is an integer, round off a to an integer, and push b/a
-										*Error out on all other circumstances
+	%							Modulo operation. (Remainder Operation)
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b%a
+								*If both a and b are floats, then push: b%a
+								*If a is an integer and b is a float, then convert a to float, and push b%a
+								*If a is a float and b is an integer, round off a to an integer, and push b%a
+								*Error out on all other circumstances
 	------------------------------------------------------------------
-	%									Modulo operation. (Remainder Operation)
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b%a
-										*If both a and b are floats, then push: b%a
-										*If a is an integer and b is a float, then convert a to float, and push b%a
-										*If a is a float and b is an integer, round off a to an integer, and push b%a
-										*Error out on all other circumstances
+	R							Right Shift operation (>>)
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b>>a
+								*If both a and b are floats, then push: b>>a
+								(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO BITWISE OPERATION, AND WOULD
+								THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
+								*Error out on all other circumstances
 	------------------------------------------------------------------
-	R									Right Shift operation (>>)
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b>>a
-										*If both a and b are floats, then push: b>>a
-										(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO BITWISE OPERATION, AND WOULD
-										THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
-										*Error out on all other circumstances
+	L							Left shift operation (<<)
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b<<a
+								*If both a and b are floats, then push: b<<a
+								(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO BITWISE OPERATION, AND WOULD
+								THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
+								*Error out on all other circumstances
 	------------------------------------------------------------------
-	L									Left shift operation (<<)
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b<<a
-										*If both a and b are floats, then push: b<<a
-										(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO BITWISE OPERATION, AND WOULD
-										THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
-										*Error out on all other circumstances
+	A							Do a bitwise AND (&) operation						
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b&a
+								*If both a and b are floats, then push: b&a
+								(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO SHIFT OPERATION, AND WOULD
+								THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
+								*Error out on all other circumstances
 	------------------------------------------------------------------
-	A									Do a bitwise AND (&) operation						
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b&a
-										*If both a and b are floats, then push: b&a
-										(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO SHIFT OPERATION, AND WOULD
-										THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
-										*Error out on all other circumstances
+	O							Do a bitwise OR (|) operation						
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b|a
+								*If both a and b are floats, then push: b|a
+								(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO BITWISE OPERATION, AND WOULD
+								THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
+								*Error out on all other circumstances
 	------------------------------------------------------------------
-	O									Do a bitwise OR (|) operation						
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b|a
-										*If both a and b are floats, then push: b|a
-										(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO BITWISE OPERATION, AND WOULD
-										THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
-										*Error out on all other circumstances
+	^							Do a bitwise XOR(^) operation.
+								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								*If both a and b are integers, then push: b^a
+								*If both a and b are floats, then push: b^a
+								(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO BITWISE OPERATION, AND WOULD
+								THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
+								*Error out on all other circumstances
 	------------------------------------------------------------------
-	^									Do a bitwise XOR(^) operation.
-										Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										*If both a and b are integers, then push: b^a
-										*If both a and b are floats, then push: b^a
-										(NOTE: FLOATS WILL BE CONVERTED TO IEEE-754 ENCODING PRIOR TO BITWISE OPERATION, AND WOULD
-										THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
-										*Error out on all other circumstances
+	!							Do a bitwise NOT. If a is the item right on stack pointer, pop a, and push '!a'.
+								(i.e. if a is equal to 0, push 1, else push 0)
 	------------------------------------------------------------------
-	!									Do a bitwise NOT. If a is the item right on stack pointer, pop a, and push '!a'.
-										(i.e. if a is equal to 0, push 1, else push 0)
+	D							Duplicate value. If a is the item right on stack pointer, pop a, and push a twice.
 	------------------------------------------------------------------
-	D									Duplicate value. If a is the item right on stack pointer, pop a, and push a twice.
-	------------------------------------------------------------------
-	W									sWap values on top of stack. Let a be value right on stack pointer, and b be value on
+	W							sWap values on top of stack. Let a be value right on stack pointer, and b be value on
 										stack pointer - 1. Then, pop a, then b, and then push a and b, hence reversing the order.
 	------------------------------------------------------------------
-	?									Push random value on stack.
+	?							Push random value on stack.
 	------------------------------------------------------------------
-	$									Pop from stack, decrease top of stack pointer by 1.
+	$							Pop from stack, decrease top of stack pointer by 1.
 	------------------------------------------------------------------
-	J									Set instruction pointer to the integer pushed last to stack.
-										If instead of an integer, the top of stack contains 'code', prepare
-										a new execution instance and copy the code popped from stack, and duplicate the stack of the current
-										instance, and execute the code on the newer execution instance. Once the newer
-										instance has quit, copy it's stack, and place it on the main execution instance, and continue. 
-										Error out, if string or float is found.  Pop the value.
+	J							Set instruction pointer to the integer pushed last to stack.
+								If instead of an integer, the top of stack contains 'code', prepare
+								a new execution instance and copy the code popped from stack, and duplicate the stack of the current
+								instance, and execute the code on the newer execution instance. Once the newer
+								instance has quit, copy it's stack, and place it on the main execution instance, and continue. 
+								Error out, if string or float is found.  Pop the value.
 	------------------------------------------------------------------
-	C									Call from class. A class is a mere set of functions.
-										The 'E' instruction works similar to 'J', except it takes the argument as a string pushed
-										last to stack in the form of: "classname.function"
-										Where 'classname' is the name of the class (file) with the extension '.pt', and 'function'
-										is a function defined in that file. The 'E' instruction calls that function in the same way
-										as 'J' does. If you want to call a function from the current module, simply use: 'self.function'.
-										The function name will be popped from stack. Errors out if the function is not found, or the value
-										pushed to stack is not string.
+	C							Call from class. A class is a mere set of functions.
+								The 'E' instruction works similar to 'J', except it takes the argument as a string pushed
+								last to stack in the form of: "classname.function"
+								Where 'classname' is the name of the class (file) with the extension '.pt', and 'function'
+								is a function defined in that file. The 'E' instruction calls that function in the same way
+								as 'J' does. If you want to call a function from the current module, simply use: 'self.function'.
+								The function name will be popped from stack. Errors out if the function is not found, or the value
+								pushed to stack is not string.
 	------------------------------------------------------------------
-	Z									If top of stack is 0, do what instruction 'J' does.
+	Z							If top of stack is 0, do what instruction 'J' does.
 	------------------------------------------------------------------
-	=									Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+	=							Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
 										If a is equal to b, push 0, else push 1. Pop the values.
 	------------------------------------------------------------------
-	G									Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										If b is greater than a, push 0, else push 1.
+	G							Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								If b is greater than a, push 0, else push 1.
 	------------------------------------------------------------------
-	L									Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										If b is lesser than a, push 0, else push 1.
+	L							Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
+								If b is lesser than a, push 0, else push 1.
 	------------------------------------------------------------------
-	E									External call. Call function from the environment, whose name is pushed to stack. Pop the name,
-										and push the result from the function. (List of functions available coming up!)
+	E							External call. Call function from the environment, whose name is pushed to stack. Pop the name,
+								and push the result from the function. (List of functions available coming up!)
 	------------------------------------------------------------------
-	l									Load from memory address. The memory address must be on top of stack. The address will be
-										popped from stack and the value at the address will be pushed.
+	l							Load from memory address. The memory address must be on top of stack. The address will be
+								popped from stack and the value at the address will be pushed.
 	------------------------------------------------------------------
-	s									Store to memory address. The memory address should be on stack pointer - 1 and MUST be
-										an integer and valid memory address, while the value to be stored must be right on stack pointer. 
-										Depending upon type (integer, string, code or float) would be stored appropriately.
-										Both should be popped out after store.
+	s							Store to memory address. The memory address should be on stack pointer - 1 and MUST be
+								an integer and valid memory address, while the value to be stored must be right on stack pointer. 
+								Depending upon type (integer, string, code or float) would be stored appropriately.
+								Both should be popped out after store.
 	------------------------------------------------------------------
-	I									Get current instruction pointer and push to stack.
+	I							Get current instruction pointer and push to stack.
 	------------------------------------------------------------------
-	a									Allocate memory. The amount of bytes to be allocated must be on top of stack.
-										Push the address, and pop the amount of bytes after allocation
+	a							Allocate memory. The amount of bytes to be allocated must be on top of stack.
+								Push the address, and pop the amount of bytes after allocation
 	------------------------------------------------------------------
-	@									An 'END' statement. Ends the current execution instance.
+	@							An 'END' statement. Ends the current execution instance.
 	------------------------------------------------------------------
-	o									Output string/float/integer pushed to stack (depending upon type) and pop it.
+	o							Output string/float/integer pushed to stack (depending upon type) and pop it.
 	------------------------------------------------------------------
-	i									Take input from user, until a '\n' is received and push string to stack.
+	i							Take input from user, until a '\n' is received and push string to stack.
 	------------------------------------------------------------------
-	g									Set global variable whose name is right on stack pointer - 1 and value on stack pointer.
-										If types don't match, the interpreter shall error out. The name must be in the format:
-										'classname.variable'; If the interpreter does not find such a variable, it must error out.
-										After the assignment, both the values must be pushed to stack.
+	g							Set global variable whose name is right on stack pointer - 1 and value on stack pointer.
+								If types don't match, the interpreter shall error out. The name must be in the format:
+								'classname.variable'; If the interpreter does not find such a variable, it must error out.
+								After the assignment, both the values must be pushed to stack.
 
 PREPROCESSOR:
 	
@@ -202,20 +202,20 @@ PREPROCESSOR:
 	that are not available in most esoteric languages. After preprocessing the preprocessor directives are removed
 	from code, and their infromation is stored internally.
 	
-	PHRASE								DESCRIPTION
-	-----------------------------------------------
+	PHRASE						DESCRIPTION
+	----------------------------------------------------------------
 	#import "classname.pt"				Import a class. (Just like include)
-	-----------------------------------------------
-	:...:								Declare label. The interpreter is supposed to remove this from code during the preprocessing, 
-										and assign the name to it's address internally. It shall function as a indicator of the memory
-										address right after the second ':'. NOTE: The label MUST not be a part of the memory during execution.
-										This works exactly like the label system in assemblers.
-	-----------------------------------------------
-	#def "functionname" { code }		Define a function with name as code within '{' and '}'. 
-										This can then be called using the 'S' instruction.
-	-----------------------------------------------
-	#global "varname"					Declare a global variable with name
-	-----------------------------------------------
-	#init								Compulsory. Indication of where the execution is supposed to begin in script.
+	----------------------------------------------------------------
+	:...:						Declare label. The interpreter is supposed to remove this from code during the preprocessing, 
+							and assign the name to it's address internally. It shall function as a indicator of the memory
+							address right after the second ':'. NOTE: The label MUST not be a part of the memory during execution.
+							This works exactly like the label system in assemblers.
+	----------------------------------------------------------------
+	#def "functionname" { code }			Define a function with name as code within '{' and '}'. 
+							This can then be called using the 'S' instruction.
+	----------------------------------------------------------------
+	#global "varname"				Declare a global variable with name
+	----------------------------------------------------------------
+	#init						Compulsory. Indication of where the execution is supposed to begin in script.
 	
 	
