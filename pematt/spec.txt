@@ -1,6 +1,16 @@
 						PROTOCOL FOR ESOTERIC MINIMALISM AND AVOIDANCE OF THE TURING TARPIT (PEMATT)
 										PROTOTYPE
-										 DRAFT-I
+										 DRAFT-II
+
+
+CONTENTS:
+	
+	*BASIC STRUCTURE
+	*INSTRUCTIONS
+	*PREPROCESSOR
+	*GARBAGE COLLECTION
+
+
 BASIC STRUCTURE:
 
 The system consists of a stack, which shall be used for storing data. The data, on the other hand, can be of four types: 
@@ -9,6 +19,7 @@ The system consists of a stack, which shall be used for storing data. The data, 
 * Floating Point-type
 * ASCII String-type
 * Code-type
+* Array-type (1-indexed, for *now*)
 
 The code shall have the ability through various instructions to act on these values, and also to act on the stack.
 There shall be no registers in the esoteric CPU, with the exception of the instruction pointer, and the stack pointer. 
@@ -35,6 +46,7 @@ INSTRUCTIONS:
 								'.'. All floats MUST use the decimal system. e.g: (f23.7)
 								The 'Code' type contains code, which can be called through various instructions explained later 
 								on, they must be prefixed with 'c' and be enclosed within '"', e.g: (c"<<(i247)")
+								An array can be pushed by enclosing it within brackets, e.g: ([1,2,3]) or ([[]]) (jagged empty array)
 	------------------------------------------------------------------
 	+							Add/Concatenate items. Depending upon type, do an add or concatenate, and pop both the items,
 								pushing the result.
@@ -48,6 +60,9 @@ INSTRUCTIONS:
 								is an error in conversion, cause an exception.
 								*If a is an integer or float and b is a string, convert a to string, and concatenate a and b, pushing
 								the result
+								*If a and b are arrays of the same type, pop a and b, concatenate a into b, and push result else error out.
+								*If 'a' is a non-array object of type b[n] (b is an array), pop a and b, then append a into b, and push b. 
+								Error out on all other circumstances.
 								*If a is code and b is an integer or float, error out.
 								*If b is code, and a is an integer or float, error out.
 	------------------------------------------------------------------
@@ -63,6 +78,10 @@ INSTRUCTIONS:
 								is an error in conversion, cause an exception.
 								*If a is an integer or float and b is a string, convert a to string, and remove all instance of a
 								from b, pushing the result
+								*If a is an array and b is an array of the same type, pop a and b, and remove all instances of
+								items in a, from b, and push b.
+								*If a is a non-array object of type b[n] (b is an array), pop a and b, and append a to b, and push b.
+								Error out on all other circumstances.
 								*If a is code and b is an integer or float, error out.
 								*If b is code, and a is an integer or float, error out.
 	------------------------------------------------------------------
@@ -70,6 +89,16 @@ INSTRUCTIONS:
 								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
 								*If both a and b are integers, then push: b*a
 								*If both a and b are floats, then push: b*a
+								*If a is an array of type integer/float and b is an array of type integer/float,
+								pop a and b, and multiply each instance of a with it's corresponding index of b, pushing
+								the result. e.g: ([1,2,3])([5,6,7])* should yield: [5, 12, 21]. If the length of a 
+								is less than b, then keep multiplying through wrapping the multipliers. e.g: [1,2,3][5,6]*
+								should yield: [5, 12, 15]. If length of a is greater than b, then keeping wrapping multiplicands.
+								e.g: [1,2][5,6,7,8]* should yield: [5, 12, 7, 16]. Also, if the arrays multipled are of either type
+								(integer and float), then the type of b shall be the type of the new array created. Error out if
+								the items are not of integer or float type.
+								*If a is a value of type float/integer and b is an array of type float/integer, pop a and b then
+								multiply each item in b with a, and push b. Error out on all other circumstances.
 								*If a is an integer and b is a float, then convert a to float, and push b*a
 								*If a is a float and b is an integer, round off a to an integer, and push b*a
 								*Error out on all other circumstances
@@ -78,6 +107,12 @@ INSTRUCTIONS:
 								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
 								*If both a and b are integers, then push: b/a
 								*If both a and b are floats, then push: b/a
+								*If a is an array of type integer/float and b is an array of type integer/float,
+								pop a and b, and divide each instance of b by it's corresponding index of a, pushing
+								the result. e.g: ([25,30,35])([5,6,7])* should yield: [5, 5, 5]. The rules of array multiplication
+								given in the '*' section, apply here as well.
+								*If a is a value of type float/integer and b is an array of type float/integer, pop a and b then
+								divide each item in b by a, and push b. Error out on all other circumstances.
 								*If a is an integer and b is a float, then convert a to float, and push b/a
 								*If a is a float and b is an integer, round off a to an integer, and push b/a
 								*Error out on all other circumstances
@@ -86,9 +121,21 @@ INSTRUCTIONS:
 								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
 								*If both a and b are integers, then push: b%a
 								*If both a and b are floats, then push: b%a
+								*Do the same as expected in multiplication/division, except, of course, the operation done should
+								be modulus, if a and b are both arrays, or a is a non-array object of type b[n]. Error out
+								on all other circumstances.
 								*If a is an integer and b is a float, then convert a to float, and push b%a
 								*If a is a float and b is an integer, round off a to an integer, and push b%a
 								*Error out on all other circumstances
+	------------------------------------------------------------------
+	^							Power operation.
+								*Let a be the item right on stack, and b be the item right on stack pointer - 1
+								*If a and b are both integers, push b^a, in raw integer format to stack. And pop b and a.
+								*If a and b are both floats, push b^a, in floating point format to stack. And pop b and a.
+								*If a is an array and b is an array, of the integer/float type, pop a and b, and replace all
+								items in b, with b[n]^a, respectively. The rules of multiplication and division apply here as well.
+								*If a is float, and b is an integer, convert a to integer (round off), and push b^a as integer.
+								*If a is integer, and b is float, convert a to float, and push b^a as float.
 	------------------------------------------------------------------
 	R							Right Shift operation (>>)
 								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
@@ -122,7 +169,7 @@ INSTRUCTIONS:
 								THEN BE CONVERTED BACK TO FLOATING POINT DECIMALS AFTER THE OPERATION HAS BEEN DONE.)
 								*Error out on all other circumstances
 	------------------------------------------------------------------
-	^							Do a bitwise XOR(^) operation.
+	X							Do a bitwise XOR(^) operation.
 								Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
 								*If both a and b are integers, then push: b^a
 								*If both a and b are floats, then push: b^a
@@ -136,7 +183,7 @@ INSTRUCTIONS:
 	D							Duplicate value. If a is the item right on stack pointer, pop a, and push a twice.
 	------------------------------------------------------------------
 	W							sWap values on top of stack. Let a be value right on stack pointer, and b be value on
-										stack pointer - 1. Then, pop a, then b, and then push a and b, hence reversing the order.
+								stack pointer - 1. Then, pop a, then b, and then push a and b, hence reversing the order.
 	------------------------------------------------------------------
 	?							Push random value on stack.
 	------------------------------------------------------------------
@@ -150,10 +197,10 @@ INSTRUCTIONS:
 								Error out, if string or float is found.  Pop the value.
 	------------------------------------------------------------------
 	C							Call from class. A class is a mere set of functions.
-								The 'E' instruction works similar to 'J', except it takes the argument as a string pushed
+								The 'C' instruction works similar to 'J', except it takes the argument as a string pushed
 								last to stack in the form of: "classname.function"
 								Where 'classname' is the name of the class (file) with the extension '.pt', and 'function'
-								is a function defined in that file. The 'E' instruction calls that function in the same way
+								is a function defined in that file. The 'C' instruction calls that function in the same way
 								as 'J' does. If you want to call a function from the current module, simply use: 'self.function'.
 								The function name will be popped from stack. Errors out if the function is not found, or the value
 								pushed to stack is not string.
@@ -161,7 +208,7 @@ INSTRUCTIONS:
 	Z							If top of stack is 0, do what instruction 'J' does.
 	------------------------------------------------------------------
 	=							Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
-										If a is equal to b, push 0, else push 1. Pop the values.
+								If a is equal to b, push 0, else push 1. Pop the values.
 	------------------------------------------------------------------
 	G							Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
 								If b is greater than a, push 0, else push 1.
@@ -180,10 +227,27 @@ INSTRUCTIONS:
 								Depending upon type (integer, string, code or float) would be stored appropriately.
 								Both should be popped out after store.
 	------------------------------------------------------------------
-	I							Get current instruction pointer and push to stack.
+	F							Fetch an item from array on top of stack - 1. The index must be on top of stack.
+								The index is popped out and replaced with the item on stack.
 	------------------------------------------------------------------
-	a							Allocate memory. The amount of bytes to be allocated must be on top of stack.
-								Push the address, and pop the amount of bytes after allocation
+	S							Set an item. The array must be on top of stack - 2, and the index must be on top of stack - 1,
+								and the item to be set must be on top of stack. If the item is of the same type as array[n], then
+								array[index] = item. Else it errors out. If index is equal to -1, then the interpreter shall append
+								the item to the array. If index is 0, then all instances from item are removed from array.
+	------------------------------------------------------------------
+	P							Pops the last item from array. The array must be on top of stack.
+								The array is popped, and the item is removed, and the array is pushed to stack.
+								After the array is pushed, the purged value is also pushed to stack.
+	------------------------------------------------------------------
+	K							Get indexes of instances of an item in an array pushed to stack. The item must be on
+								top of stack and the array must be present on top of stack - 1. The item is popped from stack,
+								and the result is an integer array containing the indexes of items in array. The array is
+								then pushed to stack.
+	------------------------------------------------------------------
+	B							Bulk. Get bulk (length) of an array on top of stack. The length is pushed to stack.
+								The array is popped.
+	------------------------------------------------------------------
+	I							Get current instruction pointer and push to stack.
 	------------------------------------------------------------------
 	@							An 'END' statement. Ends the current execution instance.
 	------------------------------------------------------------------
@@ -211,11 +275,20 @@ PREPROCESSOR:
 							address right after the second ':'. NOTE: The label MUST not be a part of the memory during execution.
 							This works exactly like the label system in assemblers.
 	----------------------------------------------------------------
-	#def "functionname" { code }			Define a function with name as code within '{' and '}'. 
-							This can then be called using the 'S' instruction.
+	#def "functionname" { code }			Assign a name (functioname) to the code between '{' and '}' blocks, internally.
+							This can then be called using the 'C' instruction.
 	----------------------------------------------------------------
 	#global "varname"				Declare a global variable with name
 	----------------------------------------------------------------
 	#init						Compulsory. Indication of where the execution is supposed to begin in script.
 	
 	
+GARBAGE COLLECTION:
+	
+	The stack style of PEMATT allows for the most basic garbage collection to happen. The interpreter is supposed to subsequently
+	free items that have been popped from stack.
+
+
+Footnote:
+	This document is simply a draft, and will be subject to changes in the near future. And since it's a draft, it may contain logical or grammatical errors.
+	Please do not assume this as a final document without any fallacies
