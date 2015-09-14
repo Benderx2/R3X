@@ -47,7 +47,7 @@ INSTRUCTIONS:
 	------------------------------------------------------------------
 	(...)							Push string, float, integer or code to stack and increment the stack pointer.
 								enclosed in '()'.
-								Integers must be prefixed with i/u/i8/i16/i32/i64/u8/u16/u32/u64, e.g.: (i247) 
+								Integers must be prefixed with i/u/i8/i16/i32/i64/u8/u16/u32/u64, e.g.: (i:247) 
 								to push the integer 247. They can also be prefixed with 'x' or 'b' to indicate 
 								hexadecimal or binary. e.g: (u16:xEFF) or (u8:b1110111). You can also push the 
 								address of labels, simply by using the 'l' prefix e.g: (l:"mylabel"). Strings 
