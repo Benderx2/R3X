@@ -44,6 +44,12 @@ INSTRUCTIONS:
 								after it. Under OVERWRITE mode, the item right after the top of stack is replaced
 								with the new pushed item. The mode on initialisation is guaranteed to be INSERT.
 								The stack pointer is incremented in both modes on push.
+								
+								During a pop operation in INSERT mode, the item from the stack will be purged, and the
+								items below it will be shifted up one (or the number of items popped), and the stack 
+								pointer will be decremented. On the other hand, during OVERWRITE mode, the stack pointer 
+								will only be decremented, the items will not be removed. 
+								(This applies to all instructions which do pop operations as well.)
 	------------------------------------------------------------------
 	(...)							Push string, float, integer or code to stack and increment the stack pointer.
 								enclosed in '()'.
@@ -219,7 +225,7 @@ INSTRUCTIONS:
 								The function name will be popped from stack. Errors out if the function is not found, or the value
 								pushed to stack is not string.
 	------------------------------------------------------------------
-	Z							If top of stack is 0, do what instruction 'J' does.
+	Z							If top of stack is 0, do what instruction 'J' does. Else, skip to next instruction.
 	------------------------------------------------------------------
 	=							Let a be the item right on stack pointer, and b be the item right on stack pointer - 1.
 								If a is equal to b, push 0, else push 1. Pop the values.
