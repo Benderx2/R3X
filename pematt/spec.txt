@@ -1,6 +1,6 @@
 						PROTOCOL FOR ESOTERIC MINIMALISM AND AVOIDANCE OF THE TURING TARPIT (PEMATT)
 										PROTOTYPE
-										 DRAFT-II
+										 DRAFT-III
 
 
 CONTENTS:
@@ -18,7 +18,7 @@ The system consists of a stack, which shall be used for storing data. The data, 
 * Integer-type
 	* Integers can be of fixed length as well:
 		*i8, i16, i32, i64, i - Signed 8/16/32/64/independent bit numbers
-		*u8, u16, u32, u64, u - Unsigned 8/16/32/64 bit numbers.
+		*u8, u16, u32, u64, u - Unsigned 8/16/32/64/independent bit numbers.
 * Floating Point-type (Double precision)
 * ASCII String-type
 * Code-type
@@ -311,4 +311,4 @@ GARBAGE COLLECTION:
 
 Footnote:
 	This document is simply a draft, and will be subject to changes in the near future. And since it's a draft, it may contain logical or grammatical errors.
-	Please do not assume this as a final document without any fallacies
+	Please do not assume this as a final document without any fallacies.
