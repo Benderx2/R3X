@@ -13,10 +13,13 @@ CONTENTS:
 
 BASIC STRUCTURE:
 
-The system consists of a stack, which shall be used for storing data. The data, on the other hand, can be of four types: 
+The system consists of a stack, which shall be used for storing data. The data, on the other hand, can be of five types: 
 
 * Integer-type
-* Floating Point-type
+	* Integers can be of fixed length as well:
+		*i8, i16, i32, i64, i - Signed 8/16/32/64/independent bit numbers
+		*u8, u16, u32, u64, u - Unsigned 8/16/32/64 bit numbers.
+* Floating Point-type (Double precision)
 * ASCII String-type
 * Code-type
 * Array-type (1-indexed, for *now*)
@@ -35,17 +38,25 @@ INSTRUCTIONS:
 	-------------------------------------------------------------------
 	<							Decrease top of stack pointer by 1
 	------------------------------------------------------------------
+	~							Toggle INSERT/OVERWRITE modes. Under INSERT mode, if the stack pointer
+								does not point to the *actual* top of stack, and an item is pushed, the interpreter
+								is expected to "insert" the newer item between the stack pointer, and the item
+								after it. Under OVERWRITE mode, the item right after the top of stack is replaced
+								with the new pushed item. The mode on initialisation is guaranteed to be INSERT.
+								The stack pointer is incremented in both modes on push.
+	------------------------------------------------------------------
 	(...)							Push string, float, integer or code to stack and increment the stack pointer.
 								enclosed in '()'.
-								Integers must be prefixed with 'i', e.g.: (i247) to push the integer 247. They can also
-								be prefixed with 'x' or 'b' to indicate hexadecimal or binary. e.g: (xEFF) or (b1110111).
-								You can also push the address of labels, simply by using the 'l' prefix e.g: (l"mylabel")
-								Strings must be prefixed with 's' and enclosed in '"'. e.g: (s"Hello, World!"), to push
-								the string "Hello, World!"
+								Integers must be prefixed with i/u/i8/i16/i32/i64/u8/u16/u32/u64, e.g.: (i247) 
+								to push the integer 247. They can also be prefixed with 'x' or 'b' to indicate 
+								hexadecimal or binary. e.g: (u16:xEFF) or (u8:b1110111). You can also push the 
+								address of labels, simply by using the 'l' prefix e.g: (l:"mylabel"). Strings 
+								must be prefixed with 's' and enclosed in '"'. e.g: (s:"Hello, World!"), to push
+								the string "Hello, World!".
 								Floats must be prefixed with 'f', the non-whole part is to be separated from the whole by a
-								'.'. All floats MUST use the decimal system. e.g: (f23.7)
+								'.'. All floats MUST use the decimal system. e.g: (f:23.7)
 								The 'Code' type contains code, which can be called through various instructions explained later 
-								on, they must be prefixed with 'c' and be enclosed within '"', e.g: (c"<<(i247)")
+								on, they must be prefixed with 'c' and be enclosed within '"', e.g: (c:"<<(i247)")
 								An array can be pushed by enclosing it within brackets, e.g: ([1,2,3]) or ([[]]) (jagged empty array)
 	------------------------------------------------------------------
 	+							Add/Concatenate items. Depending upon type, do an add or concatenate, and pop both the items,
@@ -65,6 +76,9 @@ INSTRUCTIONS:
 								Error out on all other circumstances.
 								*If a is code and b is an integer or float, error out.
 								*If b is code, and a is an integer or float, error out.
+								*Note that the type of b (what type of integer/float it is), determines the type of the
+								result pushed after an arithmetic operation. If there is an overflow, it would wrap back.
+								This applies to everything and every operation not just the add operator (+).
 	------------------------------------------------------------------
 	-							Subtract/Remove items. Depending upon type, do a subtract or removal operation, and pop both items,
 								pushing result.
