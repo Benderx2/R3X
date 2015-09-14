@@ -278,7 +278,10 @@ INSTRUCTIONS:
 	g							Set global variable whose name is right on stack pointer - 1 and value on stack pointer.
 								If types don't match, the interpreter shall error out. The name must be in the format:
 								'classname.variable'; If the interpreter does not find such a variable, it must error out.
-								After the assignment, both the values must be pushed to stack.
+								After the assignment, the name and the value assigned must be popped from stack.
+	------------------------------------------------------------------
+	y							Get global variable value. The name of the variable must be on top of stack. 
+								The value is pushed and the name of variable is popped out.
 
 PREPROCESSOR:
 	
