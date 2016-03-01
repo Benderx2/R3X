@@ -1,0 +1,28 @@
+; Corelib package for R3X systems
+struc corelib.int value {
+	jmp .______end
+	.num: dd value+0
+	.print:
+			pushr R0
+			pushr R1
+			loadr R0, .num
+			lodsd
+			pushr R1
+			syscall SYSCALL_PUTI
+			pop
+			popr R1
+			popr R0
+			ret
+	.______end:
+}
+struc corelib.string string {
+	jmp .______end
+	.data: db string, 0
+	.toint32:
+		push .data
+		syscall SYSCALL_ATOI
+		popr R1
+		pop
+		ret
+	.______end:
+}

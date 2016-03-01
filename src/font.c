@@ -34,6 +34,7 @@ char putstring[2];
 unsigned int CurrentCursorOffset = 0;
 void ClearCursor(Graphics_t* Graphics);
 void RenderCursor(Graphics_t* Graphics);
+void drawText(SDL_Surface* screen, char* string, int size, int x, int y, int fR, int fG, int fB, int bR, int bG, int bB);
 font_t* loadfont(char* s)
 {
     putstring[0] = 0;

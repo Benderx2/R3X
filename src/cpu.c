@@ -176,10 +176,6 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 				 * 
 				**/
 				r3x_emulate_instruction(CPU);
-				r3x_emulate_instruction(CPU);
-				r3x_emulate_instruction(CPU);
-				r3x_emulate_instruction(CPU);
-				r3x_emulate_instruction(CPU);
 				r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			}
 			if(CPU->RootDomain->CurrentJobID >= CPU->RootDomain->TotalNumberOfJobs) { 
@@ -2178,6 +2174,9 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				break;
 			case SYSCALL_GETARGS:
 				Stack.Push(CPU->Stack, ARGUMENT_LOCATION);
+				break;
+			case SYSCALL_FREE:
+				fprintf(stderr, "Freeing unimplemented. Ignoring call.\n");
 				break;
 			default:
 				printf("Invalid Argument passed to syscall\n");

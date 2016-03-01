@@ -103,3 +103,7 @@ r3x_mem_block* ReturnMemorySegment(r3x_memory_blocks* MemBlock, unsigned int Add
 	}
 	return &MemBlock->MemoryBlocks[PageIndex];
 }
+uint32_t RegisterMemoryAddress(uint32_t MemAddr, unsigned int MemSize) {
+	
+}
+ 

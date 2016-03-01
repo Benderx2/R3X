@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <GL/glew.h>
 #include <GL/gl.h>
 #endif
-typedef struct font {
+typedef struct {
 	#ifdef REX_GRAPHICS
 	GLuint display_list;
 	GLuint mat_list;
@@ -49,7 +49,7 @@ typedef struct font {
 	int box_w; int box_h;
 	int w[256];
 } font_t;
-typedef struct Graphics {
+typedef struct {
 	#ifdef REX_GRAPHICS
 	SDL_Surface* Screen;
 	#else

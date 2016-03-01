@@ -1,0 +1,21 @@
+(defun cube(1)
+	(* $1 (* $1 $1))
+	(return)
+);
+(defun strcat(2)
+	(+ $1 $2)
+	(return)
+);
+(defun main(0)
+	(defvar *global_var* 26)
+	(print "hello, world!")
+	(print (cube 27))
+	(print (strcat "hello" "strcat"))
+	(defvar my_list (list 1 2 3 4))
+	(print my_list)
+	(append my_list 69)
+	(print my_list)
+	(print (fetch my_list 4))
+	(if (== (fetch my_list 4) 69) (print "It works") (print "It does not"))	
+	(quit)
+);

@@ -84,6 +84,7 @@ enum
   T_EXTERNAL,
   T_EXTERNAL_NATIVE,
   T_THREAD,
+  T_FREE,
   T_END
 };
 
@@ -225,6 +226,7 @@ static void  do_endf		PARAMS ((void));
 static void  do_external  PARAMS((void));
 static void  do_native    PARAMS((void));
 static void  do_thread	   PARAMS((void));
+static void  do_free	   PARAMS((void));
 char* return_next_int_name_and_add (void);
 static void  do_function_call PARAMS((void));
 
@@ -1144,7 +1146,14 @@ finish ()
   use_input_i = true;
   puts("main: ");
   if(CompileDynamic == 0) {
-		puts("jmpl _rexcall_main");
+		// Obey rexcall
+		puts("push 0");
+		puts("push 0");
+		puts("push 0");
+		puts("push 0");
+		puts("push 0");
+		puts("calll _rexcall_main");
+		puts("jmp _exit");
 		puts (""); 
   }
   puts ("; exit to operating system");
@@ -1434,6 +1443,8 @@ get_keyword ()
 	i = T_EXTERNAL_NATIVE;
   else if(!strcmp(token, "thread"))
 	i = T_THREAD;
+  else if(!strcmp(token, "free"))
+	i = T_FREE;
   else
     error ("expected keyword got '%s'", token);
   eat_blanks ();
@@ -1639,6 +1650,7 @@ do_statement ()
     case T_EXTERNAL: do_external(); break;
     case T_EXTERNAL_NATIVE: do_native(); break;
     case T_THREAD: do_thread(); break;
+    case T_FREE: do_free(); break;
     default:      assert (0);   break;
     }
 }
@@ -2214,5 +2226,10 @@ do_typecast(int signal) {
       ungetc(look, stdin);
     }
     return mytype;
+}
+static void do_free() {
+	do_expression();
+	printf("\tpushr R1\n");
+	printf("\tsyscall SYSCALL_FREE\n");
 }
 /* vim:set ts=8 sts=2 sw=2 noet: */

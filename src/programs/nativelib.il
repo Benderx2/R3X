@@ -5,6 +5,11 @@ include 'libR3X/libR3X.pkg'
 		loadlib
 		Console.Write "Loaded mylib.so"
 		Console.NewLine
+		pushstring "Hello World!"
+		push 0
+		push 0
+		push 0
+		push 0
 		pushstring "./mylib.so"
 		pushstring "myfunc"
 		libexec
