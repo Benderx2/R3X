@@ -1863,3 +1863,57 @@ the following is a list of exception IDs.
 	<td>0x8A (BYTE)</td>
 	</tr>
 </table>
+
+<h1>R3X Calling Convention</h1>
+
+The R3X Calling convention is the standard convention by which REX programs are supposed to communicate
+to external / internal methods. It is totally stack based.
+
+The arguments are pushed in an ascending order (based on when they occur) on the stack, as opposed to the
+reverse way of pushing arguments which is seen in most other calling conventions.
+This effectively means that the first argument will be pushed first, followed by the second, then the third.
+Hence, for this to work properly the callee must have an idea of how many arguments are in total in order to
+retrieve them.
+
+The caller must also increment the data stack by 4 items, this space is mostly used by the caller to save
+certain registers if they are modified by the callee.
+
+The return value of the callee is stored in R7.
+
+An example is given below (in assembly):
+<pre>
+	...
+	push 1
+	push 2
+	push 3
+	; Push 4 items to stack.
+	; They can be regs as well, if you want to save their values
+	push 0
+	push 0
+	push 0
+	push 0
+	
+	call add3numbers
+	
+	popn 4
+	; Pop out the number of args on stack
+	popn 3
+	...
+function add3numbers
+	; load first argument from stack
+	loadr R8, 4+3
+	loadsr R8
+	loadr R7, R8
+	; Load second argument from stack
+	loadr R8, 4+2
+	loadsr R8
+	addrr R7, R8
+	; Load third argument from stack
+	loadr R8, 4+1
+	loadsr R8
+	addr R7, R8
+	; Return
+	ret
+endfunction
+	...
+</pre>
