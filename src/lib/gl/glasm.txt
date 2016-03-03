@@ -1,0 +1,314 @@
+GL Library
+================================================================
+gbn
+-GL Begin, begin drawing an instance
+-Arguments:
+	1) Instance Type
+	*0 - GL_POINTS
+	*1 - GL_LINES
+	*2 - GL_LINE_STRIP
+	*3 - GL_LINE_LOOP
+	*4 - GL_TRIANGLES
+	*5 - GL_TRIANGLES_STRIP
+	*6 - GL_TRIANGLES_LOOP
+	*7 - GL_TRIANGLES_FAN
+	*8 - GL_QUADS
+	*9 - GL_QUAD_STRIP
+	*10 - GL_POLYGON
+
+gbn(0) => gl_Begin(GL_POINTS)
+================================================================
+gbt
+-GL Bind Texture
+-Arguments:
+	1) Target
+	*0 - GL_TEXTURE_1D, 
+	*1 - GL_TEXTURE_2D, 
+	*2 - GL_TEXTURE_3D, 
+	*3 - GL_TEXTURE_1D_ARRAY, 
+	*4 - GL_TEXTURE_2D_ARRAY, 
+	*5 - GL_TEXTURE_RECTANGLE, 
+	*6 - GL_TEXTURE_CUBE_MAP, 
+	*7 - GL_TEXTURE_CUBE_MAP_ARRAY, 
+	*8 - GL_TEXTURE_BUFFER, 
+	*9 - GL_TEXTURE_2D_MULTISAMPLE or 
+	*10 - GL_TEXTURE_2D_MULTISAMPLE_ARRAY.
+	2) Texture
+	Register or integer
+
+gbt(0, v0) => glBindTexture(GL_TEXTURE_1D, Registers[v0])
+================================================================
+gbf
+- GL Blend Function
+-Arguments:
+	1) Sfactor
+		[1-15, in order shown below]
+		GL_ZERO, 
+		GL_ONE, 
+		GL_SRC_COLOR, 
+		GL_ONE_MINUS_SRC_COLOR, 
+		GL_DST_COLOR, 
+		GL_ONE_MINUS_DST_COLOR, 
+		GL_SRC_ALPHA, 
+		GL_ONE_MINUS_SRC_ALPHA, 
+		GL_DST_ALPHA, 
+		GL_ONE_MINUS_DST_ALPHA, 
+		GL_CONSTANT_COLOR, 
+		GL_ONE_MINUS_CONSTANT_COLOR, 
+		GL_CONSTANT_ALPHA, 
+		GL_ONE_MINUS_CONSTANT_ALPHA, 
+		GL_SRC_ALPHA_SATURATE.
+	2) Dfactor
+		Same as Sfactor
+
+gbf(1, 0) => glBlendFunc(GL_ONE, GL_ZERO);
+================================================================
+gcl
+-GL Call List, call a display list.
+-Arguments
+	1) List index
+		Register or constant
+================================================================
+gcls
+-GL Clear
+-Arguments
+	1) GL Bit Field
+		[0-3] Indexed
+		0 = GL_COLOR_BUFFER_BIT, 
+		GL_DEPTH_BUFFER_BIT, 
+		GL_ACCUM_BUFFER_BIT, 
+		GL_STENCIL_BUFFER_BIT
+
+gcls(0) => glClear(GL_COLOR_BUFFER_BIT)
+================================================================
+gclc
+-GL Clear Color
+-Arguments
+	1) r
+	2) g
+	3) b
+	4) a
+	(Float)
+
+gclc (0.5, 0.25, 0.4, 0.55) => glClearColor(0.5, 0.25, 0.4, 0.55);
+================================================================
+gcld
+-GL Clear Depth
+-Arguments
+	1) Depth
+	(0.0f < x < 1.0f)
+
+gcld (0.5) => glClearDepth(0.5f)
+================================================================
+gc3
+-GL Set Color
+-Arguments:
+	1) r
+	2) g
+	3) b
+
+gc3 (0.5, 0.25, 0.1) => glColor3f(0.5f, 0.25f, 0.1f);
+================================================================
+gc3ub
+-GL Set Color (Ignores top 24-bits of color, takes in V0-V19/integers instead of float)
+-Arguments:
+	1) r
+	2) g
+	3) b
+
+gc3ub (45, 67, 70) => glColor3ub(45, 67, 70);
+================================================================
+gc4
+-GL Set Color (with alpha)
+-Arguments:
+	1) r
+	2) g
+	3) b
+	4) a
+gc4 (0.5, 0.25, 0.75, 1.0) => glSetColor(0.5, 0.25, 0.75, 1.0);
+================================================================
+gcf
+-GL Cull Face
+-Arguments:
+	1) mode
+	[0-2] Index from start to finish
+	0 = GL_FRONT, 
+	GL_BACK, 
+	GL_FRONT_AND_BACK
+
+gcf(2) => glCullFace(GL_FRONT_AND_BACK);
+================================================================
+gdf
+-GL Depth Function
+-Arguments:
+	1) function
+	[0-7] Indexed.
+	0 = GL_NEVER, 
+	GL_LESS, 
+	GL_EQUAL, 
+	GL_LEQUAL, 
+	GL_GREATER, 
+	GL_NOTEQUAL, 
+	GL_GEQUAL 
+	GL_ALWAYS
+
+gdf (3) => glDepthFunc(GL_LEQUAL);
+================================================================
+gdbl and gebl
+-GL Disable & GL Enable
+-Arguments:
+	1) cap
+	[0-66] Indexed as given below
+	0 = GL_ALPHA_TEST,
+	GL_AUTO_NORMAL,
+	GL_BLEND,
+	GL_CLIP_PLANEi,
+	GL_COLOR_LOGIC_OP,
+	GL_COLOR_MATERIAL,
+	GL_COLOR_SUM,
+	GL_COLOR_TABLE,
+	GL_CONVOLUTION_1D,
+	GL_CONVOLUTION_2D,
+	GL_CULL_FACE,
+	GL_DEPTH_TEST,
+	GL_DITHER,
+	GL_FOG,
+	GL_HISTOGRAM,
+	GL_INDEX_LOGIC_OP,
+	GL_LIGHT,
+	GL_LIGHTING,
+	GL_LINE_SMOOTH,
+	GL_LINE_STIPPLE,
+	GL_MAP1_COLOR_4,
+	GL_MAP1_INDEX,
+	GL_MAP1_NORMAL,
+	GL_MAP1_TEXTURE_COORD_1,
+	GL_MAP1_TEXTURE_COORD_2,
+	GL_MAP1_TEXTURE_COORD_3,
+	GL_MAP1_TEXTURE_COORD_4,
+	GL_MAP1_VERTEX_3,
+	GL_MAP1_VERTEX_4,
+	GL_MAP2_COLOR_4,
+	GL_MAP2_INDEX,
+	GL_MAP2_NORMAL,
+	GL_MAP2_TEXTURE_COORD_1,
+	GL_MAP2_TEXTURE_COORD_2,
+	GL_MAP2_TEXTURE_COORD_3,
+	GL_MAP2_TEXTURE_COORD_4,
+	GL_MAP2_VERTEX_3,
+	GL_MAP2_VERTEX_4,
+	GL_MINMAX,
+	GL_MULTISAMPLE,
+	GL_NORMALIZE,
+	GL_POINT_SMOOTH,
+	GL_POINT_SPRITE,
+	GL_POLYGON_OFFSET_FILL,
+	GL_POLYGON_OFFSET_LINE,
+	GL_POLYGON_OFFSET_POINT,
+	GL_POLYGON_SMOOTH,
+	GL_POLYGON_STIPPLE,
+	GL_POST_COLOR_MATRIX_COLOR_TABLE,
+	GL_POST_CONVOLUTION_COLOR_TABLE,
+	GL_RESCALE_NORMAL,
+	GL_SAMPLE_ALPHA_TO_COVERAGE,
+	GL_SAMPLE_ALPHA_TO_ONE,
+	GL_SAMPLE_COVERAGE,
+	GL_SEPARABLE_2D,
+	GL_SCISSOR_TEST,
+	GL_STENCIL_TEST,
+	GL_TEXTURE_1D,
+	GL_TEXTURE_2D,
+	GL_TEXTURE_3D,
+	GL_TEXTURE_CUBE_MAP,
+	GL_TEXTURE_GEN_Q,
+	GL_TEXTURE_GEN_R,
+	GL_TEXTURE_GEN_S,
+	GL_TEXTURE_GEN_T,
+	GL_VERTEX_PROGRAM_POINT_SIZE,
+	GL_VERTEX_PROGRAM_TWO_SIDE,
+	
+gebl 0 => glEnable(GL_ALPHA_TEST);
+gdbl 66 => glDisable(GL_VERTEX_PROGRAM_TWO_SIDE);
+================================================================
+gel
+-GL End List
+
+gel => glEndList();
+================================================================
+gfg
+-GL Fog Function
+-Arguments:
+	1) param name
+		[0-5] Indexed as shown below
+		0 = GL_FOG_MODE,
+		GL_FOG_DENSITY, 
+		GL_FOG_START, 
+		GL_FOG_END, 
+		GL_FOG_INDEX,
+		GL_FOG_COORD_SRC
+	2) param (float)
+
+gfg (1, 0.56) => glFogf(GL_FOG_DENSITY, 0.56);
+================================================================
+gff
+-GL Front Face
+-Arguments:
+	1) mode
+	[0-1] Indexed as shown below
+		0 = GL_CW, 
+		GL_CCW
+		
+gff (0) => glFrontFace(GL_CW);
+================================================================
+ggl
+-GL Generate List
+-Arguments:
+	1) length (register/constant)
+-Return Value:
+	List Index
+	
+let a = ggl(128) => int a = glGenList(128);
+================================================================
+ggt
+-GL Generate Textures
+-Arguments 
+	1) size
+	2) pointer to array of textures
+
+let tex = alloc(5*TEX_SIZE) [5 = no of textures]
+ggt(5, tex)
+================================================================
+ghnt
+-GL Hint
+-Arguments
+	1) Target
+	[0-7] Indexed as shown below
+	0 = GL_FOG_HINT,	
+	GL_GENERATE_MIPMAP_HINT, 
+	GL_LINE_SMOOTH_HINT, 
+	GL_PERSPECTIVE_CORRECTION_HINT,
+	GL_POINT_SMOOTH_HINT, 
+	GL_POLYGON_SMOOTH_HINT, 
+	GL_TEXTURE_COMPRESSION_HINT, 
+	GL_FRAGMENT_SHADER_DERIVATIVE_HINT
+	2) Mode
+	[0 - 2] Indexed as shown below
+	0 = GL_FASTEST, 
+	GL_NICEST, 
+	GL_DONT_CARE
+
+ghnt(3, 0) => glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+================================================================
+gidxi
+-GL IndexI
+-Arguments:
+	1) i
+
+gidxi(45) => glIndexi(45);
+================================================================
+
+================================================================
+gnd
+-GL End, end an instance
+
+gnd() => glEnd();

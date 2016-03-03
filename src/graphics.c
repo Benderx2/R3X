@@ -44,10 +44,10 @@ extern unsigned int ScreenHeight;
 double DefaultRGBA_g = 0.1f;
 double DefaultRGBA_b = 0.40625f;
 double DefaultRGBA_a = 1.0f;*/
-double DefaultRGBA_g = 0.0f;
+double DefaultRGBA_g = 0.2f;
 double DefaultRGBA_r = 0.0f;
 double DefaultRGBA_a = 1.0f;
-double DefaultRGBA_b = 0.0f;
+double DefaultRGBA_b = 0.75f;
 void Update(SDL_Surface*);
 Graphics_t* InitGraphics(void)
 {

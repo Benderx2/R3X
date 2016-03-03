@@ -48,9 +48,9 @@ void ParseArguments(int argc, char* argv[]);
 void PrintHelp(void);
 void GetApplicationPath(void);
 // graphics and stuff
-//! DEFAULT SETTINGS FOR VGA 8x8 CODEPAGE 437 (60x45)
-unsigned int ScreenWidth = 480;
-unsigned int ScreenHeight = 360;
+//! DEFAULT SETTINGS FOR VGA 8x8 CODEPAGE 437 (80x25)
+unsigned int ScreenWidth = 640;
+unsigned int ScreenHeight = 200;
 unsigned int FontHeight = 8;
 unsigned int FontWidth = 8;
 double FontScale = 1.0f;
