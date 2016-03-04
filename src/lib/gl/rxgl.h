@@ -1,6 +1,10 @@
 #ifndef __RXGL_H
 #define __RXGL_H
-
+/*
+ * This is not a C/C++ header!
+ * It is to be used with R3X applications 
+ * that are written in T++.
+*/
 #define GL_POINTS 0
 #define GL_LINES 1
 #define GL_LINE_STRIP 2
