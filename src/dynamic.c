@@ -32,10 +32,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <r3x_dynamic.h>
 #include <big_endian.h>
 libimport_struct** lbstructs;
-unsigned int total_number_of_structs = 16;
+unsigned int total_number_of_structs = 32;
 unsigned int number_of_used_structs = 0;
 int load_lib_manager(void) { 
-	lbstructs = nt_malloc(sizeof(libimport_struct*)*16);
+	lbstructs = nt_malloc(sizeof(libimport_struct*)*32);
 	return 0;
 }
 int load_dynamic_library(char* name, r3x_cpu_t* CPU) {

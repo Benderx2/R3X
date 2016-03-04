@@ -1,5 +1,6 @@
 #ifndef R_SYSTEM_HEADER
 #define R_SYSTEM_HEADER
+
 //! Just something experimental
 #include <assert.h>
 #include <stdio.h>

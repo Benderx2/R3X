@@ -119,10 +119,10 @@ uint8_t* r3x_load_executable(char* name, r3x_header_t* header)
 	return mem2;
 }
 void load_dependencies(r3x_cpu_t* CPU) {
-  r3x_header_t* Header = (r3x_header_t*)&CPU->Memory[PROG_EXEC_POINT];
-  if(Header->r3x_importsize == 0) {
-    return;
-  }
+	r3x_header_t* Header = (r3x_header_t*)&CPU->Memory[PROG_EXEC_POINT];
+	if(Header->r3x_importsize == 0) {
+		return;
+	}
   uint32_t NumberOfImports = Header->r3x_importsize / sizeof(r3x_import_t);
   r3x_import_t* Imports = (r3x_import_t*)(CPU->Memory + BIG_ENDIAN_INT(Header->r3x_imports));
   for(unsigned int i = 0; i < NumberOfImports; i++) {

@@ -47,10 +47,20 @@ void* load_native_library(char* name, r3x_cpu_t* CPU)
 	} else {
 		handle = dlopen(name, RTLD_LAZY);
 	}
-	if(!handle){	
-		printf("\nFATAL: Unable to load shared object: %s\n", name);
-		exit(EXIT_FAILURE);
+	if(!handle){
+		// Try opening it from the VM directory.
+		char* tempstr = nt_malloc(strlen(ApplicationPath)+strlen(name)+3);
+		strcpy(tempstr, ApplicationPath);
+		tempstr[strlen(tempstr)] = '/';
+		tempstr[strlen(tempstr)+1] = 0;
+		strcat(tempstr, name);
+		printf("[Alert]Library %s not found in Application directory. Trying to load from %s\n", name, tempstr);
+		handle = dlopen(tempstr, RTLD_LAZY);	
 	}	
+	if(!handle) {
+		printf("\nFATAL: Unable to load shared object: %s\n", name);
+		exit(0);
+	}
 	
 	native_handle_t* newhandle = nt_malloc(sizeof(native_handle_t));
 	newhandle->soname = strdup(name);
@@ -61,7 +71,7 @@ void* load_native_library(char* name, r3x_cpu_t* CPU)
 	if(Start == NULL)
 	{
 		printf("ERROR: Start function not found in native library! Exitting..\n");
-		exit(EXIT_FAILURE);
+		exit(0);
 	}
 	else {
 		(*Start)(CPU);

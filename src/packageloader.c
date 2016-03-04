@@ -2,9 +2,12 @@
 
 #include <system.h>
 #include <r3x_pack.h>
+package_info* load_package(char* package_name);
 
 package_info* load_package(char* package_name) {
-	package_info* pack_info = malloc(sizeof(package_info));
+	(void)package_name;
+	return NULL;
+	/*package_info* pack_info = malloc(sizeof(package_info));
 	package_info->package_file = fopen(package_file, "r");
 	if(package_info->package_file == NULL) {
 		return NULL;
@@ -14,6 +17,5 @@ package_info* load_package(char* package_name) {
 	r3x_package_header* myheader = &temp;
 	if(myheader->PackageHeader != R3X_PACKAGE_HEADER) {
 		return NULL;
-	}
-	
+	}*/
 }

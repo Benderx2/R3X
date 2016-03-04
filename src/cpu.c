@@ -2073,7 +2073,7 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				break;
 			case SYSCALL_GLUPDATE:
 				#ifdef REX_GRAPHICS
-				gl_text_update(CPU->Graphics);
+				GLUpdate();
 				#endif		
 				break;
 			case SYSCALL_PUTCH:

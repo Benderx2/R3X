@@ -1,5 +1,4 @@
 echo "REX Compilation Script, version 0.75b"
-set -o verbose
 if [ "$1" == "arch=x86_64" ]
 then
 	export TARGET="x86_64"
@@ -148,6 +147,7 @@ else
 	export LFLAGS="-lc -lm"
 fi
 export LINKER_FILES="$LINKER_FILES cpu.o object.o main.o bios.o format.o exception.o stack.o  dispatcher.o dynamic.o stream.o disassemble.o libntmalloc.a memory.o rfc.o script.o"
+set -o verbose
 # Compile libntmalloc
 $CC $ARCHFLAGS -c ./lib/ntmalloc/nt_malloc.c -o nt_malloc.o -I./lib/include -std=gnu99
 $AR  $ARFLAGS libntmalloc.a nt_malloc.o
@@ -185,6 +185,23 @@ cd ../../
 # build example so
 $CC -I./lib/include -std=gnu99 -c -Wall -Werror -fpic ./programs/mylib.c -o mylib.o 
 $CC -shared -o mylib.so ./mylib.o ./lib/rxvmlib.a -lc -lm -Wl,-no-whole-archive
+# build libgl
+set +o verbose
+if [ "$USEGL" == "no" ]
+then
+	echo "Warning: Not building lib rxGL!"
+else
+	echo "Building lib rxGL"
+	set -x
+	cd lib/gl
+	$CC -I../include -std=gnu99 -c -Wall -Werror -fpic rxgl.c -o rxgl.o
+	$CC -shared -o rxgl.so ./rxgl.o ../rxvmlib.a ../libntmalloc.a -lc -lm -lSDL -lSDL_image -lGL -lX11 -Wl,-no-whole-archive 
+	rm *.o
+	mv ./rxgl.so ../../$BINDIR
+	cd ../../
+	set +x
+fi
+set -o verbose
 # compile programs
 $AS programs/r3x_ex.il 
 $AS programs/math.il 
