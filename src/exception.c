@@ -290,7 +290,7 @@ void printstatus(void) {
 }
 void printregstatus(void) { 
 	printf("Values for Current Domain:\n"); 
-	for(unsigned int i = 0; i <= MAX_NUMBER_OF_REGISTERS; i++) {
+	for(unsigned int i = 0; i < MAX_NUMBER_OF_REGISTERS; i++) {
 		printf("R%u: %u\t", i, (unsigned int)r3_cpu->Regs[i]);	
 	}
 }

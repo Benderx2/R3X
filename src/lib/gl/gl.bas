@@ -41,4 +41,6 @@ function main(0)
 	asm "syscall SYSCALL_GLUPDATE"
 	// jump into debugger
 	asm "break"
+	print "program execution complete"
+	end
 endf

@@ -13,6 +13,7 @@
 char* InputFile = NULL;
 char* OutputFile = NULL;
 bool AsmFlag = false;
+char* AsmFile = NULL;
 
 char** IncludeDirs = NULL;
 unsigned int NumberOfIncludeDirs = 0;
@@ -55,6 +56,18 @@ int main(int argc, char** argv) {
 	if(AsmFlag == false) {
 		system(FASMOptions);
 		system(CgenOptions);
+	} else {
+		FILE* fd = fopen(ASMOutputFile, "r+b");
+		fseek(fd, 0L, SEEK_END);
+		unsigned int sz = ftell(fd);
+		fseek(fd, 0L, SEEK_SET);
+		char* space = calloc(sz+1, 1);
+		fread(space, 1, sz, fd);
+		space[sz] = 0;
+		FILE* fp = fopen(OutputFile, "w+b");
+		fprintf(fp, "%s", space);
+		fclose(fp);
+		fclose(fd);
 	}
 	/**!
 		Remove temp files
@@ -105,6 +118,10 @@ void ParseArguments(int argc, char* argv[]) {
 			AddIncludeDir(argv[i+1]);
 		} else if(!strcmp(argv[i], "-asm")) {
 			AsmFlag = true;
+			if(i >= argc) {
+				fprintf(stderr, "Error: -asm, no output source given");
+			}
+			AsmFile = argv[i+1];
 		} else if(!strcmp(argv[i], "-d")) {
 			CompileDynamic = true;
 		}
