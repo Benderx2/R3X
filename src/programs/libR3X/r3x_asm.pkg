@@ -425,37 +425,37 @@ macro jmpl addr {
 	local _current_ip
 _current_ip:
 	db 0x82
-	dd (addr - _current_ip - 5)
+	dd (addr - _current_ip)
 }
 macro jel addr {
 	local _current_ip
 _current_ip:
 	db 0x83
-	dd addr-_current_ip-5
+	dd addr-_current_ip
 }
 macro jgl addr {
 	local _current_ip
 _current_ip:
 	db 0x84
-	dd addr-_current_ip-5
+	dd addr-_current_ip
 }
 macro jll addr {
-	local _current_ip-5
+	local _current_ip
 _current_ip:
 	db 0x85
-	dd addr-_current_ip-5
+	dd addr-_current_ip
 }
 macro jzl addr {
 	local _current_ip
 _current_ip:
 	db 0x87
-	dd addr-_current_ip-5
+	dd addr-_current_ip
 }
 macro calll addr {
 	local _current_ip
 _current_ip:
 	db 0x8B
-	dd addr-_current_ip-5
+	dd addr-_current_ip
 }
 macro puship {
 	db 0x86

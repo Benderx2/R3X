@@ -1,5 +1,5 @@
 function main(0)
-	print "Array stuff"
+	print "Array stuff00"
 	goto mylabel
 :mylabel
 // Allocate 4 bytes for S.
@@ -11,6 +11,7 @@ function main(0)
 	let X = int16_ptr(buffer)
 	print "(uint16_t)S[0] and (uint32_t)S[0] = "; X, int32_ptr(buffer)
 	let mystr = "Hello, World!"
+	let int8_ptr(mystr+13) = 0
 	print $mystr
 	let firstvariable = int8_ptr(mystr)
 	print "first char: "; firstvariable

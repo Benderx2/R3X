@@ -161,34 +161,34 @@ typedef union {
 } FloatTypeCastInt;
 
 static unsigned int	total_variables = 0;
-static char        	look          = 0;
-static int         	line          = 1;
-static unsigned int	whilelines 	  = 0;
+static char look = 0;
+static int line = 1;
+static unsigned int	whilelines = 0;
 static unsigned int currentwhile = MAX_WHILE_NESTING;
 
-static int use_print_i   = 0;
-static int use_print_s   = 0;
-static int use_print_t   = 0;
-static int use_print_n   = 0;
-static int use_input_i   = 0;
+static int use_print_i = 0;
+static int use_print_s = 0;
+static int use_print_t = 0;
+static int use_print_n = 0;
+static int use_input_i = 0;
 
-static char** lnative_libs	  = NULL;
+static char** lnative_libs = NULL;
 static unsigned int number_of_native_libs = 0;
 static unsigned int current_native_lib = 0;
 
-static int			while_stack[MAX_WHILE_NESTING+1] = { 0 };
-static int 			stuff_pushed_to_stack = 0;
-static bool			returned_float = false;
-static int 			number_of_util_regs = 4;
+static int while_stack[MAX_WHILE_NESTING+1] = { 0 };
+static int stuff_pushed_to_stack = 0;
+static bool returned_float = false;
+static int number_of_util_regs = 4;
 
-static f_table*    function_table = NULL;
+static f_table* function_table = NULL;
 static s_table*	structs_table = NULL;
 
 static char* current_function_name = NULL;
 
-static char**		strings = NULL;
+static char** strings = NULL;
 static unsigned int current_variable_index = 0;
-static char** 		variables_used = NULL;
+static char** variables_used = NULL;
 static int         	string_count  = 0;
 
 static const char *program_name  = "<?>";
@@ -242,22 +242,35 @@ static void  do_external  	PARAMS((void));
 static void  do_native    	PARAMS((void));
 static void  do_thread	   	PARAMS((void));
 static void  do_free	   	PARAMS((void));
-static void  do_function_call	PARAMS((void));
-static int get_comparision_operator	PARAMS((void));
-static RX_STRUCT_TYPE  do_typecast	PARAMS ((int));
-static void  generate_identifier	PARAMS((void));
-static char*  return_next_int_name	PARAMS((void));
-char* return_str 					PARAMS((void));
-char* return_next_tok 				PARAMS((void));
-char* return_next_int_name_and_add 	PARAMS((void));
-static function_type* return_function_type_if_function_exists	PARAMS((char*));
-static struct_type* return_struct_type_if_struct_exists			PARAMS((char*));
-static RX_STRUCT_TYPE return_type_if_struct_member_exists 		PARAMS((char*, char*));
-static unsigned int return_member_offset 						PARAMS((char*, char*));
-static void write_init_code	 									PARAMS ((char*));
-static void AddStruct 											PARAMS((char*, unsigned int));
+static void  do_function_call PARAMS((void));
 
-int wtf = 0;
+static int get_comparision_operator PARAMS((void));
+
+static RX_STRUCT_TYPE  do_typecast PARAMS ((int));
+
+static void  generate_identifier PARAMS((void));
+
+static char*  return_next_int_name PARAMS((void));
+
+char* return_str PARAMS((void));
+
+char* return_next_tok PARAMS((void));
+
+char* return_next_int_name_and_add 	PARAMS((void));
+
+static function_type* return_function_type_if_function_exists PARAMS((char*));
+
+static struct_type* return_struct_type_if_struct_exists PARAMS((char*));
+
+static RX_STRUCT_TYPE return_type_if_struct_member_exists PARAMS((char*, char*));
+
+static unsigned int return_member_offset PARAMS((char*, char*));
+
+static void write_init_code PARAMS ((char*));
+
+static void AddStruct PARAMS((char*, unsigned int));
+
+int _do_not_remove = 0;
 int CompileDynamic = 0;
 static char* compiler_init_code = NULL;
 
@@ -387,17 +400,17 @@ static struct_type* return_struct_type_if_struct_exists(char* StructName) {
 static RX_STRUCT_TYPE return_type_if_struct_member_exists(char* StructName, char* MemberName) {
     struct_type* StructType = return_struct_type_if_struct_exists(StructName);
     if(StructType == NULL) {
-      error("Struct %s doesn't exist!\n", StructName);
+     	error("Struct %s doesn't exist!\n", StructName);
     }
-    unsigned int i = 0;
-    for(i = 0; i < StructType->NumberOfMembers; i++) {
-      if(!strcmp(StructType->SubMembers[i].Name, MemberName)) {
-	return StructType->SubMembers[i].Type;
-      }
-    }
-    error("struct member %s, doesn't exist in struct %s\n", MemberName, StructName);
+	unsigned int i = 0; 
+ 	for(i = 0; i < StructType->NumberOfMembers; i++) {
+ 		if(!strcmp(StructType->SubMembers[i].Name, MemberName)) {
+				return StructType->SubMembers[i].Type;
+		}
+	}
+	error("struct member %s, doesn't exist in struct %s\n", MemberName, StructName);
     //! just here to skip warnings, code below wont be executed.
-    return RX_INT8;
+   	return RX_INT8;
 }
 static unsigned int return_member_offset(char* StructName, char* MemberName) {
 	struct_type* StructType = return_struct_type_if_struct_exists(StructName);
@@ -446,7 +459,6 @@ static unsigned int return_sizeof_struct(char* StructName) {
 static void shutdown (void)
 {
 	int i;
-
 	for (i = 0; i < string_count; ++i) {
 		xfree (strings[i]);
 	}
@@ -455,16 +467,14 @@ static void shutdown (void)
 /*!
  * A wrapper over malloc
  * */
-static void* xmalloc (size_t size)
-{
-  void *data = malloc (size);
-  if (!data)
-    {
-      fprintf (stderr, "%s: failed to allocate memory\n", program_name);
-      exit (EXIT_FAILURE);
+static void* xmalloc (size_t size) {
+ 	void *data = malloc (size);
+ 	if (!data) {
+ 		fprintf (stderr, "%s: failed to allocate memory\n", program_name);
+ 		exit (EXIT_FAILURE);
     }
-  memset(data, 0, size);
-  return data;
+    memset(data, 0, size);
+    return data;
 }
 /*!
  * A wrapper over realloc
@@ -519,31 +529,31 @@ static void parse_opts (int argc, char** argv) {
 				break;
 		}
 	}
-		if (was_error)
+	if (was_error)
+		exit (EXIT_FAILURE);
+
+	if (optind < argc)
+		input_name = argv[optind];
+
+	for (++optind; optind < argc; ++optind)
+		fprintf (stderr, "%s: ignoring argument '%s'\n", program_name, argv[optind]);
+
+	if (input_name) {
+		if (!freopen (input_name, "r", stdin)) {
+			fprintf (stderr, "%s: failed to open for reading\n", input_name);
 			exit (EXIT_FAILURE);
-
-		if (optind < argc)
-			input_name = argv[optind];
-
-		for (++optind; optind < argc; ++optind)
-			fprintf (stderr, "%s: ignoring argument '%s'\n", program_name, argv[optind]);
-
-		if (input_name) {
-			if (!freopen (input_name, "r", stdin)) {
-				fprintf (stderr, "%s: failed to open for reading\n", input_name);
-				exit (EXIT_FAILURE);
-			}
-		} else {
-			input_name = "<stdin>";
 		}
-		if (output_name) {
-			if (!freopen (output_name, "w", stdout)) {
-				fprintf (stderr, "%s: failed to open for writing\n", output_name);
-				exit (EXIT_FAILURE);
-			}
-		} else {
-			output_name = "<stdout>";
+	} else {
+		input_name = "<stdin>";
+	}
+	if (output_name) {
+		if (!freopen (output_name, "w", stdout)) {
+			fprintf (stderr, "%s: failed to open for writing\n", output_name);
+			exit (EXIT_FAILURE);
 		}
+	} else {
+		output_name = "<stdout>";
+	}
 }
 /*!
  * Outputs help

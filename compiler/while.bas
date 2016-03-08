@@ -4,4 +4,5 @@ function main(0)
 		print "Doing a while loop till 5 "; X
 		let X = X+1
 	endw
+	end
 endf
