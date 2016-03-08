@@ -1866,6 +1866,179 @@ the following is a list of exception IDs.
 	</tr>
 </table>
 
+<h1>R3X Macro Instructions</h1>
+Macro instructions are higher level instructions which aid the programmer and compiler to
+produce shorter code which can then be expanded by the assembler. The following are the list of
+available R3X macro instructions:
+
+<h2>.text</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>.text { ... }</td>
+	<td>Place code within brackets under text section of the binary</td>
+	<td>None</td>
+	<td>None</td>
+	</tr>
+</table>
+
+<h2>.data</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>.data { ... }</td>
+	<td>Place data within brackets under data section of the binary</td>
+	<td>None</td>
+	<td>None</td>
+	</tr>
+</table>
+
+<h2>.bss</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>.bss { ... }</td>
+	<td>Place reserved bytes within brackets under bss section of the binary</td>
+	<td>None</td>
+	<td>None</td>
+	</tr>
+</table>
+
+<h2>declare_bss_entry</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>declare_bss_entry <i>entry_name</i></td>
+	<td>Declare a 4-byte entry in the BSS section of the binary</td>
+	<td>Name of Label used to reference entry</td>
+	<td>None</td>
+	</tr>
+</table>
+
+<h2>extern</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>extern function_name, "lib_name"</td>
+	<td>Declare external function in import section of binary</td>
+	<td>Name of externally referenced function, Path of library containing the said function.</td>
+	<td>None</td>
+	</tr>
+</table>
+
+<h2>externcall</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>externcall function_name</td>
+	<td>Call an external function from a dyanmic library</td>
+	<td>Name of externally referenced function</td>
+	<td>pushr R1<br>
+		loadrm dword, R20, import_section.lib_name ; Load address of referenced library in R20<br>
+		; The import section is filled by VM on load, containing the address of the library.<br>
+		; This is essential as it helps the library know where it is in RAM.<br>
+		loadrm dword, R1, import_section.func_addr ; Load address of function<br>
+		push return_addr<br>
+		pushr R1<br>
+		ret<br>
+		return_addr:<br>
+		popr R1</td>
+	</tr>
+</table>
+
+<h2>loadrr</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>loadrr <i>dest_register</i>,<i>source_register</i></td>
+	<td>Set destination register to source register.</td>
+	<td>Destination Register Index (8-bit), Source Register Index (8-bit)</td>
+	<td>pushr dest_reg<br>
+		popr source_reg</td>
+	</tr>
+</table>
+
+<h2>pushstring</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>pushstring "string"</td>
+	<td>Pushes address of string on stack.</td>
+	<td>A string</td>
+	<td>push string_addr<br>
+		.data {<br>
+			string_addr: db "string"<br>
+		}<br></td>
+	</tr>
+</table>
+
+<h2>loadrm</h2>
+<table border="10">
+	<tr>
+	<td>Macro Instruction mnemonic</td>
+	<td>Description</td>
+	<td>Arguments</td>
+	<td>Expansion</td>
+	</tr>
+	<tr>
+	<td>loadrm <i>word_size</i>,<i>dest_register</i>,<i>memory_addr</i></td>
+	<td>Copy from memory address of give word size to register.</td>
+	<td>word size: can be one of the following: dword (32-bit), word (16-bit), byte (8-bit)<br> 
+	Destination Register Index (8-bit), 32-bit memory address</td>
+	<td>pushr R0<br>
+		loadr R0, memaddr<br>
+		if word size == byte<br>
+			lodsb<br>
+		else if word size == word<br>
+			lodsw<br>
+		else if word size == dword<br>
+			lodsd<br>
+		end if<br>
+		loadrr dest_register, R1<br>
+		popr R0<br>
+			</td>
+	</tr>
+</table>
 <h1>R3X Calling Convention</h1>
 
 The R3X Calling convention is the standard convention by which REX programs are supposed to communicate
