@@ -497,15 +497,39 @@ macro lor {
 macro land {
 	db 0x8E
 }
-macro loadrm size, reg1, memaddr {
-	if reg1 eq R0
-	else
+;macro loadrm size, reg1, memaddr {
+;	if reg1 eq R0
+;	else
+;	pushr R0
+;	end if
+;	if reg1 eq R1
+;	else
+;	pushr R1
+;	end if
+;	loadr R0, memaddr
+;	if size eq byte
+;		lodsb
+;	else if size eq word
+;		lodsw
+;	else if size eq dword
+;		lodsd
+;	else 
+;		display 'Unknown size operand for loadrm'
+;		err
+;	end if
+;	loadrr reg1, R1
+;	if reg1 eq R1
+;	else
+;	popr R1
+;	end if
+;	if reg1 eq R0
+;	else
+;	popr R0
+;	end if
+;}
+
+macro loadrm size, reg, memaddr {
 	pushr R0
-	end if
-	if reg1 eq R1
-	else
-	pushr R1
-	end if
 	loadr R0, memaddr
 	if size eq byte
 		lodsb
@@ -513,17 +537,10 @@ macro loadrm size, reg1, memaddr {
 		lodsw
 	else if size eq dword
 		lodsd
-	else 
-		display 'Unknown size operand for loadrm'
+	else
+		display 'Unknown size op for loadrm'
 		err
 	end if
-	loadrr reg1, R1
-	if reg1 eq R1
-	else
-	popr R1
-	end if
-	if reg1 eq R0
-	else
+	loadrr reg, R1
 	popr R0
-	end if
-}
+} 

@@ -626,28 +626,23 @@ static void finish (void)
 	int i;
 	use_input_i = true;
 	puts("main:");
-		if(CompileDynamic == 0) {
-			// Obey rexcall
-			puts("\tpush 0");
-			puts("\tpush 0");
-			puts("\tpush 0");
-			puts("\tpush 0");
-			puts("\tpush 0");
-			puts("\tcalll _rexcall_main");
-			puts("\tjmp _exit");
-			puts (""); 
-		}
-		puts ("; exit to operating system");
-		puts ("");
-		puts ("_exit:");
 	if(CompileDynamic == 0) {
-		puts("\tConsole.WaitKey");
-		puts("\tSystem.Quit 0");
-	} else {
-		puts ("\tcalll input_i");
-		puts ("\tpush 0\n");
-		puts ("\texit");
+		// Obey rexcall
+		puts("\tpush 0");
+		puts("\tpush 0");
+		puts("\tpush 0");
+		puts("\tpush 0");
+		puts("\tpush 0");
+		puts("\tcalll _rexcall_main");
+		puts("\tjmp _exit");
+		puts (""); 
 	}
+	puts ("; exit to operating system");
+	puts ("");
+	puts ("_exit:");
+	puts ("\tcalll input_i");
+	puts ("\tpush 0\n");
+	puts ("\texit");
 	puts ("");
 
 	if (use_print_i) {
