@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015 Benderx2, 
+Copyright (c) 2015 Benderx2,
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,21 +34,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 libimport_struct** lbstructs;
 unsigned int total_number_of_structs = 32;
 unsigned int number_of_used_structs = 0;
-int load_lib_manager(void) { 
+int load_lib_manager(void) {
 	lbstructs = nt_malloc(sizeof(libimport_struct*)*32);
 	return 0;
 }
 int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
+	unsigned int name_loc = (uintptr_t)name - (uintptr_t)CPU->Memory;
 	for(unsigned int i = 0; i < total_number_of_structs; i++) {
-	  if(lbstructs[i]!=NULL) {
-	    if(!strcmp(lbstructs[i]->Name, name)) {
-	      return i;
-	    }
-	  }
+	  	if(lbstructs[i]!=NULL) {
+	    	if(!strcmp(lbstructs[i]->Name, name)) {
+	      		return i;
+	    	}
+	  	}
 	}
+	printf("[lbstruct database does not contain library, loading new.]\n");
 	uint32_t loadaddr = CPU->MemorySize;
 	FILE* dynamic_lib_file = fopen(name, "r");
-	if(dynamic_lib_file == NULL) {	
+	if(dynamic_lib_file == NULL) {
 		printf("Unable to load dynamic object file: %s. ABORTING..\n", name);
 		exit(0);
 	}
@@ -57,7 +59,8 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 	fseek(dynamic_lib_file, 0L, SEEK_SET);
 	uint8_t* temp = nt_malloc(totalsize * sizeof(uint8_t));
 	unsigned int sizeread = fread(temp, sizeof(uint8_t), totalsize, dynamic_lib_file);
-	if(sizeread != totalsize) { 
+	printf("[%s library read to memory, now begin mapping.]\n", name);
+	if(sizeread != totalsize) {
 		printf("Unable to read dynamic object file properly. ABORTING..\n");
 		exit(0);
 	}
@@ -72,10 +75,11 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 		printf("0x%X, 0x%X, 0x%X, 0x%X\n", BIG_ENDIAN_INT(dyn_header->text_section) % SEGMENT_SIZE, BIG_ENDIAN_INT(dyn_header->text_size) % SEGMENT_SIZE, BIG_ENDIAN_INT(dyn_header->data_section) % SEGMENT_SIZE, (BIG_ENDIAN_INT(dyn_header->bss_section) + BIG_ENDIAN_INT(dyn_header->bss_size) - BIG_ENDIAN_INT(dyn_header->data_section)) % SEGMENT_SIZE);
 		exit(EXIT_FAILURE);
 	}
-	if(number_of_used_structs >= total_number_of_structs) { 
+	if(number_of_used_structs >= total_number_of_structs) {
 		lbstructs = nt_realloc(lbstructs, sizeof(libimport_struct*)*(total_number_of_structs+16));
 		total_number_of_structs += 16;
 	}
+	printf("[%s dynamic library load complete. begin placement]\n", name);
 	uint32_t begin_text = loadaddr + BIG_ENDIAN_INT(dyn_header->text_section);
 	uint32_t end_text = loadaddr + BIG_ENDIAN_INT(dyn_header->text_section) + BIG_ENDIAN_INT(dyn_header->text_size);
 	uint32_t begin_data = loadaddr + BIG_ENDIAN_INT(dyn_header->data_section);
@@ -87,35 +91,36 @@ int load_dynamic_library(char* name, r3x_cpu_t* CPU) {
 	MemoryMap(CPU->CPUMemoryBlocks, RX_RW, begin_data, end_data);
 	memcpy(&CPU->Memory[CPU->MemorySize], temp, totalsize);
 	nt_free(temp);
-	for(unsigned int i = 0; i < total_number_of_structs; i++) { 
+	for(unsigned int i = 0; i < total_number_of_structs; i++) {
 		if(lbstructs[i] == NULL)  {
 			lbstructs[i] = nt_malloc(sizeof(libimport_struct));
-			lbstructs[i]->Name = name;
+			lbstructs[i]->Name = strdup((char*)&CPU->Memory[name_loc]);
 			lbstructs[i]->loadaddr = loadaddr;
 			dyn_header = (r3x_dynamic_header_t*)&CPU->Memory[loadaddr];
 			lbstructs[i]->libid = i;
+			lbstructs[i]->export_sec = BIG_ENDIAN_INT(dyn_header->export_section);;
 			lbstructs[i]->function_count = BIG_ENDIAN_INT(dyn_header->export_size) / sizeof(export_struct);
-			lbstructs[i]->functions = (export_struct*)&CPU->Memory[loadaddr + BIG_ENDIAN_INT(dyn_header->export_section)];
 			CPU->MemorySize += totalsize;
 			return i;
 		}
 	}
 	return -1;
 }
-uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhandle) { 
+uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhandle) {
 	if(total_number_of_structs <= libhandle) {
 		return 0;
 	} else {
 		if(lbstructs[libhandle] != NULL) {
+			lbstructs[libhandle]->functions = (export_struct*)&CPU->Memory[lbstructs[libhandle]->loadaddr + lbstructs[libhandle]->export_sec];
 			for(unsigned int i = 0; i < lbstructs[libhandle]->function_count; i++) {
 				/**!
 				 * Sometimes when I look at this shit, I just want to cry at the fact that
 				 * humanity has gone too far.
 				 * fkn.
-				 * 
+				 *
 				 * -Regards,
 				 * Benderx2
-				 * 
+				 *
 				 * Credits:
 				 * 666
 				 * 69
@@ -125,19 +130,19 @@ uint32_t dynamic_call(r3x_cpu_t* CPU, unsigned int libhandle, char* functionhand
 				 * 69 + 666 = 735 = 7+3+5 = 15 = 15 / 3 = 5 - 2 = 3. woah
 				 * Also,
 				 * (3+3)/2 = 3 = (3+3)/2 = 3...... . Illuminati supports recursion too.
-				 * 
+				 *
 				 * take a random number, multiply it by 3, then by 4, then add 13 to it.
 				 * divide the number by 12 (illuminati 4x = 12), then subtract the remainder off,
 				 * from the quotient. You'll get the same number.
-				 * 
+				 *
 				 * #mathzskillz #illuminatemath #fknidontknowshit #everything
-				 * 
+				 *
 				 * I'm sorry if the above wasn't too scary to scare you off
 				 * It's designed as a scarecrow to prevent people from reading ahead.
-				 * 
-				 * 
-				 * 
-				 * 
+				 *
+				 *
+				 *
+				 *
 				 * .........but the below definitely will.
 				**/
 				if(!strcmp(functionhandle, (char*)((uintptr_t)((uintptr_t)(CPU->Memory) + lbstructs[libhandle]->loadaddr + BIG_ENDIAN_INT(lbstructs[libhandle]->functions[i].function_id))))) {

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2015 Benderx2, 
+Copyright (c) 2015 Benderx2,
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,59 @@ void REX_EXCEPTION_HANDLER(int SIGNUM) {
 	printf("Exception Detected! Debugger ONLINE.\n");
 	debugger();
 }
-void debugger(void) { 
+void hexDump (char *desc, void *addr, int len) {
+    int i;
+    unsigned char buff[17];
+    unsigned char *pc = (unsigned char*)addr;
+
+    // Output description if given.
+    if (desc != NULL)
+        printf ("%s:\n", desc);
+
+    if (len == 0) {
+        printf("  ZERO LENGTH\n");
+        return;
+    }
+    if (len < 0) {
+        printf("  NEGATIVE LENGTH: %i\n",len);
+        return;
+    }
+
+    // Process every byte in the data.
+    for (i = 0; i < len; i++) {
+        // Multiple of 16 means new line (with line offset).
+
+        if ((i % 16) == 0) {
+            // Just don't print ASCII for the zeroth line.
+            if (i != 0)
+                printf ("  %s\n", buff);
+
+            // Output the offset.
+            printf ("  %04x ", i);
+        }
+
+        // Now the hex code for the specific character.
+        printf (" %02x", pc[i]);
+
+        // And store a printable ASCII character for later.
+        if ((pc[i] < 0x20) || (pc[i] > 0x7e))
+            buff[i % 16] = '.';
+        else
+            buff[i % 16] = pc[i];
+        buff[(i % 16) + 1] = '\0';
+    }
+
+    // Pad out last line if not exactly 16 characters.
+    while ((i % 16) != 0) {
+        printf ("   ");
+        i++;
+    }
+
+    // And print the final ASCII bit.
+    printf ("  %s\n", buff);
+}
+
+void debugger(void) {
 	printstatus();
 	if(UseServer == true){
 		printf("Virtual Machine is running in client mode. Cannot run debugger\n");
@@ -61,19 +113,19 @@ void debugger(void) {
 		exit(EXIT_FAILURE);
 	}
 	printf("Welcome to REX Debugger, based upon FVM Technology. %s.\nType 'help' for help.", R3X_SYSTEM_VERSION);
-	// go into debugger 
-	while(true) { 
+	// go into debugger
+	while(true) {
 		memset(str, 0, MAX_INPUT_LEN+1);
 		unsigned int a1 = 0; unsigned int a2 = 0;
 		(void)a1; (void)a2;
 		printf("\n$ ");
 		char* input = fgets(str, MAX_INPUT_LEN, stdin); // gcc warns for ignoring return values, my ass.
-		if(strncmp(input, "help", 4) == 0) { 
+		if(strncmp(input, "help", 4) == 0) {
 			printf("REX Debugger -- help\n");
 			printf("Commands: \n");
-			printf("status --- Print information about program, CPU and Stack\n");	
+			printf("status --- Print information about program, CPU and Stack\n");
 			printf("regstatus -- Show register status\n");
-			printf("switchdomain x -- Switches domains (processes)\n"); 
+			printf("switchdomain x -- Switches domains (processes)\n");
 			printf("memprobe x -- prints a 32-bit integer @ x address in VM memory\n");
 			printf("setip x -- Sets an Instruction Pointer\n");
 			printf("setreg 1-20 x - Sets a register to value x\n");
@@ -85,26 +137,27 @@ void debugger(void) {
 			printf("mmap -- Prints memory map\n");
 			printf("stacktrace n -- Displays n elements, starting from top of stack (Pass -scan-whole before 'n' in order to display stack from the very top.\n");
 			printf("callstacktrace n -- Display n elements, starting from top of callstack (Pass -scan-whole before 'n' in order to display stack from the very top)\n");
-			printf("quit -- Exits the VM and debugger\n");
+			printf("quit -- Exits the VM and debugger");
 		}
 		else if(strncmp(input, "quit", 4) == 0) {
-			exit(EXIT_SUCCESS);				
+			exit(EXIT_SUCCESS);
 		}
-		else if(strncmp(input, "memprobe", 8) == 0){ 
+		else if(strncmp(input, "memprobe", 8) == 0){
 			memcpy(&str2, (&str[0] + 9),  MAX_INPUT_LEN-10);
 			if(startsWith("0x", &str2[0])==true) {
 				a1 = strtol(&str2[0], NULL, 16);
 			} else {
 				a1 = atoi(&str2[0]);
 			}
-			if(a1 > r3_cpu->MemorySize) { 
+			if(a1 > r3_cpu->MemorySize) {
 				printf("Cannot probe memory, invalid address\n");
-			}	
-			else {
-				printf("Hex: %x\nDecimal: %u\nAt Address: %d", *(uint32_t*)(&r3_cpu->Memory[a1]), *(uint32_t*)(&r3_cpu->Memory[a1]), a1);	
-				a1 = 0;		
 			}
-		} 
+			else {
+				printf("Hex: %x\nDecimal: %u\nAt Address: %d\n", *(uint32_t*)(&r3_cpu->Memory[a1]), *(uint32_t*)(&r3_cpu->Memory[a1]), a1);
+				hexDump("memory dump", (void*)&r3_cpu->Memory[a1], 512);
+				a1 = 0;
+			}
+		}
 		else if(strncmp(input, "setip", 5) == 0) {
 			memcpy(&str2, (&str[0] + 6), 70);
 			if(startsWith("0x", &str2[0])==true) {
@@ -112,8 +165,8 @@ void debugger(void) {
 			} else {
 				a1 = atoi(&str2[0]);
 			}
-			if(a1 > r3_cpu->MemorySize) { 
-				printf("Invalid Instruction Pointer");			
+			if(a1 > r3_cpu->MemorySize) {
+				printf("Invalid Instruction Pointer");
 			}
 			r3_cpu->InstructionPointer = a1;
 		}
@@ -125,30 +178,30 @@ void debugger(void) {
 				a1 = atoi(&str2[0]);
 			}
 			Stack.Push(r3_cpu->Stack, a1);
-			printf("Top of Stack: %u\nStack Size: %u", r3_cpu->Stack->top_of_stack, r3_cpu->Stack->stack_count);	
+			printf("Top of Stack: %u\nStack Size: %u", r3_cpu->Stack->top_of_stack, r3_cpu->Stack->stack_count);
 		}
-		else if(strncmp(input, "pop", 3) == 0) { 
-			printf("Popped from Stack : %lu", (uint64_t)Stack.Pop(r3_cpu->Stack));		
+		else if(strncmp(input, "pop", 3) == 0) {
+			printf("Popped from Stack : %lu", (uint64_t)Stack.Pop(r3_cpu->Stack));
 		}
-		else if(strncmp(str, "setreg", 6) == 0) { 
+		else if(strncmp(str, "setreg", 6) == 0) {
 			char* token = strtok(input, " ");
 			(void)token;
 			a1 = 0; a2 = 0;
 			a1 = atoi(strtok(NULL, " "));
-			a2 = atoi(strtok(NULL, " "));	
-			if(a1 > MAX_NUMBER_OF_REGISTERS) { 
+			a2 = atoi(strtok(NULL, " "));
+			if(a1 > MAX_NUMBER_OF_REGISTERS) {
 				printf("Invalid Register\n");
 			}
-			else { 
-				r3_cpu->Regs[a1] = a2;			
+			else {
+				r3_cpu->Regs[a1] = a2;
 			}
 		}
-		else if(strncmp(input, "status", 6) == 0) { 
-			printstatus();		
+		else if(strncmp(input, "status", 6) == 0) {
+			printstatus();
 		}
 		else if(strncmp(input, "switchdomain", 12) == 0) {
 			a1 = 0;
-			char* token = strtok(input, " "); 
+			char* token = strtok(input, " ");
 			(void)token;
 			int savedomainID = r3_cpu->RootDomain->CurrentJobID;
 			a1 = atoi(strtok(NULL, " "));
@@ -162,11 +215,11 @@ void debugger(void) {
 				printf("Switched to domain: %u", (unsigned int)r3_cpu->RootDomain->CurrentJobID);
 			}
 		}
-		else if(strncmp(input, "regstatus", 9) == 0) { 
+		else if(strncmp(input, "regstatus", 9) == 0) {
 			printregstatus();
 		}
 		else if(strncmp(input, "continue", 8) == 0) {
-			return;		
+			return;
 		} else if(strncmp(input, "disasm", 6)==0) {
 			(void)strtok(input, " ");
 			char* token1 = strtok(NULL, " ");
@@ -181,7 +234,7 @@ void debugger(void) {
 				}
 				if(startsWith("0x", token2)==true) {
 					a2 = strtol(token2, NULL, 16);
-				} else { 
+				} else {
 					a2 = atoi(token2);
 				}
 				if(a1 + a2 >= r3_cpu->MemorySize) {
@@ -244,10 +297,10 @@ void debugger(void) {
 				}
 			}
 		else if(strncmp(input, "\n", 1)==0){
-			
+
 		}
-		else { 
-			printf("Invalid command. Type 'help' for help");		
+		else {
+			printf("Invalid command. Type 'help' for help");
 		}
 	}
 }
@@ -284,14 +337,14 @@ void printstatus(void) {
 		printf("Exception: Instruction Pointer overflow\n");
 	}
 	else {
-		printf("Last Instruction Executed [OPCODE] : 0x%x\n", r3_cpu->CurrentInstruction);	
+		printf("Last Instruction Executed [OPCODE] : 0x%x\n", r3_cpu->CurrentInstruction);
 	}
 	printf("Log complete.\n");
 }
-void printregstatus(void) { 
-	printf("Values for Current Domain:\n"); 
+void printregstatus(void) {
+	printf("Values for Current Domain:\n");
 	for(unsigned int i = 0; i < MAX_NUMBER_OF_REGISTERS; i++) {
-		printf("R%u: %u\t", i, (unsigned int)r3_cpu->Regs[i]);	
+		printf("R%u: %u\t", i, (unsigned int)r3_cpu->Regs[i]);
 	}
 }
 void SIGUSR1_handler(int signum){

@@ -25,7 +25,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 			case R3X_JG:
 				fprintf(output, "jg 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
-				break;	
+				break;
 			case R3X_JZ:
 				fprintf(output, "jz 0x%X\n",  BYTE_SWAP(*((uint32_t*)&input[i+1])));
 				i += 5;
@@ -77,7 +77,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 			case R3X_POP:
 				fprintf(output, "pop\n");
 				i++;
-				break;		
+				break;
 			case R3X_POPA:
 				fprintf(output, "popa\n");
 				i++;
@@ -158,7 +158,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				fprintf(output, "not\n");
 				i++;
 				break;
-			case R3X_NEG:	
+			case R3X_NEG:
 				fprintf(output, "neg\n");
 				i++;
 				break;
@@ -420,7 +420,7 @@ void disassemble(uint8_t* input, unsigned int size, FILE* output, char* sectionh
 				break;
 			case RFC_PREFIX:
 				i += 1;
-				switch(input[i]){ 
+				switch(input[i]){
 				  case RFC_LOADR64:
 				      fprintf(output, "loadr64 R%u, %" PRIu64 "\n", (unsigned int)input[i+1], BYTE_SWAP((*((uint64_t*)&input[i+1]))));
 				      i += 10;

@@ -58,6 +58,7 @@ typedef struct function_call_struct {
 	uint32_t libid;
 	uint32_t function_count;
 	uint32_t loadaddr;
+	uint32_t export_sec;
 	export_struct* functions;
 } libimport_struct;
 

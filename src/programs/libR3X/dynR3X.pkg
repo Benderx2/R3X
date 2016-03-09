@@ -68,13 +68,13 @@ macro end {
 	_end_bss:
 }
 macro pushstring string {
-	local addr, behind
+	local addm
 	pushar R1
-	loadr R1, adds_r
+	loadr R1, addm
 	addrr R1, R20
 	pushr R1
 	popar R1
-	.DATA \{ adds_r: db string, 0 \}
+	.data \{ addm: db string, 0 \}
 } 
 macro loadrm size, reg1, memaddr {
 	if reg1 eq R0
@@ -130,4 +130,43 @@ macro function name {
 }
 macro endfunction name {
 	name#_end:
+}
+macro extern name, lib {
+	pushr R1
+	pushr R0
+	pushstring lib
+	syscall SYSCALL_LOADDYNAMIC
+	popr R1
+	pop
+	loadr R0, name#_import_sym
+	addrr R0, R20
+	stosd
+	popr R0
+	popr R1
+	.data \{
+		name#_import_sym:
+		; lib id
+		.libid:
+		dd 0
+		.nameaddr:
+		db `name#, 0
+		.libaddr:
+		db lib, 0
+	\}
+}
+macro externcall name {
+	pushr R0
+	pushr R1
+	; Push lib handle
+	loadr R0, name#_import_sym
+	addrr R0, R20
+	lodsd
+	pushr R1
+	loadr R0, name#_import_sym.nameaddr
+	addrr R0, R20
+	pushr R0
+	calldynamic
+	popn 2
+	popr R1
+	popr R0
 }

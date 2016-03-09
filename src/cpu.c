@@ -123,7 +123,7 @@ int keyboard_thread(void* data);
 
 /*!
  * r3x_cpu_loop - Calls r3x_emulate_instruction repeateadly until it reaches a non-exec region
- * or an exit instruction. 
+ * or an exit instruction.
 */
 int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 {
@@ -173,12 +173,12 @@ int r3x_cpu_loop(register r3x_cpu_t* CPU, r3x_header_t* header, char* Arguments)
 			if(r3x_load_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID) != -1) {
 				/**
 				 * Is broken. Need to find another way of speeding up execution :P
-				 * 
+				 *
 				**/
 				r3x_emulate_instruction(CPU);
 				r3x_save_job_state(CPU, CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 			}
-			if(CPU->RootDomain->CurrentJobID >= CPU->RootDomain->TotalNumberOfJobs) { 
+			if(CPU->RootDomain->CurrentJobID >= CPU->RootDomain->TotalNumberOfJobs) {
 				CPU->RootDomain->CurrentJobID = -1;
 			}
 			CPU->RootDomain->CurrentJobID++;
@@ -222,13 +222,13 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		// Sleep: Delays the CPU by a cycle. Also used by CPU to skip empty memory, as the opcode is 0x0
 		#ifndef REX_OPTIMIZE
 		case R3X_SLEEP:
-		#else 
+		#else
 		INTERP_SLEEP:
 		#endif
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 		#ifndef REX_OPTIMIZE
 			break;
-		#else 
+		#else
 			return;
 		#endif
 		// Push: Push a 32-bit value to stack.
@@ -241,7 +241,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 		#ifndef REX_OPTIMIZE
 			break;
-		#else 
+		#else
 			return;
 		#endif
 		// Pop: Pop a 32-bit value from stack
@@ -254,7 +254,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 		#ifndef REX_OPTIMIZE
 			break;
-		#else 
+		#else
 			return;
 		#endif
 		// Pop number of integers from stack
@@ -269,7 +269,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Push the FLAGS register on stack
@@ -282,20 +282,20 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Pop flags from stack
 		#ifndef REX_OPTIMIZE
 		case R3X_POPF:
-		#else 
+		#else
 		INTERP_POPF:
 		#endif
 			pop_flags(CPU);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Duplicate the value on the top of stack
@@ -308,7 +308,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Add: Add 2 values on stack.
@@ -321,7 +321,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Subtract the second last value on stack by last.
@@ -334,7 +334,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Multiply 2 values on stack.
@@ -347,7 +347,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Divide the second last value by last.
@@ -364,7 +364,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Float equivalents of the above
@@ -377,7 +377,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -389,7 +389,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -401,7 +401,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -417,7 +417,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// sete/setne/setl/setg
@@ -439,7 +439,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -459,7 +459,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -479,7 +479,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -499,7 +499,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Compare 2 values on stack and set flags..
@@ -512,7 +512,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -524,7 +524,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Call VM specific function
@@ -537,7 +537,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Load a value from stack offset.
@@ -550,7 +550,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -567,7 +567,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Store a value to stack offset
@@ -582,7 +582,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -605,7 +605,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		/**!
@@ -622,7 +622,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -638,7 +638,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -654,7 +654,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -670,7 +670,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -686,7 +686,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! Relative jumps
@@ -702,7 +702,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -721,7 +721,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -740,7 +740,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -759,7 +759,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -778,8 +778,8 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
-				
+			#else
+
 			#endif
 		#ifndef REX_OPTIMIZE
 		case R3X_PUSHIP:
@@ -790,7 +790,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! Call, ret and call stack operations
@@ -803,7 +803,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer = return_32bit_int_from_ip(CPU);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! Relative call (CALLL)
@@ -820,7 +820,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -831,7 +831,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer = Stack.Pop(CPU->CallStack);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! Load a value and push it to stack, whose address was pushed to stack (32-bit)
@@ -840,19 +840,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_LOAD:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RONLY  || GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RONLY  || GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif		
+			#endif
 			}
 			Stack.Push(CPU->Stack, *(uint32_t*)(CPU->Memory + get_item_from_stack_top(1)));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! Store a value which was pushed to stack to an address pushed second last.
@@ -861,19 +861,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_STORE:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, get_item_from_stack_top(1)) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif	
+			#endif
 			}
 			*((uint32_t*)&(CPU->Memory[get_item_from_stack_top(2)])) = get_item_from_stack_top(1);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! Memory access for registers...
@@ -882,19 +882,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_LODSB:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif		
+			#endif
 			}
 			CPU->Regs[1] = CPU->Memory[CPU->Regs[0]];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -902,19 +902,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_LODSW:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif		
+			#endif
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT16(*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -922,19 +922,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_LODSD:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif		
+			#endif
 			}
 			CPU->Regs[1] = BIG_ENDIAN_INT(*((uint32_t*)(&CPU->Memory[CPU->Regs[0]])));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -942,19 +942,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_STOSB:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif		
+			#endif
 			}
 			CPU->Memory[CPU->Regs[0]] = CPU->Regs[1];
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -962,19 +962,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_STOSW:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif	
+			#endif
 			}
 			*((uint16_t*)(&CPU->Memory[CPU->Regs[0]])) = BIG_ENDIAN_INT16(CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -982,11 +982,11 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_STOSD:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[0]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 			}
@@ -994,7 +994,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1002,11 +1002,11 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_CMPSB:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 			}
@@ -1014,7 +1014,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1022,19 +1022,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_CMPSW:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif	
+			#endif
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint16_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1042,19 +1042,19 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_CMPSD:
 		#endif
-			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){ 
+			if(GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RONLY && GetBlockTypefromAddress(CPU->CPUMemoryBlocks, CPU->Regs[3]) != RX_RW){
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif	
+			#endif
 			}
 			compare_and_set_flag_unsigned(CPU, *(uint32_t*)(&CPU->Memory[CPU->Regs[3]]), CPU->Regs[1]);
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! fast memory copy
@@ -1067,15 +1067,15 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif			
+			#endif
 			}
 			memcpy(CPU->Memory + get_item_from_stack_top(3), CPU->Memory + get_item_from_stack_top(2), get_item_from_stack_top(1));
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Native library support (calling native procedures from .so files)
@@ -1084,11 +1084,11 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_LOADLIB:
 		#endif
-			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);		
+			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 			}
@@ -1100,7 +1100,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1108,21 +1108,21 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_LIBEXEC:
 		#endif
-			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
+			if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif		
+			#endif
 			}
-			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize) { 
-				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);	
+			if((unsigned int)get_item_from_stack_top(2) > CPU->MemorySize) {
+				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif		
+			#endif
 			}
 			#ifdef REX_DYNAMIC
 			Stack.Push(CPU->Stack, native_call((char*)(CPU->Memory + get_item_from_stack_top(1)), returnhandle((char*)(CPU->Memory + get_item_from_stack_top(2)))));
@@ -1132,7 +1132,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! Program interruption
@@ -1144,12 +1144,12 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			if(CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]] != 0) {
 				Stack.Push(CPU->CallStack, CPU->InstructionPointer + CPU_INCREMENT_DOUBLE);
 				CPU->InstructionPointer = CPU->ISR_handlers[CPU->Memory[CPU->InstructionPointer+1]];
-			} else {	
+			} else {
 				CPU->InstructionPointer += CPU_INCREMENT_DOUBLE;
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		//! Support for REX object files (*.ro)
@@ -1167,7 +1167,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 			}
@@ -1177,15 +1177,15 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
-			#endif	
+			#endif
 			}
 			Stack.Push(CPU->CallStack, CPU->InstructionPointer+1);
 			CPU->InstructionPointer = dynamic_call(CPU, get_item_from_stack_top(2), (char*)(CPU->Memory + get_item_from_stack_top(1)));
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		/**!
@@ -1201,7 +1201,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1213,7 +1213,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1225,11 +1225,11 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
-		case R3X_NOT: 
+		case R3X_NOT:
 		#else
 		INTERP_NOT:
 		#endif
@@ -1237,7 +1237,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1249,7 +1249,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Always set your right foot first soldier! #weirdsuperstitions
@@ -1262,7 +1262,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1274,7 +1274,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1292,7 +1292,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1304,7 +1304,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1316,7 +1316,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1328,7 +1328,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1340,7 +1340,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1352,7 +1352,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Register operations
@@ -1361,7 +1361,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		#else
 		INTERP_LOADR:
 		#endif
-			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {	
+			if(CPU->Memory[CPU->InstructionPointer+1] <= MAX_NUMBER_OF_REGISTERS) {
 				CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 				CPU->Regs[(CPU->Memory[CPU->InstructionPointer])] = return_32bit_int_from_ip(CPU);
 				CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
@@ -1371,7 +1371,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1389,7 +1389,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1407,7 +1407,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1424,7 +1424,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1441,7 +1441,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1454,7 +1454,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_WITH_32_OP;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1469,10 +1469,10 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 				printf("Invalid register index\n");
 				handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			}
-			
+
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1490,7 +1490,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Math Instructions
@@ -1503,7 +1503,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1515,7 +1515,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1527,7 +1527,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1539,7 +1539,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1551,7 +1551,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1563,7 +1563,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1575,7 +1575,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1587,7 +1587,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1599,7 +1599,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1611,7 +1611,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1623,7 +1623,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1635,7 +1635,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1647,7 +1647,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1659,7 +1659,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1671,7 +1671,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1683,7 +1683,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1695,7 +1695,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1707,7 +1707,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1719,7 +1719,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Convert to angle
@@ -1732,7 +1732,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Convert to radian
@@ -1745,7 +1745,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1761,7 +1761,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1777,7 +1777,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			}
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		// Epic-ass, first class, sexy error handling
@@ -1790,7 +1790,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1801,7 +1801,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			handle_cpu_exception(CPU, get_item_from_stack_top(1));
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1813,7 +1813,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		#ifndef REX_OPTIMIZE
@@ -1825,7 +1825,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			CPU->InstructionPointer += CPU_INCREMENT_SINGLE;
 			#ifndef REX_OPTIMIZE
 				break;
-			#else 
+			#else
 				return;
 			#endif
 		/** RFC Prefix **/
@@ -1882,7 +1882,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 		if(exitcalled == false && CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]!=NULL) {
 			if(CPU->RootDomain->Jobs[CPU->RootDomain->CurrentJobID]->ismain == true) {
 				// Show exit status
-				printf("Program exitted with status: %lu\n", (uint64_t)get_item_from_stack_top(1));		
+				printf("Program exitted with status: %lu\n", (uint64_t)get_item_from_stack_top(1));
 				r3x_exit_job(CPU->RootDomain, CPU->RootDomain->CurrentJobID);
 				exitcalled = true;
 			}
@@ -1898,7 +1898,7 @@ static inline void r3x_emulate_instruction(register r3x_cpu_t* CPU)
 			printf("Unknown Opcode: %x, IP: %u\n", (unsigned int)CPU->Memory[CPU->InstructionPointer], CPU->InstructionPointer);
 			handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDOPCODE);
 			break;
-	
+
 	}
 	#endif
 }
@@ -1913,7 +1913,7 @@ static inline uint32_t return_32bit_int(uint8_t a, uint8_t b, uint8_t c, uint8_t
 	return temp_typecast32.__num32;
 }
 static inline float return_float(uint32_t num32)
-{	
+{
 	register __float_typecast temp_typecastFL;;
 	temp_typecastFL.float32 = 0.0f;
 	temp_typecastFL.__num32 = num32;
@@ -1978,8 +1978,8 @@ static inline void compare_and_set_flag_unsigned(r3x_cpu_t* CPU, unsigned int op
 	}
 }
 static inline void set_interrupt(uint8_t interrupt, r3x_cpu_t* CPU) {
-	if(return_32bit_int_from_ip(CPU) > CPU->MemorySize) {	
-		raise(SIGSEGV);	
+	if(return_32bit_int_from_ip(CPU) > CPU->MemorySize) {
+		raise(SIGSEGV);
 	}
 	CPU->ISR_handlers[interrupt] = return_32bit_int_from_ip(CPU);
 }
@@ -1990,7 +1990,7 @@ static inline void printfstring(char* string, const char * format, ... )
   vsprintf (string,format, args);
   va_end (args);
 }
-int keyboard_thread(void* data) { 
+int keyboard_thread(void* data) {
 	(void)data;
 	#ifdef REX_GRAPHICS
 	while(true) {
@@ -2003,15 +2003,15 @@ int keyboard_thread(void* data) {
 			//If a key was pressed
 			else if(key_event.type == SDL_KEYDOWN)
 			{
-				
+
 				if(is_read == true)  {
 					//SDL_EnableUNICODE( SDL_ENABLE );
 					keycode = (char)key_event.key.keysym.unicode;
 					is_read = false;
 				}
 			}
-		}	
-		if(is_read == true)  { 
+		}
+		if(is_read == true)  {
 				keycode = 0;
 		}
 	}
@@ -2029,7 +2029,7 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 					break;
 				}
 				#ifdef REX_GRAPHICS
-				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + get_item_from_stack_top(1)), CPU->Graphics);	
+				vm_puts(CPU->Graphics->font, (char*)(CPU->Memory + get_item_from_stack_top(1)), CPU->Graphics);
 				#else
 				printf("%s", (char*)(CPU->Memory + get_item_from_stack_top(1)));
 				#endif
@@ -2056,14 +2056,14 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				#ifdef REX_GRAPHICS
 				// Ensure the there !IS! a keyboard interrupt, our thread will set the is_read value to false if there is.
 				if(is_read == false) {
-					is_read = true; 
+					is_read = true;
 					if(keycode == '\b') { Stack.Push(CPU->Stack, 0x08); } else { Stack.Push(CPU->Stack, keycode); }
 				}
 				// To prevent race condition, push 0 if is_read == false;
-				else {		
-					Stack.Push(CPU->Stack, 0);				
+				else {
+					Stack.Push(CPU->Stack, 0);
 				}
-				#else 
+				#else
 					(void)CPU;
 					char tempchar;
 					read(0, &tempchar, 1);
@@ -2073,7 +2073,7 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 			case SYSCALL_GLUPDATE:
 				#ifdef REX_GRAPHICS
 				GLUpdate();
-				#endif		
+				#endif
 				break;
 			case SYSCALL_PUTCH:
 				#ifdef REX_GRAPHICS
@@ -2081,13 +2081,13 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				char pts[2];
 				pts[0] = get_item_from_stack_top(1);
 				pts[1] = 0;
-				vm_puts(CPU->Graphics->font, pts, CPU->Graphics);	
+				vm_puts(CPU->Graphics->font, pts, CPU->Graphics);
 				#else
 				printf("%c", (char)get_item_from_stack_top(1));
 				#endif
 				break;
 			case SYSCALL_ATOI:
-				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
@@ -2095,8 +2095,8 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				}
 				Stack.Push(CPU->Stack, atoi((char*)&CPU->Memory[get_item_from_stack_top(1)]));
 				break;
-			case SYSCALL_ALLOC: 
-				/*if((unsigned int)get_item_from_stack_top(1) > 4096) { 
+			case SYSCALL_ALLOC:
+				/*if((unsigned int)get_item_from_stack_top(1) > 4096) {
 					printf("Attempt to allocate memory more than 4096 bytes at once\n");
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
@@ -2120,16 +2120,18 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				r3x_dispatch_job(get_item_from_stack_top(1), 1, CPU->RootDomain, true);
 				break;
 			case SYSCALL_LOADDYNAMIC:
-				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
+					printf("Load dyanmic failure.\n");
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
 					break;
 				}
-				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU));			
+				printf("LOADDYNAMIC: Loading library: [%s]\n", (char*)(CPU->Memory + get_item_from_stack_top(1)));
+				Stack.Push(CPU->Stack, load_dynamic_library((char*)(CPU->Memory + get_item_from_stack_top(1)), CPU));
 				break;
 			case SYSCALL_OPENSTREAM:
-				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) { 
+				if((unsigned int)get_item_from_stack_top(1) > CPU->MemorySize) {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
@@ -2144,22 +2146,22 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				stream_seek((unsigned int)get_item_from_stack_top(3), (long int)get_item_from_stack_top(2), get_item_from_stack_top(1));
 				break;
 			case SYSCALL_READSTREAM:
-				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) { 
+				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
 					break;
 				}
-				Stack.Push(CPU->Stack, stream_read((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
+				Stack.Push(CPU->Stack, stream_read((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1)));
 				break;
 			case SYSCALL_WRITESTREAM:
-				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) { 
+				if((unsigned int)(get_item_from_stack_top(2)+get_item_from_stack_top(1)) > CPU->MemorySize) {
 					handle_cpu_exception(CPU, CPU_EXCEPTION_INVALIDACCESS);
 					// Syscall will increment the instruction by 2 bytes.
 					CPU->InstructionPointer -= CPU_INCREMENT_DOUBLE;
 					break;
 				}
-				Stack.Push(CPU->Stack, stream_write((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1))); 
+				Stack.Push(CPU->Stack, stream_write((void*)(&CPU->Memory[get_item_from_stack_top(2)]), get_item_from_stack_top(3), get_item_from_stack_top(1)));
 				break;
 			case SYSCALL_GETCPUCLOCK:
 				(void)NULL;
@@ -2225,7 +2227,7 @@ static inline void pop_flags(r3x_cpu_t* CPU){
 	CPU->ExceptionFlag = false;
 	if(test_bit32(flags, EFLAG_BIT)==true){
 		CPU->EqualFlag = true;
-	} 
+	}
 	if(test_bit32(flags, GFLAG_BIT)==true){
 		CPU->GreaterFlag = true;
 	}
@@ -2283,7 +2285,7 @@ void handle_cpu_exception(r3x_cpu_t* CPU, unsigned int ExceptionID){
 				printf("Unknown Exception!\n");
 				break;
 		}
-		
+
 		raise(SIGSEGV);
 		return;
 	} else {
