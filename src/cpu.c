@@ -2061,7 +2061,6 @@ static inline void r3x_syscall(r3x_cpu_t* CPU) {
 				}
 				// To prevent race condition, push 0 if is_read == false;
 				else {		
-					
 					Stack.Push(CPU->Stack, 0);				
 				}
 				#else 

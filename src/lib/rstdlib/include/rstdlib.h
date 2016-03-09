@@ -68,4 +68,12 @@ native(r_send, "rstdlib", 2)
 native(r_receive, "rstdlib", 3)
 native(r_receive_no_wait, "rstdlib", 3)
 
+/* Keyboard functions */
+// Get character from keyboard - 0 if no character is pressed.
+function r_getc(0)
+	asm "syscall SYSCALL_GETC"
+	asm "popr R7"
+	asm "ret"
+endf
+
 #endif
