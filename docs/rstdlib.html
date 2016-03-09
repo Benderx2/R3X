@@ -64,3 +64,7 @@ SOCKET FUNCTIONS:
 
 <li type="disc">@r_receive_no_wait(sockfd, length, buffer) -> Reads from socket sockfd, to buffer with specified length. This function does not wait for data to be received. if there is no data received, it returns 0, else it returns the
 number of bytes read.</li>
+
+KEYBOARD FUNCTIONS:
+
+<li type="disc">@r_getc() -> Reads a character from keyboard, returns ASCII value, 0 if no character was pressed.</li>
